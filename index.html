@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNP インベーダー</title>
+  <link rel="stylesheet" href="./src/css/style.css">
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+    <div id="mobile-controls" class="hidden-on-desktop">
+      <div class="direction-buttons">
+        <button id="btn-left" class="control-btn"></button>
+        <button id="btn-right" class="control-btn"></button>
+      </div>
+      <div class="action-buttons">
+        <button id="btn-shoot" class="control-btn"></button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="./src/js/main.js"></script>
+</body>
+</html>

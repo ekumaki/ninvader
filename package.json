@@ -1,0 +1,27 @@
+{
+  "name": "cryptoninja-invader",
+  "version": "0.1.1",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js"
+  },
+  "keywords": [
+    "game",
+    "invader",
+    "ninja",
+    "japanese-style"
+  ],
+  "author": "",
+  "license": "MIT",
+  "description": "和風インベーダーゲーム - CNP インベーダー",
+  "devDependencies": {
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.5.3",
+    "vite": "^6.3.5"
+  }
+}
