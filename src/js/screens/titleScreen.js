@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.0
+ * Version: 0.1.2
  * SPDX-License-Identifier: MIT
  */
 
@@ -23,14 +23,46 @@ export class TitleScreen {
   
   // 画面に入る時の処理
   enter() {
-    this.createTitleUI();
+    console.log('タイトル画面にenterしました');
+    
+    // 既存のHTML UIを表示する
+    const existingUI = document.getElementById('game-ui');
+    if (existingUI) {
+      console.log('既存のHTML UIを表示します');
+      existingUI.style.display = 'flex';
+    } else {
+      // 既存UIがない場合は独自のUIを作成
+      console.log('既存UIが見つからないため、独自のUIを作成します');
+      this.createTitleUI();
+    }
+    
     this.createScoreDisplay();
+    console.log('タイトル画面のUIを作成しました');
+    
+    // デバッグ情報更新
+    const debugInfo = document.getElementById('debug-info');
+    if (debugInfo) debugInfo.textContent = 'タイトル画面表示中';
   }
   
   // 画面から出る時の処理
   exit() {
-    this.removeTitleUI();
+    console.log('タイトル画面からexitします');
+    
+    // 既存のHTML UIを非表示にする
+    const existingUI = document.getElementById('game-ui');
+    if (existingUI) {
+      console.log('既存のHTML UIを非表示にします');
+      existingUI.style.display = 'none';
+    } else {
+      // 独自のUIを削除
+      this.removeTitleUI();
+    }
+    
     this.removeScoreDisplay();
+    
+    // デバッグ情報更新
+    const debugInfo = document.getElementById('debug-info');
+    if (debugInfo) debugInfo.textContent = 'タイトル画面から移動中';
   }
   
   // 更新処理
@@ -44,65 +76,136 @@ export class TitleScreen {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     
-    // 星空の描画
-    this.drawStarfield(ctx);
+    // デバッグ用のテキスト描画
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '16px Arial';
+    ctx.fillText('CNPインベーダー v0.1.1', 10, 20);
+    
+    console.log('タイトル画面を描画しました');
   }
   
   // タイトル画面のUI作成
   createTitleUI() {
-    // タイトル画面のコンテナ
-    const titleScreen = document.createElement('div');
-    titleScreen.className = 'title-screen';
-    
-    // ゲームタイトル
-    const title = document.createElement('h1');
-    title.className = 'game-title';
-    title.textContent = 'CNP インベーダー';
-    
-    // メニューボタンのコンテナ
-    const menuButtons = document.createElement('div');
-    menuButtons.className = 'menu-buttons';
-    
-    // スタートボタン
-    const startBtn = document.createElement('button');
-    startBtn.className = 'menu-btn';
-    startBtn.textContent = 'ゲーム開始';
-    startBtn.addEventListener('click', () => {
-      this.game.switchScreen('game');
-    });
-    
-    // 操作説明ボタン
-    const instructionsBtn = document.createElement('button');
-    instructionsBtn.className = 'menu-btn';
-    instructionsBtn.textContent = '操作説明';
-    instructionsBtn.addEventListener('click', () => {
-      this.game.switchScreen('instructions');
-    });
-    
-    // クレジットボタン（任意）
-    const creditsBtn = document.createElement('button');
-    creditsBtn.className = 'menu-btn';
-    creditsBtn.textContent = 'クレジット';
-    creditsBtn.addEventListener('click', () => {
-      alert('CNP インベーダー\nVersion 0.1.0\n© 2025 All Rights Reserved');
-    });
-    
-    // 要素の追加
-    menuButtons.appendChild(startBtn);
-    menuButtons.appendChild(instructionsBtn);
-    menuButtons.appendChild(creditsBtn);
-    
-    titleScreen.appendChild(title);
-    titleScreen.appendChild(menuButtons);
-    
-    document.body.appendChild(titleScreen);
-    
-    // 参照を保存
-    this.titleElement = titleScreen;
-    this.menuContainer = menuButtons;
-    this.startButton = startBtn;
-    this.instructionsButton = instructionsBtn;
-    this.creditsButton = creditsBtn;
+    console.log('タイトル画面のUI作成開始');
+    try {
+      // 既存のタイトル画面があれば削除
+      const existingTitleScreen = document.querySelector('.title-screen');
+      if (existingTitleScreen) {
+        existingTitleScreen.remove();
+      }
+      
+      // タイトル画面のコンテナ
+      const titleScreen = document.createElement('div');
+      titleScreen.className = 'title-screen';
+      titleScreen.style.position = 'absolute';
+      titleScreen.style.top = '0';
+      titleScreen.style.left = '0';
+      titleScreen.style.width = '100%';
+      titleScreen.style.height = '100%';
+      titleScreen.style.display = 'flex';
+      titleScreen.style.flexDirection = 'column';
+      titleScreen.style.justifyContent = 'center';
+      titleScreen.style.alignItems = 'center';
+      titleScreen.style.color = '#FFFFFF';
+      titleScreen.style.zIndex = '10';
+      
+      // ゲームタイトル
+      const title = document.createElement('h1');
+      title.className = 'game-title';
+      title.textContent = 'CNP インベーダー';
+      title.style.fontSize = '32px';
+      title.style.margin = '0 0 20px 0';
+      title.style.textAlign = 'center';
+      
+      // メニューボタンのコンテナ
+      const menuButtons = document.createElement('div');
+      menuButtons.className = 'menu-buttons';
+      menuButtons.style.display = 'flex';
+      menuButtons.style.flexDirection = 'column';
+      menuButtons.style.gap = '10px';
+      
+      // ボタンの共通スタイル関数
+      const styleButton = (btn) => {
+        btn.style.padding = '10px 20px';
+        btn.style.fontSize = '18px';
+        btn.style.backgroundColor = '#333';
+        btn.style.color = '#FFF';
+        btn.style.border = '1px solid #666';
+        btn.style.borderRadius = '5px';
+        btn.style.cursor = 'pointer';
+        btn.style.width = '200px';
+        btn.style.textAlign = 'center';
+      };
+      
+      // スタートボタン
+      const startBtn = document.createElement('button');
+      startBtn.className = 'menu-btn';
+      startBtn.textContent = 'ゲーム開始';
+      styleButton(startBtn);
+      startBtn.addEventListener('click', () => {
+        console.log('ゲーム開始ボタンがクリックされました');
+        this.game.switchScreen('game');
+      });
+      
+      // 操作説明ボタン
+      const instructionsBtn = document.createElement('button');
+      instructionsBtn.className = 'menu-btn';
+      instructionsBtn.textContent = '操作説明';
+      styleButton(instructionsBtn);
+      instructionsBtn.addEventListener('click', () => {
+        console.log('操作説明ボタンがクリックされました');
+        this.game.switchScreen('instructions');
+      });
+      
+      // クレジットボタン
+      const creditsBtn = document.createElement('button');
+      creditsBtn.className = 'menu-btn';
+      creditsBtn.textContent = 'クレジット';
+      styleButton(creditsBtn);
+      creditsBtn.addEventListener('click', () => {
+        console.log('クレジットボタンがクリックされました');
+        alert('CNP インベーダー\nVersion 0.1.1\n 2025 All Rights Reserved');
+      });
+      
+      // 要素の追加
+      menuButtons.appendChild(startBtn);
+      menuButtons.appendChild(instructionsBtn);
+      menuButtons.appendChild(creditsBtn);
+      
+      titleScreen.appendChild(title);
+      titleScreen.appendChild(menuButtons);
+      
+      // ゲームコンテナに追加
+      const gameContainer = document.getElementById('game-container');
+      if (gameContainer) {
+        gameContainer.appendChild(titleScreen);
+        console.log('タイトル画面をゲームコンテナに追加しました');
+      } else {
+        console.error('ゲームコンテナが見つかりません');
+        // 代替としてbodyに追加
+        document.body.appendChild(titleScreen);
+        console.log('タイトル画面をbodyに追加しました');
+      }
+      
+      // メンバ変数に保存
+      this.titleElement = titleScreen;
+      this.menuContainer = menuButtons;
+      this.startButton = startBtn;
+      this.instructionsButton = instructionsBtn;
+      this.creditsButton = creditsBtn;
+      
+      // デバッグ情報更新
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) debugInfo.textContent = 'タイトル画面UI作成完了';
+      
+      console.log('タイトル画面のUI作成完了');
+    } catch (error) {
+      console.error('タイトル画面のUI作成エラー:', error);
+      
+      // デバッグ情報更新
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) debugInfo.textContent = `エラー: タイトル画面UI作成失敗 - ${error.message}`;
+    }
   }
   
   // タイトル画面のUI削除
@@ -131,21 +234,5 @@ export class TitleScreen {
     }
   }
   
-  // 星空の描画
-  drawStarfield(ctx) {
-    // 星の数
-    const starCount = 100;
-    
-    // 星の描画
-    ctx.fillStyle = '#FFFFFF';
-    for (let i = 0; i < starCount; i++) {
-      const x = Math.random() * this.canvas.width;
-      const y = Math.random() * this.canvas.height;
-      const size = Math.random() * 2 + 1;
-      
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
+  // 星空の描画関数は削除しました
 }

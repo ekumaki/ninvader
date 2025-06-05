@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.0
+ * Version: 0.1.2
  * SPDX-License-Identifier: MIT
  */
 
@@ -9,6 +9,7 @@ import { ScoreManager } from './managers/scoreManager.js';
 
 export class Game {
   constructor(canvas, ctx, audioManager) {
+    console.log('Gameクラスのコンストラクタ開始');
     this.canvas = canvas;
     this.ctx = ctx;
     this.audioManager = audioManager;
@@ -21,11 +22,20 @@ export class Game {
     this.lastTime = 0;
     this.accumulator = 0;
     this.timeStep = 1000 / 60; // 60 FPS
+    this.frameCount = 0;
     
     this.isRunning = false;
     
+    // デバッグ用の初期描画
+    this.ctx.fillStyle = '#000000';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = '#FFFFFF';
+    this.ctx.font = '16px Arial';
+    this.ctx.fillText('Gameクラス初期化完了', 10, 100);
+    
     // モバイルコントロールの設定
     this.setupMobileControls();
+    console.log('Gameクラスのコンストラクタ完了');
   }
   
   // 画面の追加
@@ -35,21 +45,32 @@ export class Game {
   
   // 画面の切り替え
   switchScreen(name) {
+    console.log(`画面切り替え: ${name}`);
     if (this.screens[name]) {
       if (this.currentScreen) {
+        console.log('現在の画面から退出');
         this.currentScreen.exit();
       }
       this.currentScreen = this.screens[name];
+      console.log(`新しい画面に入る: ${name}`);
       this.currentScreen.enter();
+      
+      // デバッグ情報更新
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) debugInfo.textContent = `画面切り替え: ${name}`;
+    } else {
+      console.error(`画面が見つかりません: ${name}`);
     }
   }
   
   // ゲームループの開始
   start() {
+    console.log('ゲームループ開始');
     if (!this.isRunning) {
       this.isRunning = true;
       this.lastTime = performance.now();
       requestAnimationFrame(this.gameLoop.bind(this));
+      console.log('ゲームループ開始成功');
     }
   }
   
@@ -60,31 +81,58 @@ export class Game {
   
   // ゲームループ
   gameLoop(currentTime) {
-    if (!this.isRunning) return;
-    
-    // 経過時間の計算
-    const deltaTime = currentTime - this.lastTime;
-    this.lastTime = currentTime;
-    
-    // 時間の蓄積
-    this.accumulator += deltaTime;
-    
-    // 固定タイムステップの更新
-    while (this.accumulator >= this.timeStep) {
-      if (this.currentScreen) {
-        this.currentScreen.update(this.timeStep / 1000); // 秒単位に変換
+    try {
+      if (!this.isRunning) return;
+      
+      // デバッグ情報更新
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo && this.frameCount % 60 === 0) { // 1秒に1回更新
+        debugInfo.textContent = `ゲーム実行中 - FPS: ${Math.round(1000 / (currentTime - this.lastTime))}`;
       }
-      this.accumulator -= this.timeStep;
+      
+      // 経過時間の計算
+      const deltaTime = currentTime - this.lastTime;
+      this.lastTime = currentTime;
+      
+      // 時間の蔵積
+      this.accumulator += deltaTime;
+      
+      // 固定タイムステップの更新
+      while (this.accumulator >= this.timeStep) {
+        if (this.currentScreen) {
+          this.currentScreen.update(this.timeStep / 1000); // 秒単位に変換
+        }
+        this.accumulator -= this.timeStep;
+      }
+      
+      // 描画
+      if (this.currentScreen) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.currentScreen.render(this.ctx);
+      }
+      
+      // フレームカウント更新
+      this.frameCount++;
+      
+      // 次のフレームをリクエスト
+      requestAnimationFrame(this.gameLoop.bind(this));
+    } catch (error) {
+      console.error('ゲームループエラー:', error);
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) debugInfo.textContent = `エラー: ${error.message}`;
+      
+      // エラー表示
+      this.ctx.fillStyle = '#000000';
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.fillStyle = '#FF0000';
+      this.ctx.font = '16px Arial';
+      this.ctx.fillText('ゲームループエラー:', 10, 50);
+      this.ctx.fillText(error.message, 10, 80);
+      
+      // エラー後も続行する
+      this.isRunning = true;
+      requestAnimationFrame(this.gameLoop.bind(this));
     }
-    
-    // 描画
-    if (this.currentScreen) {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.currentScreen.render(this.ctx);
-    }
-    
-    // 次のフレームをリクエスト
-    requestAnimationFrame(this.gameLoop.bind(this));
   }
   
   // モバイルコントロールの設定

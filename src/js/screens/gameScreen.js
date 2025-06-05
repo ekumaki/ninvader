@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.0
+ * Version: 0.1.2
  * SPDX-License-Identifier: MIT
  */
 
@@ -43,16 +43,64 @@ export class GameScreen {
   
   // 画面に入る時の処理
   enter() {
-    // ゲーム要素の初期化
-    this.initializeGame();
-    this.createScoreDisplay();
-    this.createChargeBar();
+    console.log('ゲーム画面にenterしました');
+    
+    try {
+      // デバッグ情報更新
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) debugInfo.textContent = 'ゲーム画面初期化中...';
+      
+      // ゲーム要素の初期化
+      this.initializeGame();
+      this.createScoreDisplay();
+      this.createChargeBar();
+      
+      // デバッグ情報更新
+      if (debugInfo) debugInfo.textContent = 'ゲーム画面表示中';
+      
+      console.log('ゲーム画面の初期化が完了しました');
+    } catch (error) {
+      console.error('ゲーム画面の初期化エラー:', error);
+      
+      // デバッグ情報更新
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) debugInfo.textContent = `エラー: ゲーム画面初期化失敗 - ${error.message}`;
+      
+      // キャンバスにエラー表示
+      if (this.ctx) {
+        this.ctx.fillStyle = '#000000';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = '#FF0000';
+        this.ctx.font = '16px Arial';
+        this.ctx.fillText('エラーが発生しました:', 10, 50);
+        this.ctx.fillText(error.message, 10, 80);
+      }
+    }
   }
   
   // 画面から出る時の処理
   exit() {
-    this.removeScoreDisplay();
-    this.removeChargeBar();
+    console.log('ゲーム画面からexitします');
+    
+    try {
+      // デバッグ情報更新
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) debugInfo.textContent = 'ゲーム画面終了中...';
+      
+      this.removeScoreDisplay();
+      this.removeChargeBar();
+      
+      // デバッグ情報更新
+      if (debugInfo) debugInfo.textContent = 'ゲーム画面終了';
+      
+      console.log('ゲーム画面からの退出が完了しました');
+    } catch (error) {
+      console.error('ゲーム画面の終了エラー:', error);
+      
+      // デバッグ情報更新
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) debugInfo.textContent = `エラー: ゲーム画面終了失敗 - ${error.message}`;
+    }
   }
   
   // ゲームの初期化
@@ -369,37 +417,81 @@ export class GameScreen {
   
   // 描画処理
   render(ctx) {
-    // 背景の描画
-    this.drawBackground(ctx);
-    
-    // プレイヤーの描画
-    if (this.player) {
-      this.player.render(ctx);
+    try {
+      // 背景の描画
+      this.drawBackground(ctx);
+      
+      // プレイヤーの描画
+      if (this.player) {
+        this.player.render(ctx);
+      }
+      
+      // 敵の描画
+      for (const enemy of this.enemies) {
+        enemy.render(ctx);
+      }
+      
+      // UFOの描画
+      if (this.ufo) {
+        this.ufo.render(ctx);
+      }
+      
+      // ボスの描画
+      if (this.boss) {
+        this.boss.render(ctx);
+      }
+      
+      // プレイヤーの弾の描画
+      for (const bullet of this.playerBullets) {
+        bullet.render(ctx);
+      }
+      
+      // 敵の弾の描画
+      for (const bullet of this.enemyBullets) {
+        bullet.render(ctx);
+      }
+      
+      // デバッグ情報の描画
+      this.renderDebugInfo(ctx);
+      
+    } catch (error) {
+      console.error('ゲーム画面の描画エラー:', error);
+      
+      // エラー表示
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      ctx.fillStyle = '#FF0000';
+      ctx.font = '16px Arial';
+      ctx.fillText('描画エラーが発生しました:', 10, 50);
+      ctx.fillText(error.message, 10, 80);
+      
+      // デバッグ情報更新
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) debugInfo.textContent = `エラー: ゲーム描画失敗 - ${error.message}`;
     }
+  }
+  
+  // デバッグ情報の描画
+  renderDebugInfo(ctx) {
+    // ゲーム状態のデバッグ情報
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.font = '12px Arial';
     
-    // 敵の描画
-    for (const enemy of this.enemies) {
-      enemy.render(ctx);
-    }
+    // 敵の数と弾の数を表示
+    ctx.fillText(`敵: ${this.enemies.length}`, 10, 20);
+    ctx.fillText(`弾: ${this.playerBullets.length}`, 10, 40);
+    ctx.fillText(`敵弾: ${this.enemyBullets.length}`, 10, 60);
     
-    // UFOの描画
-    if (this.ufo) {
-      this.ufo.render(ctx);
-    }
+    // ゲーム時間
+    const minutes = Math.floor(this.gameTime / 60);
+    const seconds = Math.floor(this.gameTime % 60);
+    ctx.fillText(`時間: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`, 10, 80);
     
-    // ボスの描画
-    if (this.boss) {
-      this.boss.render(ctx);
-    }
-    
-    // プレイヤーの弾の描画
-    for (const bullet of this.playerBullets) {
-      bullet.render(ctx);
-    }
-    
-    // 敵の弾の描画
-    for (const bullet of this.enemyBullets) {
-      bullet.render(ctx);
+    // デバッグ情報更新
+    const debugInfo = document.getElementById('debug-info');
+    if (debugInfo) {
+      const fps = Math.round(1 / (this.game.deltaTime || 0.016));
+      debugInfo.textContent = `ゲーム画面実行中 - FPS: ${fps} - 敵: ${this.enemies.length}`;
     }
   }
   
@@ -411,23 +503,7 @@ export class GameScreen {
     // 星空の描画は削除
   }
   
-  // 星空の描画
-  drawStarfield(ctx) {
-    // 星の数
-    const starCount = 100;
-    
-    // 星の描画
-    ctx.fillStyle = '#FFFFFF';
-    for (let i = 0; i < starCount; i++) {
-      const x = Math.random() * this.canvas.width;
-      const y = Math.random() * this.canvas.height;
-      const size = Math.random() * 2 + 1;
-      
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
+  // 星空の描画関数は削除しました
   
   // プレイヤーの弾を追加
   addBullet(bullet) {

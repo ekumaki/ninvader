@@ -3,22 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CNP インベーダー</title>
-  <link rel="stylesheet" href="./src/css/style.css">
+  <title>CNP インベーダー v0.1.2</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    #debug-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      color: white;
+      z-index: 1000;
+      font-size: 16px;
+      margin: 10px;
+      background-color: rgba(0,0,0,0.5);
+      padding: 5px;
+    }
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #game-canvas {
+      background-color: #000;
+      border: 1px solid #333;
+      width: 360px;
+      height: 640px;
+      display: block;
+    }
+    #debug-info {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      color: white;
+      font-size: 12px;
+      background-color: rgba(0,0,0,0.5);
+      padding: 5px;
+      z-index: 1000;
+    }
+    #game-ui {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    .title {
+      font-size: 32px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .menu-btn {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #333;
+      color: #FFF;
+      border: 1px solid #666;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 200px;
+      text-align: center;
+    }
+    .menu-btn:hover {
+      background-color: #555;
+    }
+  </style>
 </head>
 <body>
+  <h1 id="debug-header">デバッグモード: ページ読み込み中...</h1>
+  
   <div id="game-container">
-    <canvas id="game-canvas"></canvas>
-    <div id="mobile-controls" class="hidden-on-desktop">
-      <div class="direction-buttons">
-        <button id="btn-left" class="control-btn"></button>
-        <button id="btn-right" class="control-btn"></button>
-      </div>
-      <div class="action-buttons">
-        <button id="btn-shoot" class="control-btn"></button>
+    <canvas id="game-canvas" width="360" height="640"></canvas>
+    <div id="game-ui">
+      <h1 class="title">CNP インベーダー</h1>
+      <div class="menu-buttons">
+        <button class="menu-btn" id="start-btn">ゲーム開始</button>
+        <button class="menu-btn" id="instructions-btn">操作説明</button>
+        <button class="menu-btn" id="credits-btn">クレジット</button>
       </div>
     </div>
+    <div id="debug-info">ゲームキャンバスの初期化中...</div>
   </div>
+
+  <script>
+    // ページ読み込み確認用のスクリプト
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('ページが読み込まれました');
+      document.getElementById('debug-header').textContent = 'デバッグモード: ページ読み込み完了';
+      
+      // キャンバスの基本描画テスト
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
+      const debugInfo = document.getElementById('debug-info');
+      
+      if (ctx) {
+        // 背景を黒く塗りつぶす
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // テスト用のテキストを描画
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '20px Arial';
+        ctx.fillText('CNPインベーダー v0.1.1', 80, 100);
+        ctx.fillText('キャンバス描画テスト', 80, 130);
+        
+        // シンプルなアニメーション
+        let y = 200;
+        let direction = 1;
+        
+        function animate() {
+          // 背景をクリア
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          // タイトルを描画
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = '20px Arial';
+          ctx.fillText('CNPインベーダー v0.1.1', 80, 100);
+          
+          // 動くオブジェクトを描画
+          ctx.fillStyle = '#FF0000';
+          ctx.fillRect(160, y, 40, 40);
+          
+          // 位置を更新
+          y += direction;
+          if (y > 400 || y < 200) direction *= -1;
+          
+          // 次のフレームをリクエスト
+          requestAnimationFrame(animate);
+        }
+        
+        // アニメーション開始
+        animate();
+        
+        if (debugInfo) debugInfo.textContent = 'キャンバスアニメーション実行中';
+      } else {
+        if (debugInfo) debugInfo.textContent = 'エラー: キャンバスコンテキストを取得できません';
+      }
+      
+      // ボタンイベント設定
+      document.getElementById('start-btn').addEventListener('click', function() {
+        console.log('ゲーム開始ボタンがクリックされました');
+        if (debugInfo) debugInfo.textContent = 'ゲーム開始ボタンがクリックされました';
+      });
+      
+      document.getElementById('instructions-btn').addEventListener('click', function() {
+        console.log('操作説明ボタンがクリックされました');
+        if (debugInfo) debugInfo.textContent = '操作説明ボタンがクリックされました';
+      });
+      
+      document.getElementById('credits-btn').addEventListener('click', function() {
+        console.log('クレジットボタンがクリックされました');
+        alert('CNP インベーダー\nVersion 0.1.2\n© 2025 All Rights Reserved');
+      });
+    });
+  </script>
+  
+  <!-- ゲームのメインスクリプト -->
   <script type="module" src="./src/js/main.js"></script>
 </body>
 </html>
