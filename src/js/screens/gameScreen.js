@@ -405,12 +405,10 @@ export class GameScreen {
   
   // 背景の描画
   drawBackground(ctx) {
-    // 黒い背景
+    // 真っ黒な背景
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    
-    // 星空の描画
-    this.drawStarfield(ctx);
+    // 星空の描画は削除
   }
   
   // 星空の描画
