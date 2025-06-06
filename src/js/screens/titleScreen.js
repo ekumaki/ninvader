@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.2
+ * Version: 0.1.3
  * SPDX-License-Identifier: MIT
  */
 
@@ -167,7 +167,7 @@ export class TitleScreen {
       styleButton(creditsBtn);
       creditsBtn.addEventListener('click', () => {
         console.log('クレジットボタンがクリックされました');
-        alert('CNP インベーダー\nVersion 0.1.1\n 2025 All Rights Reserved');
+        alert('CNP インベーダー\nVersion 0.1.3\n 2025 All Rights Reserved');
       });
       
       // 要素の追加
