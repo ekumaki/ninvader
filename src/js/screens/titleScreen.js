@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.3
+ * Version: 0.1.4
  * SPDX-License-Identifier: MIT
  */
 
@@ -81,7 +81,7 @@ export class TitleScreen {
     ctx.font = '16px Arial';
     
     // package.jsonから取得したバージョンを表示
-    const version = '0.1.3'; // 現在のバージョン
+    const version = '0.1.4'; // 現在のバージョン
     ctx.fillText(`CNPインベーダー v${version}`, 10, 30);
     
     console.log('タイトル画面を描画しました');
@@ -123,7 +123,7 @@ export class TitleScreen {
       // バージョン表示
       const version = document.createElement('div');
       version.className = 'game-version';
-      version.textContent = 'v0.1.3';
+      version.textContent = 'v0.1.4';
       version.style.fontSize = '16px';
       version.style.margin = '0 0 20px 0';
       version.style.textAlign = 'center';
@@ -176,7 +176,7 @@ export class TitleScreen {
       styleButton(creditsBtn);
       creditsBtn.addEventListener('click', () => {
         console.log('クレジットボタンがクリックされました');
-        alert('CNP インベーダー\nVersion 0.1.3\n 2025 All Rights Reserved');
+        alert('CNP インベーダー\nVersion 0.1.4\n 2025 All Rights Reserved');
       });
       
       // 要素の追加
