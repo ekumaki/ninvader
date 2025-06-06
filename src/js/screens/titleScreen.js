@@ -81,7 +81,7 @@ export class TitleScreen {
     ctx.font = '16px Arial';
     
     // package.jsonから取得したバージョンを表示
-    const version = '0.1.2'; // 現在のバージョン
+    const version = '0.1.3'; // 現在のバージョン
     ctx.fillText(`CNPインベーダー v${version}`, 10, 30);
     
     console.log('タイトル画面を描画しました');
@@ -117,8 +117,17 @@ export class TitleScreen {
       title.className = 'game-title';
       title.textContent = 'CNP インベーダー';
       title.style.fontSize = '32px';
-      title.style.margin = '0 0 20px 0';
+      title.style.margin = '0 0 5px 0';
       title.style.textAlign = 'center';
+      
+      // バージョン表示
+      const version = document.createElement('div');
+      version.className = 'game-version';
+      version.textContent = 'v0.1.3';
+      version.style.fontSize = '16px';
+      version.style.margin = '0 0 20px 0';
+      version.style.textAlign = 'center';
+      version.style.color = '#AAA';
       
       // メニューボタンのコンテナ
       const menuButtons = document.createElement('div');
@@ -176,6 +185,7 @@ export class TitleScreen {
       menuButtons.appendChild(creditsBtn);
       
       titleScreen.appendChild(title);
+      titleScreen.appendChild(version);
       titleScreen.appendChild(menuButtons);
       
       // ゲームコンテナに追加
