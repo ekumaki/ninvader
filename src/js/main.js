@@ -56,6 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ゲームインスタンスの作成
     const game = new Game(canvas, ctx, audioManager);
+    
+    // グローバルに公開して他のスクリプトからアクセス可能にする
+    window.gameInstance = game;
+    window.game = game; // 別名でも公開しておく
+    
+    // グローバル変数が正しく設定されたか確認
+    console.log('グローバル変数を設定しました:', window.gameInstance ? '成功' : '失敗');
     console.log('ゲームインスタンス作成完了');
     
     if (debugInfo) debugInfo.textContent = '画面初期化中...';
@@ -77,12 +84,58 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       // 既存のボタンとの連携
+      // スタートボタンの取得と確認
+      console.log('スタートボタンを探しています...');
       const startBtn = document.getElementById('start-btn');
+      console.log('スタートボタンの取得結果:', startBtn ? '成功' : '失敗');
+      
       if (startBtn) {
-        startBtn.addEventListener('click', () => {
-          console.log('スタートボタンがクリックされました - ゲーム画面に切り替え');
-          game.switchScreen('game');
-        });
+        console.log('スタートボタンにイベントリスナーを設定します');
+        
+        // 直接クリックイベントを設定
+        startBtn.onclick = function(event) {
+          event.preventDefault();
+          console.log('スタートボタンがクリックされました - onclickイベント');
+          
+          // デバッグ情報更新
+          const debugInfo = document.getElementById('debug-info');
+          if (debugInfo) debugInfo.textContent = 'ゲーム画面に切り替え中...';
+          
+          try {
+            // 既存のUIを非表示に
+            const gameUI = document.getElementById('game-ui');
+            if (gameUI) {
+              console.log('UIを非表示にします');
+              gameUI.style.display = 'none';
+            }
+            
+            // キャンバスを表示
+            if (canvas) {
+              console.log('キャンバスを表示します');
+              canvas.style.display = 'block';
+            }
+            
+            // ゲーム画面に切り替え
+            console.log('ゲーム画面に切り替えます');
+            console.log('gameオブジェクト:', game);
+            console.log('game.screens:', game.screens);
+            console.log('game.screens["game"]:', game.screens['game']);
+            
+            // 当面は直接呼び出し
+            game.switchScreen('game');
+            console.log('ゲーム画面への切り替えが完了しました');
+          } catch (error) {
+            console.error('ゲーム画面切り替えエラー:', error);
+            alert('エラーが発生しました: ' + error.message);
+          }
+          
+          return false; // イベントの伝播を停止
+        };
+        
+        console.log('スタートボタンにonclickイベントを設定しました');
+      } else {
+        console.error('スタートボタンが見つかりません');
+        alert('スタートボタンが見つかりません');
       }
       
       const instructionsBtn = document.getElementById('instructions-btn');

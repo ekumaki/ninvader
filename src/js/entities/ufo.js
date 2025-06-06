@@ -23,7 +23,13 @@ export class UFO {
     
     // 画像の読み込み
     this.image = new Image();
-    this.image.src = '/src/assets/img/enemy/ufo_bonus.png';
+    this.image.onload = () => {
+      console.log('UFO画像の読み込みに成功しました');
+    };
+    this.image.onerror = () => {
+      console.error('UFO画像の読み込みに失敗しました');
+    };
+    this.image.src = './src/assets/img/enemy/ufo_bonus.png';
     
     // アニメーション関連
     this.currentFrame = 0;

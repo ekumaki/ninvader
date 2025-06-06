@@ -18,7 +18,13 @@ export class SpecialBullet extends Bullet {
     
     // 画像の読み込み
     this.image = new Image();
-    this.image.src = '/src/assets/img/bullet/shuriken_special_01.png';
+    this.image.onload = () => {
+      console.log('特殊弾画像の読み込みに成功しました');
+    };
+    this.image.onerror = () => {
+      console.error('特殊弾画像の読み込みに失敗しました');
+    };
+    this.image.src = './src/assets/img/bullet/shuriken_special_01.png';
     
     // エフェクト用
     this.glowIntensity = 1.0;

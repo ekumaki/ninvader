@@ -29,11 +29,23 @@ export class Boss {
     
     // 画像の読み込み
     this.image = new Image();
-    this.image.src = '/src/assets/img/boss/boss_stage1.png';
+    this.image.onload = () => {
+      console.log('ボス画像の読み込みに成功しました');
+    };
+    this.image.onerror = () => {
+      console.error('ボス画像の読み込みに失敗しました');
+    };
+    this.image.src = './src/assets/img/boss/boss_stage1.png';
     
     // 岩弾の画像
     this.rockBulletImage = new Image();
-    this.rockBulletImage.src = '/src/assets/img/bullet/enemy_rock.png';
+    this.rockBulletImage.onload = () => {
+      console.log('ボス弾画像の読み込みに成功しました');
+    };
+    this.rockBulletImage.onerror = () => {
+      console.error('ボス弾画像の読み込みに失敗しました');
+    };
+    this.rockBulletImage.src = './src/assets/img/bullet/enemy_rock.png';
     
     // アニメーション関連
     this.currentFrame = 0;

@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.0
+ * Version: 0.1.2
  * SPDX-License-Identifier: MIT
  */
 
@@ -30,7 +30,18 @@ export class Player {
     
     // 画像の読み込み
     this.image = new Image();
-    this.image.src = '/src/assets/img/player/player_A.png';
+    
+    // 画像読み込みエラーのデバッグ
+    this.image.onerror = () => {
+      console.error('プレイヤー画像の読み込みに失敗しました:', '/src/assets/img/player/player_A.png');
+    };
+    
+    this.image.onload = () => {
+      console.log('プレイヤー画像の読み込みに成功しました');
+    };
+    
+    // Vite開発サーバーでは相対パスを使用
+    this.image.src = './src/assets/img/player/player_A.png';
     
     // スプライトシートの設定
     this.frameWidth = 256; // スプライトシートの1フレームの幅
@@ -169,8 +180,8 @@ export class Player {
       this.game,
       this.x,
       this.y - this.height / 2,
-      0, // 上方向
-      -400 // 速度
+      -Math.PI/2, // 上方向をラジアンで指定 (-90度 = -π/2)
+      400 // 速度（正の値）
     );
     
     // 現在のゲーム画面に弾を追加
@@ -194,8 +205,8 @@ export class Player {
       this.game,
       this.x,
       this.y - this.height / 2,
-      0, // 上方向
-      -800 // 速度（通常の2倍）
+      -Math.PI/2, // 上方向をラジアンで指定 (-90度 = -π/2)
+      800 // 速度（通常の2倍、正の値）
     );
     
     // 現在のゲーム画面に特殊弾を追加

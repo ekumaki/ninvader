@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.2
+ * Version: 0.1.3
  * SPDX-License-Identifier: MIT
  */
 
@@ -42,21 +42,62 @@ export class GameScreen {
   }
   
   // 画面に入る時の処理
-  enter() {
-    console.log('ゲーム画面にenterしました');
-    
+  async enter() {
     try {
+      console.log('ゲーム画面にenterしました');
+      
       // デバッグ情報更新
       const debugInfo = document.getElementById('debug-info');
       if (debugInfo) debugInfo.textContent = 'ゲーム画面初期化中...';
       
-      // ゲーム要素の初期化
+      // ゲーム状態を初期化
+      this.gameOver = false;
+      this.collisionEnabled = false; // 初期化中は衝突判定を無効化
+      
+      // 既存のHTML UIを非表示にする
+      const existingUI = document.getElementById('game-ui');
+      if (existingUI) {
+        console.log('既存のHTML UIを非表示にします');
+        existingUI.style.display = 'none';
+      } else {
+        console.log('既存UIが見つかりません');
+      }
+      
+      // キャンバスを表示
+      if (this.canvas) {
+        console.log('キャンバスを表示します');
+        this.canvas.style.display = 'block';
+      }
+      
+      // ゲームの初期化
+      console.log('ゲーム初期化を開始します');
       this.initializeGame();
-      this.createScoreDisplay();
+      
+      // プレイヤーが正しく生成されたか確認
+      if (!this.player) {
+        console.error('プレイヤーが正しく生成されていません');
+        // 再度プレイヤーを生成
+        const Player = (await import('../entities/player.js')).Player;
+        this.player = new Player(
+          this.game,
+          this.canvas.width / 2,
+          this.canvas.height - 100
+        );
+        console.log('プレイヤーを再生成しました:', this.player);
+      }
+      
+      // チャージバーとスコア表示を作成
       this.createChargeBar();
+      this.createScoreDisplay();
       
       // デバッグ情報更新
       if (debugInfo) debugInfo.textContent = 'ゲーム画面表示中';
+      
+      // 少し遅延させてから衝突判定を有効化
+      setTimeout(() => {
+        this.collisionEnabled = true;
+        console.log('衝突判定を有効化しました');
+      }, 1000);
       
       console.log('ゲーム画面の初期化が完了しました');
     } catch (error) {
@@ -65,16 +106,8 @@ export class GameScreen {
       // デバッグ情報更新
       const debugInfo = document.getElementById('debug-info');
       if (debugInfo) debugInfo.textContent = `エラー: ゲーム画面初期化失敗 - ${error.message}`;
-      
-      // キャンバスにエラー表示
-      if (this.ctx) {
-        this.ctx.fillStyle = '#000000';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = '#FF0000';
-        this.ctx.font = '16px Arial';
-        this.ctx.fillText('エラーが発生しました:', 10, 50);
-        this.ctx.fillText(error.message, 10, 80);
-      }
+      this.ctx.fillText('初期化エラーが発生しました:', 10, 50);
+      this.ctx.fillText(error.message, 10, 80);
     }
   }
   
@@ -105,45 +138,75 @@ export class GameScreen {
   
   // ゲームの初期化
   initializeGame() {
-    // プレイヤーの作成
-    this.player = new Player(
-      this.game,
-      this.canvas.width / 2,
-      this.canvas.height - 100
-    );
+    console.log('ゲーム初期化開始');
     
-    // 敵の配置
-    this.createEnemies();
-    
-    // 各種配列の初期化
-    this.playerBullets = [];
-    this.enemyBullets = [];
-    this.ufo = null;
-    this.boss = null;
-    
-    // ゲーム状態のリセット
-    this.gameTime = 0;
-    this.game.scoreManager.resetScore();
+    try {
+      // プレイヤーの作成
+      this.player = new Player(
+        this.game,
+        this.canvas.width / 2,
+        this.canvas.height - 100
+      );
+      console.log('プレイヤー作成成功:', this.player);
+      
+      // プレイヤー画像の読み込み確認
+      if (this.player.image) {
+        this.player.image.onload = () => {
+          console.log('プレイヤー画像読み込み完了');
+        };
+        
+        this.player.image.onerror = (error) => {
+          console.error('プレイヤー画像読み込みエラー:', error);
+        };
+      }
+      
+      // 敵の配置
+      this.createEnemies();
+      console.log('敵作成成功:', this.enemies.length);
+      
+      // 各種配列の初期化
+      this.playerBullets = [];
+      this.enemyBullets = [];
+      this.ufo = null;
+      this.boss = null;
+      
+      // ゲーム状態のリセット
+      this.gameTime = 0;
+      this.gameOver = false;
+      this.game.scoreManager.resetScore();
+      
+      console.log('ゲーム初期化完了');
+    } catch (error) {
+      console.error('ゲーム初期化エラー:', error);
+    }
   }
   
   // 敵の配置
   createEnemies() {
     this.enemies = [];
     
-    const startX = (this.canvas.width - (this.enemyCols - 1) * this.enemySpacing) / 2;
-    const startY = 100;
+    // 画面端から十分に離して敵を配置する
+    const marginX = 80; // 画面端からの余白
+    const usableWidth = this.canvas.width - marginX * 2;
+    const enemySpacing = usableWidth / (this.enemyCols - 1);
+    const startX = marginX;
+    const startY = 50; // 初期位置を上方に調整
     
     for (let row = 0; row < this.enemyRows; row++) {
       for (let col = 0; col < this.enemyCols; col++) {
         const x = startX + col * this.enemySpacing;
         const y = startY + row * this.enemySpacing;
         
+        // 敵クラスのデフォルト設定を尊重する
         const enemy = new Enemy(this.game, x, y);
         
         // 行によって敵の特性を変える（オプション）
         if (row === 0) {
           enemy.points = 150; // 最前列は高得点
         }
+        
+        // ゲーム画面の幅を敵クラスに渡す
+        enemy.canvasWidth = this.canvas.width;
         
         this.enemies.push(enemy);
       }
@@ -152,8 +215,13 @@ export class GameScreen {
   
   // 更新処理
   update(deltaTime) {
-    // ゲームオーバーなら更新しない
+    // ゲームオーバーなら何もしない
     if (this.gameOver) return;
+    
+    // デバッグ情報を追加
+    if (Math.floor(this.gameTime) !== Math.floor(this.gameTime + deltaTime)) {
+      console.log('ゲーム時間:', Math.floor(this.gameTime + deltaTime), '秒');
+    }
     
     // ゲーム時間の更新
     this.gameTime += deltaTime;
@@ -195,34 +263,16 @@ export class GameScreen {
   updateEnemies(deltaTime) {
     if (this.boss) return; // ボス出現中は敵の更新をスキップ
     
-    let needsDirectionChange = false;
+    // 敵の移動速度調整は行わず、敵クラスの設定を尊重
+    // 敵クラス内で画面端判定と方向転換を行うようにしたので、ここでは単純に更新するのみ
     
-    // 敵の移動速度調整（敵が少ないほど速くなる）
-    const speedMultiplier = 1 + (1 - this.enemies.length / (this.enemyRows * this.enemyCols)) * 2;
-    
-    for (let i = 0; i < this.enemies.length; i++) {
-      const enemy = this.enemies[i];
-      
-      // 速度の調整
-      enemy.speed = this.enemySpeed * speedMultiplier;
-      
-      // 敵の更新
-      enemy.update(deltaTime);
-      
-      // 画面端に到達したかチェック
-      if (
-        (this.enemyDirection > 0 && enemy.x > this.canvas.width - enemy.width / 2) ||
-        (this.enemyDirection < 0 && enemy.x < enemy.width / 2)
-      ) {
-        needsDirectionChange = true;
-      }
-    }
-    
-    // 方向転換と下降
-    if (needsDirectionChange) {
-      this.enemyDirection *= -1;
-      for (const enemy of this.enemies) {
-        enemy.changeDirectionAndDrop();
+    // 敵が残っている場合のみ更新
+    if (this.enemies.length > 0) {
+      for (let i = this.enemies.length - 1; i >= 0; i--) {
+        const enemy = this.enemies[i];
+        
+        // 敵の更新
+        enemy.update(deltaTime);
       }
     }
     
@@ -294,82 +344,98 @@ export class GameScreen {
   
   // 衝突判定
   checkCollisions() {
-    // プレイヤーの弾と敵の衝突
-    for (const bullet of this.playerBullets) {
-      // 敵との衝突
-      for (const enemy of this.enemies) {
-        if (bullet.collidesWith(enemy)) {
-          if (enemy.takeDamage(bullet.damage)) {
-            // 敵を倒した
-            this.game.scoreManager.addScore(enemy.points);
-            this.game.audioManager.play('explosion', 0.5);
+    // デバッグ情報を追加
+    console.log('衝突判定実行中 - 敵数:', this.enemies.length, 'プレイヤー弾数:', this.playerBullets.length);
+    
+    // プレイヤーの弾と敵の衝突判定
+    for (let i = this.playerBullets.length - 1; i >= 0; i--) {
+      const bullet = this.playerBullets[i];
+      
+      for (let j = this.enemies.length - 1; j >= 0; j--) {
+        const enemy = this.enemies[j];
+        
+        if (this.checkEntityCollision(bullet, enemy)) {
+          // 敵にダメージ
+          enemy.takeDamage(1);
+          
+          // 弾を削除
+          this.playerBullets.splice(i, 1);
+          
+          // 敵が倒れた場合
+          if (!enemy.isActive) {
+            // スコア加算
+            this.game.score += enemy.points;
+            this.updateScoreDisplay();
+            
+            // 敵を配列から削除
+            this.enemies.splice(j, 1);
+            
+            // 爆発音の再生
+            this.game.audioManager.play('explosion', 0.3);
           }
           
-          // 貫通弾でなければ弾を無効化
-          if (!bullet.penetrating) {
-            bullet.isActive = false;
-            break; // この弾は処理終了
-          }
+          break;
         }
       }
       
-      // 弾が無効になっていたら次の弾へ
-      if (!bullet.isActive) continue;
-      
-      // UFOとの衝突
-      if (this.ufo && bullet.collidesWith(this.ufo)) {
-        if (this.ufo.takeDamage(bullet.damage)) {
-          // UFOを倒した
-          this.game.scoreManager.addScore(this.ufo.points);
-          this.game.audioManager.play('explosion', 0.7);
-        }
+      // ボスとの衝突判定
+      if (this.boss && this.checkEntityCollision(bullet, this.boss)) {
+        // ボスにダメージ
+        this.boss.takeDamage(1);
         
-        // 貫通弾でなければ弾を無効化
-        if (!bullet.penetrating) {
-          bullet.isActive = false;
-        }
-      }
-      
-      // 弾が無効になっていたら次の弾へ
-      if (!bullet.isActive) continue;
-      
-      // ボスとの衝突
-      if (this.boss && bullet.collidesWith(this.boss)) {
-        if (this.boss.takeDamage(bullet.damage)) {
-          // ボスを倒した
-          this.game.scoreManager.addScore(this.boss.points);
-          this.game.audioManager.play('explosion', 1.0);
-        }
+        // 弾を削除
+        this.playerBullets.splice(i, 1);
         
-        // 貫通弾でなければ弾を無効化
-        if (!bullet.penetrating) {
-          bullet.isActive = false;
+        // ボスが倒れた場合
+        if (!this.boss.isActive) {
+          // スコア加算
+          this.game.score += this.boss.points;
+          this.updateScoreDisplay();
+          
+          // ボスをnullに設定
+          this.boss = null;
+          
+          // 爆発音の再生
+          this.game.audioManager.play('explosion', 0.5);
         }
       }
     }
     
-    // 敵の弾とプレイヤーの衝突
+    // 敵の弾とプレイヤーの衝突判定
+    // 一時的に無効化してデバッグ
+    /*
     if (this.player) {
       for (const bullet of this.enemyBullets) {
-        if (bullet.collidesWith(this.player)) {
+        if (this.checkEntityCollision(bullet, this.player)) {
           // プレイヤーがダメージを受ける
+          console.log('敵の弾がプレイヤーに当たりました');
           this.handleGameOver();
           bullet.isActive = false;
         }
       }
+    }
+    */
       
-      // 敵とプレイヤーの衝突
+    // 敵とプレイヤーの衝突判定
+    if (this.player) {
       for (const enemy of this.enemies) {
-        // 敵が下まで降りてきた場合
-        if (enemy.y + enemy.height / 2 > this.player.y - this.player.height / 2) {
+        // 敵が画面下端まで降りてきた場合
+        // プレイヤーより下に到達した場合にゲームオーバーとする
+        if (enemy.y + enemy.height / 2 > this.canvas.height - 50) {
+          console.log('敵が画面下端に到達しました');
+          console.log('敵のY座標:', enemy.y);
+          console.log('画面高さ:', this.canvas.height);
           this.handleGameOver();
-          break;
+          return; // 衝突判定を終了
         }
         
         // プレイヤーと敵の直接衝突
         if (this.checkEntityCollision(this.player, enemy)) {
+          console.log('プレイヤーと敵が衝突しました');
+          console.log('プレイヤー位置:', this.player.x, this.player.y);
+          console.log('敵位置:', enemy.x, enemy.y);
           this.handleGameOver();
-          break;
+          return; // 衝突判定を終了
         }
       }
     }
@@ -388,18 +454,25 @@ export class GameScreen {
   
   // ゲーム状態の確認
   checkGameState() {
-    // ゲームクリア条件（すべての敵を倒し、ボスも倒した）
-    if (this.enemies.length === 0 && this.boss === null) {
-      // ボスがまだ出現していない場合は待機
-      if (this.gameTime < this.bossSpawnTime) {
-        return;
-      }
+    // デバッグ情報を追加
+    console.log('ゲーム状態確認中 - 敵数:', this.enemies.length);
+    
+    // 敵が全滅した場合はクリア
+    if (this.enemies.length === 0 && !this.boss) {
+      console.log('敵を全滅させました！');
+      // TODO: ステージクリア処理
     }
   }
   
   // ゲームオーバー処理
   handleGameOver() {
     if (this.gameOver) return; // 既にゲームオーバー状態なら何もしない
+    
+    // デバッグ情報を追加
+    console.log('ゲームオーバーが発生しました');
+    console.log('ゲーム時間:', this.gameTime);
+    console.log('敵の数:', this.enemies.length);
+    console.log('スタックトレース:', new Error().stack);
     
     this.gameOver = true;
     this.game.audioManager.play('explosion', 1.0);
@@ -487,11 +560,27 @@ export class GameScreen {
     const seconds = Math.floor(this.gameTime % 60);
     ctx.fillText(`時間: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`, 10, 80);
     
+    // プレイヤー情報
+    if (this.player) {
+      ctx.fillText(`プレイヤー位置: X=${Math.round(this.player.x)}, Y=${Math.round(this.player.y)}`, 10, 100);
+      ctx.fillText(`チャージ: ${Math.round(this.player.chargeTime / this.player.requiredChargeTime * 100)}%`, 10, 120);
+      ctx.fillText(`発射可能: ${this.player.canShoot ? '可' : '不可'}`, 10, 140);
+    }
+    
+    // スコア情報
+    const score = this.game.scoreManager.getScore();
+    const highScore = this.game.scoreManager.getHighScore();
+    ctx.fillText(`スコア: ${score}`, 10, 160);
+    ctx.fillText(`ハイスコア: ${highScore}`, 10, 180);
+    
+    // ゲーム状態
+    ctx.fillText(`ゲームオーバー: ${this.gameOver ? 'はい' : 'いいえ'}`, 10, 200);
+    
     // デバッグ情報更新
     const debugInfo = document.getElementById('debug-info');
     if (debugInfo) {
       const fps = Math.round(1 / (this.game.deltaTime || 0.016));
-      debugInfo.textContent = `ゲーム画面実行中 - FPS: ${fps} - 敵: ${this.enemies.length}`;
+      debugInfo.textContent = `ゲーム画面実行中 - FPS: ${fps} - 敵: ${this.enemies.length} - スコア: ${score}`;
     }
   }
   

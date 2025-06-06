@@ -44,22 +44,46 @@ export class Game {
   }
   
   // 画面の切り替え
-  switchScreen(name) {
-    console.log(`画面切り替え: ${name}`);
-    if (this.screens[name]) {
-      if (this.currentScreen) {
-        console.log('現在の画面から退出');
-        this.currentScreen.exit();
+  async switchScreen(name) {
+    console.log(`画面切り替え開始: ${name}`);
+    console.log('利用可能な画面:', Object.keys(this.screens));
+    
+    try {
+      if (!this.screens[name]) {
+        console.error(`画面 "${name}" が見つかりません`);
+        alert(`エラー: 画面 "${name}" が見つかりません`);
+        return;
       }
+      
+      // 現在の画面から退出
+      if (this.currentScreen) {
+        console.log('現在の画面から退出:', this.currentScreen);
+        try {
+          await this.currentScreen.exit();
+        } catch (error) {
+          console.error('画面退出エラー:', error);
+        }
+      }
+      
+      // 新しい画面に切り替え
       this.currentScreen = this.screens[name];
-      console.log(`新しい画面に入る: ${name}`);
-      this.currentScreen.enter();
+      console.log(`新しい画面に入る: ${name}`, this.currentScreen);
+      
+      try {
+        // 画面に入る処理を実行
+        await this.currentScreen.enter();
+        console.log(`画面 ${name} に正常に入りました`);
+      } catch (error) {
+        console.error(`画面 ${name} の初期化エラー:`, error);
+        alert(`画面切り替えエラー: ${error.message}`);
+      }
       
       // デバッグ情報更新
       const debugInfo = document.getElementById('debug-info');
-      if (debugInfo) debugInfo.textContent = `画面切り替え: ${name}`;
-    } else {
-      console.error(`画面が見つかりません: ${name}`);
+      if (debugInfo) debugInfo.textContent = `画面切り替え完了: ${name}`;
+    } catch (error) {
+      console.error('画面切り替え中の予期せぬエラー:', error);
+      alert(`画面切り替えエラー: ${error.message}`);
     }
   }
   

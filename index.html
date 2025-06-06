@@ -85,6 +85,16 @@
     .menu-btn:hover {
       background-color: #555;
     }
+    .version-info {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 14px;
+      color: #888;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 5px 10px;
+      border-radius: 3px;
+    }
   </style>
 </head>
 <body>
@@ -93,6 +103,7 @@
   <div id="game-container">
     <canvas id="game-canvas" width="360" height="640"></canvas>
     <div id="game-ui">
+      <div class="version-info">Version 0.1.2</div>
       <h1 class="title">CNP インベーダー</h1>
       <div class="menu-buttons">
         <button class="menu-btn" id="start-btn">ゲーム開始</button>
@@ -122,7 +133,7 @@
         // テスト用のテキストを描画
         ctx.fillStyle = '#FFFFFF';
         ctx.font = '20px Arial';
-        ctx.fillText('CNPインベーダー v0.1.1', 80, 100);
+        ctx.fillText('CNPインベーダー v0.1.2', 80, 100);
         ctx.fillText('キャンバス描画テスト', 80, 130);
         
         // シンプルなアニメーション
@@ -137,7 +148,7 @@
           // タイトルを描画
           ctx.fillStyle = '#FFFFFF';
           ctx.font = '20px Arial';
-          ctx.fillText('CNPインベーダー v0.1.1', 80, 100);
+          ctx.fillText('CNPインベーダー v0.1.2', 80, 100);
           
           // 動くオブジェクトを描画
           ctx.fillStyle = '#FF0000';
@@ -179,5 +190,6 @@
   
   <!-- ゲームのメインスクリプト -->
   <script type="module" src="./src/js/main.js"></script>
+  <script type="module" src="./src/js/fix-navigation.js"></script>
 </body>
 </html>

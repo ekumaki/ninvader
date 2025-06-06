@@ -20,7 +20,13 @@ export class Bullet {
     
     // 画像の読み込み
     this.image = new Image();
-    this.image.src = '/src/assets/img/bullet/shuriken_01.png';
+    this.image.onload = () => {
+      console.log('弾画像の読み込みに成功しました');
+    };
+    this.image.onerror = () => {
+      console.error('弾画像の読み込みに失敗しました');
+    };
+    this.image.src = './src/assets/img/bullet/shuriken_01.png';
     
     // 回転アニメーション用
     this.rotation = 0;

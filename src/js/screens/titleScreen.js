@@ -45,7 +45,7 @@ export class TitleScreen {
   }
   
   // 画面から出る時の処理
-  exit() {
+  async exit() {
     console.log('タイトル画面からexitします');
     
     // 既存のHTML UIを非表示にする
@@ -76,10 +76,13 @@ export class TitleScreen {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     
-    // デバッグ用のテキスト描画
+    // バージョン情報の描画
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '16px Arial';
-    ctx.fillText('CNPインベーダー v0.1.1', 10, 20);
+    
+    // package.jsonから取得したバージョンを表示
+    const version = '0.1.2'; // 現在のバージョン
+    ctx.fillText(`CNPインベーダー v${version}`, 10, 30);
     
     console.log('タイトル画面を描画しました');
   }

@@ -19,10 +19,11 @@ export class Enemy {
     this.isActive = true;
     
     // 移動パターン
-    this.speed = 50; // 基本速度
+    this.speed = 10; // テスト用に速度を下げる
     this.direction = 1; // 1: 右, -1: 左
-    this.dropDistance = 20; // 下に降りる距離
+    this.dropDistance = 5; // 下降距離を小さくしてゆっくり降りるようにする
     this.moveDelay = 0; // 移動遅延（ランダム化用）
+    this.edgeMargin = 20; // 画面端からの余白を小さくする
     
     // 攻撃パターン
     this.canShoot = true;
@@ -32,7 +33,13 @@ export class Enemy {
     
     // 画像の読み込み
     this.image = new Image();
-    this.image.src = '/src/assets/img/enemy/enemy_01.png';
+    this.image.onload = () => {
+      console.log('敵画像の読み込みに成功しました');
+    };
+    this.image.onerror = () => {
+      console.error('敵画像の読み込みに失敗しました');
+    };
+    this.image.src = './src/assets/img/enemy/enemy_01.png';
     
     // アニメーション関連
     this.currentFrame = 0;
@@ -52,6 +59,14 @@ export class Enemy {
     // 移動
     this.x += this.direction * this.speed * deltaTime;
     
+    // 画面端に到達したら方向転換と下降
+    // canvasWidthプロパティが存在すればそちらを使用、なければgame.canvas.widthを使用
+    const screenWidth = this.canvasWidth || this.game.canvas.width;
+    if (this.x <= this.edgeMargin || this.x >= screenWidth - this.edgeMargin) {
+      this.changeDirectionAndDrop();
+      console.log('敵が方向転換しました: 方向=' + this.direction);
+    }
+    
     // 発射クールダウンの更新
     if (!this.canShoot) {
       this.shootTimer += deltaTime;
@@ -62,9 +77,10 @@ export class Enemy {
     }
     
     // ランダムに弾を発射
-    if (this.canShoot && Math.random() < this.shootProbability) {
-      this.shoot();
-    }
+    // 一時的に敵の弾の発射を停止
+    // if (this.canShoot && Math.random() < this.shootProbability) {
+    //   this.shoot();
+    // }
     
     // アニメーション更新
     this.animationTimer += deltaTime;
