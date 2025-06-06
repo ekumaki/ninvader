@@ -10,19 +10,41 @@ CNP インベーダーは和風テイストのインベーダーゲームです�
 
 ### バージョン管理について
 
-バージョン情報は以下のファイルで管理されています：
+このプロジェクトは**自動化されたバージョン管理システム**を採用しています。
 
-1. `package.json` - プロジェクトのメインバージョン情報
-2. `src/js/screens/titleScreen.js` - タイトル画面に表示されるバージョン情報
+#### 📦 バージョン管理の仕組み
 
-**重要**: バージョン番号を更新する際は、必ず以下の両方のファイルを更新してください：
+**Single Source of Truth**: `package.json`のversionフィールドが唯一の信頼できるバージョン情報源です。
 
-- `package.json`の`version`フィールド
-- `src/js/screens/titleScreen.js`内の以下の2箇所：
-  - `render`メソッド内の`const version = '0.1.3'`
-  - HTMLのバージョン表示`version.textContent = 'v0.1.3'`
+**自動同期対象ファイル**:
+- `index.html` - UI表示、ページタイトル、クレジット
+- `src/js/main.js` - ヘッダーコメント
+- `src/css/style.css` - ヘッダーコメント  
+- `src/js/screens/titleScreen.js` - ヘッダー、バージョン変数、表示
+- `src/js/game.js` - ヘッダーコメント
+- `src/js/screens/gameScreen.js` - ヘッダーコメント
 
-これにより、アプリケーション全体で一貫したバージョン表示が保証されます。
+#### 🚀 バージョン更新コマンド
+
+```bash
+# バージョン同期のみ（現在のバージョンで全ファイル統一）
+npm run version:sync
+
+# パッチバージョン更新 (0.1.3 → 0.1.4)
+npm run version:update
+
+# マイナーバージョン更新 (0.1.3 → 0.2.0)
+npm run version:minor
+
+# メジャーバージョン更新 (0.1.3 → 1.0.0)
+npm run version:major
+```
+
+#### ⚠️ 重要な注意事項
+
+- **手動でのバージョン変更は推奨されません**
+- バージョン変更時は上記のnpmスクリプトを使用してください
+- これにより全ファイルのバージョン表記が自動的に統一されます
 
 ## 起動方法
 

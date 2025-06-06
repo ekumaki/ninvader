@@ -19,11 +19,11 @@ export class Enemy {
     this.isActive = true;
     
     // 移動パターン
-    this.speed = 10; // テスト用に速度を下げる
+    this.speed = 5; // 移動速度を上げる
     this.direction = 1; // 1: 右, -1: 左
-    this.dropDistance = 5; // 下降距離を小さくしてゆっくり降りるようにする
+    this.dropDistance = 2; // 下降距離を元に戻す
     this.moveDelay = 0; // 移動遅延（ランダム化用）
-    this.edgeMargin = 20; // 画面端からの余白を小さくする
+    this.edgeMargin = 30; // 画面端からの余白を元に戻す
     
     // 攻撃パターン
     this.canShoot = true;
@@ -50,19 +50,47 @@ export class Enemy {
   
   // 更新処理
   update(deltaTime) {
+    // 敵のY座標が異常に大きい場合は警告を出す
+    if (this.y > 1000) {
+      console.error('警告: 敵のY座標が異常に大きい値です:', this.y);
+      // 安全な値にリセット
+      this.y = 100;
+      return;
+    }
+    
     // 移動遅延がある場合は減少
     if (this.moveDelay > 0) {
       this.moveDelay -= deltaTime;
       return;
     }
     
+    // 前の位置を保存
+    const prevX = this.x;
+    const prevY = this.y;
+    
     // 移動
-    this.x += this.direction * this.speed * deltaTime;
+    const movement = this.direction * this.speed * deltaTime;
+    this.x += movement;
+    
+    // 移動量が異常に大きい場合は警告を出す
+    if (Math.abs(movement) > 20) {
+      console.error('警告: 敵の移動量が異常に大きいです:', movement, 'deltaTime:', deltaTime);
+      // 安全な値にリセット
+      this.x = prevX;
+      return;
+    }
     
     // 画面端に到達したら方向転換と下降
     // canvasWidthプロパティが存在すればそちらを使用、なければgame.canvas.widthを使用
     const screenWidth = this.canvasWidth || this.game.canvas.width;
+    
+    // 画面端判定の詳細情報
+    if (Math.random() < 0.01) { // 1%の確率でログ出力してログ量を減らす
+      console.log('敵位置確認 - X:', this.x, 'Y:', this.y, '画面幅:', screenWidth, '余白:', this.edgeMargin);
+    }
+    
     if (this.x <= this.edgeMargin || this.x >= screenWidth - this.edgeMargin) {
+      console.log('敵が画面端に到達 - X:', this.x, 'Y:', this.y);
       this.changeDirectionAndDrop();
       console.log('敵が方向転換しました: 方向=' + this.direction);
     }
@@ -105,10 +133,19 @@ export class Enemy {
   // 方向転換と下降
   changeDirectionAndDrop() {
     this.direction *= -1;
-    this.y += this.dropDistance;
     
-    // 移動遅延をランダムに設定（隊列の動きをずらす）
-    this.moveDelay = Math.random() * 0.2;
+    // 方向転換時に確率的に下降するように調整
+    if (Math.random() < 0.7) { // 70%の確率で下降
+      // 下降距離を少し減らす
+      const actualDropDistance = this.dropDistance * 0.7;
+      this.y += actualDropDistance;
+      console.log('敵が下降しました - Y座標:', this.y, '下降距離:', actualDropDistance);
+    } else {
+      console.log('敵の下降をスキップしました - Y座標:', this.y);
+    }
+    
+    // 移動遅延を少し長くして方向転換の頻度を減らす
+    this.moveDelay = 0.1 + Math.random() * 0.2; // 0.1秒から0.3秒の遅延
   }
   
   // 弾の発射

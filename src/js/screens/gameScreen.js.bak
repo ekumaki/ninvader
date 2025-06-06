@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.3
+ * Version: 0.1.2
  * SPDX-License-Identifier: MIT
  */
 
@@ -173,15 +173,6 @@ export class GameScreen {
       // ゲーム状態のリセット
       this.gameTime = 0;
       this.gameOver = false;
-      this.enemyRespawnScheduled = false; // 敵の再生成フラグを初期化
-      this.collisionEnabled = false; // 初期状態では衝突判定を無効化
-      
-      // 数秒後に衝突判定を有効化
-      setTimeout(() => {
-        this.collisionEnabled = true;
-        console.log('衝突判定が有効になりました');
-      }, 3000); // 3秒後に有効化
-      
       this.game.scoreManager.resetScore();
       
       console.log('ゲーム初期化完了');
@@ -199,15 +190,12 @@ export class GameScreen {
     const usableWidth = this.canvas.width - marginX * 2;
     const enemySpacing = usableWidth / (this.enemyCols - 1);
     const startX = marginX;
-    const startY = 30; // 初期位置をさらに上方に調整
-    
-    // 敵の行間の距離を調整
-    const rowSpacing = 40; // 行間の距離を小さくする
+    const startY = 50; // 初期位置を上方に調整
     
     for (let row = 0; row < this.enemyRows; row++) {
       for (let col = 0; col < this.enemyCols; col++) {
-        const x = startX + col * enemySpacing;
-        const y = startY + row * rowSpacing; // 調整した行間距離を使用
+        const x = startX + col * this.enemySpacing;
+        const y = startY + row * this.enemySpacing;
         
         // 敵クラスのデフォルト設定を尊重する
         const enemy = new Enemy(this.game, x, y);
@@ -223,10 +211,6 @@ export class GameScreen {
         this.enemies.push(enemy);
       }
     }
-    
-    // 初期配置のデバッグ情報
-    console.log('敵の初期配置完了 - 最上部の敵のY座標:', startY);
-    console.log('敵の初期配置完了 - 最下部の敵のY座標:', startY + (this.enemyRows - 1) * rowSpacing);
   }
   
   // 更新処理
@@ -234,36 +218,13 @@ export class GameScreen {
     // ゲームオーバーなら何もしない
     if (this.gameOver) return;
     
+    // デバッグ情報を追加
+    if (Math.floor(this.gameTime) !== Math.floor(this.gameTime + deltaTime)) {
+      console.log('ゲーム時間:', Math.floor(this.gameTime + deltaTime), '秒');
+    }
+    
     // ゲーム時間の更新
     this.gameTime += deltaTime;
-    
-    // デバッグ情報を追加 - 5秒ごとに詳細情報を出力
-    if (Math.floor(this.gameTime) % 5 === 0 && 
-        Math.floor(this.gameTime) !== Math.floor(this.gameTime - deltaTime)) {
-      console.log('\n=== 詳細デバッグ情報 ===');
-      console.log('ゲーム時間:', Math.floor(this.gameTime), '秒');
-      console.log('敵の数:', this.enemies.length);
-      
-      // 敵の位置情報を詳細に出力
-      if (this.enemies.length > 0) {
-        // 敵をY座標でソート
-        const sortedEnemies = [...this.enemies].sort((a, b) => b.y - a.y);
-        // 最下部の敵の位置を出力
-        const lowestEnemy = sortedEnemies[0];
-        console.log('最下部の敵の位置:');
-        console.log(`Y座標=${lowestEnemy.y}, 上端=${lowestEnemy.y - lowestEnemy.height/2}, 下端=${lowestEnemy.y + lowestEnemy.height/2}`);
-      }
-      
-      // プレイヤーの位置情報
-      if (this.player) {
-        console.log('プレイヤー位置情報:');
-        console.log(`Y座標=${this.player.y}, 上端=${this.player.y - this.player.height/2}, 下端=${this.player.y + this.player.height/2}`);
-      }
-      
-      console.log('画面サイズ:', this.canvas.width, 'x', this.canvas.height);
-      console.log('ゲームオーバーしきい値:', this.canvas.height * 0.9);
-      console.log('=== デバッグ情報終了 ===\n');
-    }
     
     // プレイヤーの更新
     if (this.player && this.player.isActive) {
@@ -342,9 +303,8 @@ export class GameScreen {
   
   // ボスの更新
   updateBoss(deltaTime) {
-    // ボスの出現条件チェック - 時間経過のみに変更
-    if (!this.boss && this.gameTime >= this.bossSpawnTime) {
-      console.log('ボスが出現しました - 時間経過による出現');
+    // ボスの出現条件チェック
+    if (!this.boss && (this.gameTime >= this.bossSpawnTime || this.enemies.length === 0)) {
       this.boss = new Boss(this.game);
     }
     
@@ -352,18 +312,12 @@ export class GameScreen {
     if (this.boss) {
       this.boss.update(deltaTime);
       
-      // ボスが倒されたらステージクリア
+      // ボスが倒されたらゲームクリア
       if (!this.boss.isActive) {
-        console.log('ボスを倒しました - ステージクリア');
-        // ボスをnullに設定するだけで、ゲームオーバーにはしない
-        this.boss = null;
-        
-        // 敵を再配置して次の段階へ
-        this.createEnemies();
-        
-        // スコア加算
-        this.game.score += 1000; // ボス倒しボーナス
-        this.updateScoreDisplay();
+        // ゲームクリア処理
+        setTimeout(() => {
+          this.game.switchScreen('gameOver');
+        }, 1000);
       }
     }
   }
@@ -385,141 +339,60 @@ export class GameScreen {
     }
     
     // 無効になった弾を削除
-    this.enemyBullets = this.enemyBullets.filter(bullet => bullet.isActive);
-  }
   
-  // 衝突判定
-  checkCollisions() {
-    // デバッグ情報を追加
-    console.log('衝突判定実行中 - 敵数:', this.enemies.length, 'プレイヤー弾数:', this.playerBullets.length);
-    
-    // プレイヤーの弾と敵の衝突判定
-    for (let i = this.playerBullets.length - 1; i >= 0; i--) {
-      const bullet = this.playerBullets[i];
+// 画面端から十分に離して敵を配置する
+const marginX = 80; // 画面端からの余白
+const usableWidth = this.canvas.width - marginX * 2;
+const enemySpacing = usableWidth / (this.enemyCols - 1);
+const startX = marginX;
+const startY = 50; // 初期位置を上方に調整
+      // 弾が無効になっていたら次の弾へ
+      if (!bullet.isActive) continue;
       
-      for (let j = this.enemies.length - 1; j >= 0; j--) {
-        const enemy = this.enemies[j];
-        
-        if (this.checkEntityCollision(bullet, enemy)) {
-          // 敵にダメージ
-          enemy.takeDamage(1);
-          
-          // 弾を削除
-          this.playerBullets.splice(i, 1);
-          
-          // 敵が倒れた場合
-          if (!enemy.isActive) {
-            // スコア加算
-            this.game.score += enemy.points;
-            this.updateScoreDisplay();
-            
-            // 敵を配列から削除
-            this.enemies.splice(j, 1);
-            
-            // 爆発音の再生
-            this.game.audioManager.play('explosion', 0.3);
-          }
-          
-          break;
+      // ボスとの衝突
+      if (this.boss && bullet.collidesWith(this.boss)) {
+        if (this.boss.takeDamage(bullet.damage)) {
+          // ボスを倒した
+          this.game.scoreManager.addScore(this.boss.points);
+          this.game.audioManager.play('explosion', 1.0);
         }
-      }
-      
-      // ボスとの衝突判定
-      if (this.boss && this.checkEntityCollision(bullet, this.boss)) {
-        // ボスにダメージ
-        this.boss.takeDamage(1);
         
-        // 弾を削除
-        this.playerBullets.splice(i, 1);
-        
-        // ボスが倒れた場合
-        if (!this.boss.isActive) {
-          // スコア加算
-          this.game.score += this.boss.points;
-          this.updateScoreDisplay();
-          
-          // ボスをnullに設定
-          this.boss = null;
-          
-          // 爆発音の再生
-          this.game.audioManager.play('explosion', 0.5);
-        }
-      }
-    }
-    
-    // 敵の弾とプレイヤーの衝突判定
-    // 一時的に無効化してデバッグ
-    /*
-    if (this.player) {
-      for (const bullet of this.enemyBullets) {
-        if (this.checkEntityCollision(bullet, this.player)) {
-          // プレイヤーがダメージを受ける
-          console.log('敵の弾がプレイヤーに当たりました');
-          this.handleGameOver();
+        // 貫通弾でなければ弾を無効化
+        if (!bullet.penetrating) {
           bullet.isActive = false;
         }
       }
     }
-    */
-      
-    // 敵とプレイヤーの衝突判定
-    if (this.player && this.collisionEnabled) { // 衝突判定が有効な場合のみ実行
-      // 定期的に敵の位置をログ出力
-      if (Math.floor(this.gameTime) % 5 === 0 && Math.floor(this.gameTime) > 0) {
-        // 最も下にいる敵を特定
-        if (this.enemies.length > 0) {
-          const lowestEnemy = this.enemies.reduce((lowest, enemy) => 
-            enemy.y > lowest.y ? enemy : lowest, this.enemies[0]);
-          console.log('最下部の敵の位置 - Y座標:', lowestEnemy.y, '画面高さ:', this.canvas.height);
-          console.log('プレイヤーの位置 - Y座標:', this.player.y, 'プレイヤーの高さ:', this.player.height);
+    
+    // 敵の弾とプレイヤーの衝突
+    if (this.player) {
+      for (const bullet of this.enemyBullets) {
+        if (bullet.collidesWith(this.player)) {
+          // プレイヤーがダメージを受ける
+          this.handleGameOver();
+          bullet.isActive = false;
         }
       }
       
+      // 敵とプレイヤーの衝突判定
       for (const enemy of this.enemies) {
         // 敵が画面下端まで降りてきた場合
-        // プレイヤーより大幅に下に到達した場合にゲームオーバーとする
-        
-        // プレイヤーの底辺の位置を正確に計算
-        const playerBottomPosition = this.player.y + this.player.height / 2;
-        
-        // 敵が画面下端に到達した場合にのみゲームオーバーとする
-        // プレイヤーの位置に関係なく、画面高さの90%を超えた場合にゲームオーバー
-        const gameOverThreshold = this.canvas.height * 0.9; // 画面高さの90%をしきい値とする
-        
-        // 敵の下端がゲームオーバーのしきい値を超えた場合
-        const enemyBottomPosition = enemy.y + enemy.height / 2;
-        
-        if (enemyBottomPosition > gameOverThreshold) {
+        // プレイヤーより下に到達した場合にゲームオーバーとする
+        if (enemy.y + enemy.height / 2 > this.canvas.height - 50) {
           console.log('敵が画面下端に到達しました');
-          console.log('敵のY座標:', enemy.y, '敵の下端位置:', enemyBottomPosition);
-          console.log('ゲームオーバーしきい値:', gameOverThreshold, '(画面高さの90%)');
+          console.log('敵のY座標:', enemy.y);
           console.log('画面高さ:', this.canvas.height);
           this.handleGameOver();
-          return; // 衝突判定を終了
+          break;
         }
         
         // プレイヤーと敵の直接衝突
-        // 衝突判定をより厳密にするための調整係数
-        const collisionAdjustment = 0.8; // 80%のサイズで衝突判定
-        const playerWidth = this.player.width * collisionAdjustment;
-        const playerHeight = this.player.height * collisionAdjustment;
-        const enemyWidth = enemy.width * collisionAdjustment;
-        const enemyHeight = enemy.height * collisionAdjustment;
-        
-        // 調整されたサイズで衝突判定
-        const collision = (
-          this.player.x - playerWidth / 2 < enemy.x + enemyWidth / 2 &&
-          this.player.x + playerWidth / 2 > enemy.x - enemyWidth / 2 &&
-          this.player.y - playerHeight / 2 < enemy.y + enemyHeight / 2 &&
-          this.player.y + playerHeight / 2 > enemy.y - enemyHeight / 2
-        );
-        
-        if (collision) {
+        if (this.checkEntityCollision(this.player, enemy)) {
           console.log('プレイヤーと敵が衝突しました');
           console.log('プレイヤー位置:', this.player.x, this.player.y);
           console.log('敵位置:', enemy.x, enemy.y);
           this.handleGameOver();
-          return; // 衝突判定を終了
+          break;
         }
       }
     }
@@ -539,95 +412,37 @@ export class GameScreen {
   // ゲーム状態の確認
   checkGameState() {
     // デバッグ情報を追加
-    if (Math.floor(this.gameTime) % 5 === 0 && Math.floor(this.gameTime) > 0) {
-      // 5秒おきにログを出力してログ量を減らす
-      console.log('ゲーム状態確認中 - 敵数:', this.enemies.length);
-      console.log('ゲーム時間:', Math.floor(this.gameTime), '秒');
-      
-      // 敵の位置をログ出力
-      if (this.enemies.length > 0) {
-        const lowestEnemy = this.enemies.reduce((lowest, enemy) => 
-          enemy.y > lowest.y ? enemy : lowest, this.enemies[0]);
-        console.log('最も下にいる敵の位置:', lowestEnemy.y, '画面高さ:', this.canvas.height);
-      }
-    }
+    console.log('ゲーム状態確認中 - 敵数:', this.enemies.length);
     
-    // 敵が全滅した場合は次の敵を生成
-    if (this.enemies.length === 0 && !this.boss && !this.enemyRespawnScheduled) {
-      console.log('敵を全滅させました！次の敵を生成します');
-      
-      // 再生成フラグを立てて重複生成を防止
-      this.enemyRespawnScheduled = true;
-      
-      // 敵を再配置
-      setTimeout(() => {
-        this.createEnemies();
-        
-        // ステージクリアボーナス
-        this.game.score += 500;
-        this.updateScoreDisplay();
-        
-        // 再生成フラグをリセット
-        this.enemyRespawnScheduled = false;
-      }, 1500); // 1.5秒後に敵を生成
+    // 敵が全滅した場合はクリア
+    if (this.enemies.length === 0 && !this.boss) {
+      console.log('敵を全滅させました！');
+      // TODO: ステージクリア処理
     }
   }
   
   // ゲームオーバー処理
   handleGameOver() {
-    // ゲーム開始直後のゲームオーバーをスキップ
-    if (this.gameTime < 2) {
-      console.log('ゲーム開始直後のゲームオーバーをスキップしました');
-      return;
-    }
+    if (this.gameOver) return; // 既にゲームオーバー状態なら何もしない
     
-    // 既にゲームオーバーなら何もしない
-    if (this.gameOver) return;
-    
-    // 詳細なデバッグ情報を追加
+    // デバッグ情報を追加
     console.log('ゲームオーバーが発生しました');
     console.log('ゲーム時間:', this.gameTime);
     console.log('敵の数:', this.enemies.length);
+    console.log('スタックトレース:', new Error().stack);
     
-    // 敵の位置情報を詳細に出力
-    if (this.enemies.length > 0) {
-      // 敵をY座標でソート
-      const sortedEnemies = [...this.enemies].sort((a, b) => b.y - a.y);
-      // 上から5体の敵の位置を出力
-      console.log('最下部の敵の位置情報:');
-      for (let i = 0; i < Math.min(5, sortedEnemies.length); i++) {
-        const enemy = sortedEnemies[i];
-        console.log(`敵 ${i+1}: Y座標=${enemy.y}, 上端=${enemy.y - enemy.height/2}, 下端=${enemy.y + enemy.height/2}`);
-      }
-    }
-    
-    // プレイヤーの位置情報
-    if (this.player) {
-      console.log('プレイヤー位置情報:');
-      console.log(`X座標=${this.player.x}, Y座標=${this.player.y}`);
-      console.log(`幅=${this.player.width}, 高さ=${this.player.height}`);
-      console.log(`上端=${this.player.y - this.player.height/2}, 下端=${this.player.y + this.player.height/2}`);
-    }
-    
-    // 画面サイズ情報
-    console.log('画面サイズ情報:');
-    console.log(`幅=${this.canvas.width}, 高さ=${this.canvas.height}`);
-    
-    // スタックトレース
-    console.log('スタックトレース:', new Error());
-    
-    // ゲームオーバーフラグを立てる
     this.gameOver = true;
+    this.game.audioManager.play('explosion', 1.0);
     
-    // プレイヤーを非アクティブに
+    // プレイヤーを非表示にする
     if (this.player) {
       this.player.isActive = false;
     }
     
-    // ゲームオーバー画面に切り替え
+    // 少し待ってからゲームオーバー画面へ
     setTimeout(() => {
       this.game.switchScreen('gameOver');
-    }, 1000);
+    }, 1500);
   }
   
   // 描画処理
