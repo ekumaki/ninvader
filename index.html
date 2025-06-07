@@ -89,10 +89,10 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      font-size: 14px;
+      font-size: 12px;
       color: #888;
       background-color: rgba(0, 0, 0, 0.5);
-      padding: 5px 10px;
+      padding: 3px 8px;
       border-radius: 3px;
     }
   </style>
@@ -103,7 +103,7 @@
   <div id="game-container">
     <canvas id="game-canvas" width="360" height="640"></canvas>
     <div id="game-ui">
-      <div class="version-info">Version 0.1.4</div>
+      <div class="version-info">v0.1.4</div>
       <h1 class="title">CNP インベーダー</h1>
       <div class="menu-buttons">
         <button class="menu-btn" id="start-btn">ゲーム開始</button>
@@ -179,6 +179,39 @@
       document.getElementById('instructions-btn').addEventListener('click', function() {
         console.log('操作説明ボタンがクリックされました');
         if (debugInfo) debugInfo.textContent = '操作説明ボタンがクリックされました';
+        
+        // ゲームインスタンスを探して操作説明画面に遷移
+        setTimeout(() => {
+          let gameInstance = window.gameInstance;
+          
+          // 全てのグローバル変数をチェックしてゲームインスタンスを探す
+          for (const key in window) {
+            if (window[key] && typeof window[key] === 'object' && window[key].screens && window[key].switchScreen) {
+              console.log('ゲームインスタンスを発見しました:', key);
+              gameInstance = window[key];
+              break;
+            }
+          }
+          
+          if (gameInstance) {
+            // UIを非表示
+            const gameUI = document.getElementById('game-ui');
+            if (gameUI) {
+              gameUI.style.display = 'none';
+            }
+            
+            // キャンバスを表示
+            const canvas = document.getElementById('game-canvas');
+            if (canvas) {
+              canvas.style.display = 'block';
+            }
+            
+            // 操作説明画面に遷移
+            gameInstance.switchScreen('instructions');
+          } else {
+            console.error('ゲームインスタンスが見つかりません');
+          }
+        }, 100);
       });
       
       document.getElementById('credits-btn').addEventListener('click', function() {

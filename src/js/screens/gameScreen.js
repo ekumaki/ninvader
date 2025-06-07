@@ -301,17 +301,73 @@ export class GameScreen {
   // 敵の更新
   updateEnemies(deltaTime) {
     if (this.boss) return; // ボス出現中は敵の更新をスキップ
+    if (this.enemies.length === 0) return;
     
-    // 敵の移動速度調整は行わず、敵クラスの設定を尊重
-    // 敵クラス内で画面端判定と方向転換を行うようにしたので、ここでは単純に更新するのみ
+    // 編隊移動の管理
+    if (!this.formationDirection) this.formationDirection = 1; // 1: 右, -1: 左
+    if (!this.formationMoveTimer) this.formationMoveTimer = 0;
+    if (!this.formationMoveInterval) this.formationMoveInterval = 0.5; // 0.5秒ごとに移動
+    if (!this.formationSpeed) this.formationSpeed = 30; // 1回の移動距離
     
-    // 敵が残っている場合のみ更新
-    if (this.enemies.length > 0) {
-      for (let i = this.enemies.length - 1; i >= 0; i--) {
-        const enemy = this.enemies[i];
+    // 敵の数に応じて移動速度を調整（少なくなるほど速く）
+    const speedMultiplier = Math.max(0.3, 1 - (this.enemies.length / 50)); // 最低30%まで
+    const currentMoveInterval = this.formationMoveInterval * speedMultiplier;
+    
+    this.formationMoveTimer += deltaTime;
+    
+    // 編隊移動のタイミング
+    if (this.formationMoveTimer >= currentMoveInterval) {
+      this.formationMoveTimer = 0;
+      
+      // 画面端チェック用の最端の敵を見つける
+      let leftmostX = this.enemies[0].x;
+      let rightmostX = this.enemies[0].x;
+      
+      for (const enemy of this.enemies) {
+        leftmostX = Math.min(leftmostX, enemy.x);
+        rightmostX = Math.max(rightmostX, enemy.x);
+      }
+      
+      // 画面端判定
+      const edgeMargin = 30;
+      const shouldChangeDirection = 
+        (this.formationDirection === 1 && rightmostX >= this.canvas.width - edgeMargin) ||
+        (this.formationDirection === -1 && leftmostX <= edgeMargin);
+      
+      if (shouldChangeDirection) {
+        // 方向転換と下降
+        this.formationDirection *= -1;
         
-        // 敵の更新
-        enemy.update(deltaTime);
+        // 全ての敵を下降
+        for (const enemy of this.enemies) {
+          enemy.y += 20; // 下降距離
+        }
+      } else {
+        // 横移動
+        for (const enemy of this.enemies) {
+          enemy.x += this.formationDirection * this.formationSpeed;
+        }
+      }
+    }
+    
+    // 個別の敵の更新（移動以外）
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      const enemy = this.enemies[i];
+      
+      // 発射クールダウンの更新
+      if (!enemy.canShoot) {
+        enemy.shootTimer += deltaTime;
+        if (enemy.shootTimer >= enemy.shootCooldown) {
+          enemy.canShoot = true;
+          enemy.shootTimer = 0;
+        }
+      }
+      
+      // アニメーション更新
+      enemy.animationTimer += deltaTime;
+      if (enemy.animationTimer >= enemy.animationSpeed) {
+        enemy.currentFrame = (enemy.currentFrame + 1) % enemy.totalFrames;
+        enemy.animationTimer = 0;
       }
     }
     
@@ -362,7 +418,7 @@ export class GameScreen {
         this.createEnemies();
         
         // スコア加算
-        this.game.score += 1000; // ボス倒しボーナス
+        this.game.scoreManager.addScore(300); // ボス撃破:300点
         this.updateScoreDisplay();
       }
     }
@@ -410,7 +466,7 @@ export class GameScreen {
           // 敵が倒れた場合
           if (!enemy.isActive) {
             // スコア加算
-            this.game.score += enemy.points;
+            this.game.scoreManager.addScore(10); // 敵撃破:10点
             this.updateScoreDisplay();
             
             // 敵を配列から削除
@@ -421,6 +477,28 @@ export class GameScreen {
           }
           
           break;
+        }
+      }
+      
+      // UFOとの衝突判定
+      if (this.ufo && this.checkEntityCollision(bullet, this.ufo)) {
+        // UFOにダメージ
+        this.ufo.takeDamage(1);
+        
+        // 弾を削除
+        this.playerBullets.splice(i, 1);
+        
+        // UFOが倒れた場合
+        if (!this.ufo.isActive) {
+          // スコア加算
+          this.game.scoreManager.addScore(100); // UFO撃破:100点
+          this.updateScoreDisplay();
+          
+          // UFOをnullに設定
+          this.ufo = null;
+          
+          // 爆発音の再生
+          this.game.audioManager.play('explosion', 0.4);
         }
       }
       
@@ -435,7 +513,7 @@ export class GameScreen {
         // ボスが倒れた場合
         if (!this.boss.isActive) {
           // スコア加算
-          this.game.score += this.boss.points;
+          this.game.scoreManager.addScore(300); // ボス撃破:300点
           this.updateScoreDisplay();
           
           // ボスをnullに設定
@@ -564,7 +642,7 @@ export class GameScreen {
         this.createEnemies();
         
         // ステージクリアボーナス
-        this.game.score += 500;
+        this.game.scoreManager.addScore(100); // ステージボーナス:100点
         this.updateScoreDisplay();
         
         // 再生成フラグをリセット
@@ -754,10 +832,36 @@ export class GameScreen {
     const score = this.game.scoreManager.getScore();
     const highScore = this.game.scoreManager.getHighScore();
     
-    scoreDisplay.innerHTML = `ハイスコア: ${highScore}<br>スコア: ${score}`;
+    scoreDisplay.innerHTML = `スコア: ${score}<br>ハイスコア: ${highScore}`;
+    scoreDisplay.style.position = 'absolute';
+    scoreDisplay.style.top = '10px';
+    scoreDisplay.style.left = '10px';
+    scoreDisplay.style.color = 'white';
+    scoreDisplay.style.fontSize = '14px';
+    scoreDisplay.style.zIndex = '1000';
+    scoreDisplay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    scoreDisplay.style.padding = '5px 10px';
+    scoreDisplay.style.borderRadius = '3px';
     
     document.body.appendChild(scoreDisplay);
     this.scoreDisplay = scoreDisplay;
+    
+    // バージョン表示も作成
+    const versionDisplay = document.createElement('div');
+    versionDisplay.className = 'game-version-display';
+    versionDisplay.textContent = 'v0.1.4';
+    versionDisplay.style.position = 'absolute';
+    versionDisplay.style.top = '10px';
+    versionDisplay.style.right = '10px';
+    versionDisplay.style.color = '#888';
+    versionDisplay.style.fontSize = '12px';
+    versionDisplay.style.zIndex = '1000';
+    versionDisplay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    versionDisplay.style.padding = '3px 8px';
+    versionDisplay.style.borderRadius = '3px';
+    
+    document.body.appendChild(versionDisplay);
+    this.versionDisplay = versionDisplay;
   }
   
   // スコア表示の更新
@@ -774,6 +878,9 @@ export class GameScreen {
   removeScoreDisplay() {
     if (this.scoreDisplay && this.scoreDisplay.parentNode) {
       this.scoreDisplay.parentNode.removeChild(this.scoreDisplay);
+    }
+    if (this.versionDisplay && this.versionDisplay.parentNode) {
+      this.versionDisplay.parentNode.removeChild(this.versionDisplay);
     }
   }
   

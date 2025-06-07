@@ -184,8 +184,19 @@ export class TitleScreen {
       menuButtons.appendChild(instructionsBtn);
       menuButtons.appendChild(creditsBtn);
       
+      // ハイスコア表示
+      const highScoreDisplay = document.createElement('div');
+      highScoreDisplay.className = 'high-score-display';
+      const highScore = this.game.scoreManager.getHighScore();
+      highScoreDisplay.textContent = `ハイスコア: ${highScore}`;
+      highScoreDisplay.style.fontSize = '18px';
+      highScoreDisplay.style.margin = '10px 0';
+      highScoreDisplay.style.textAlign = 'center';
+      highScoreDisplay.style.color = '#FFD700';
+      
       titleScreen.appendChild(title);
       titleScreen.appendChild(version);
+      titleScreen.appendChild(highScoreDisplay);
       titleScreen.appendChild(menuButtons);
       
       // ゲームコンテナに追加

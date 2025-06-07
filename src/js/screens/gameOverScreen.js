@@ -53,7 +53,23 @@ export class GameOverScreen {
     const finalScore = document.createElement('div');
     finalScore.className = 'final-score';
     const score = this.game.scoreManager.getScore();
-    finalScore.textContent = `最終スコア: ${score}`;
+    const highScore = this.game.scoreManager.getHighScore();
+    
+    // ハイスコア更新チェック
+    const isNewHighScore = score === highScore && score > 0;
+    
+    if (isNewHighScore) {
+      finalScore.innerHTML = `
+        <div class="score-line">最終スコア: ${score}</div>
+        <div class="high-score-update">🎉 新ハイスコア! 🎉</div>
+        <div class="score-line">ハイスコア: ${highScore}</div>
+      `;
+    } else {
+      finalScore.innerHTML = `
+        <div class="score-line">最終スコア: ${score}</div>
+        <div class="score-line">ハイスコア: ${highScore}</div>
+      `;
+    }
     
     // メニューボタンのコンテナ
     const menuButtons = document.createElement('div');

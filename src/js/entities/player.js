@@ -53,6 +53,13 @@ export class Player {
     this.animationSpeed = 0.1; // アニメーション速度（秒）
     this.animationTimer = 0;
     this.totalFrames = 4; // 各方向のフレーム数
+    
+    // ゲームクリア時のジャンプアニメーション
+    this.isJumping = false;
+    this.jumpTimer = 0;
+    this.jumpDuration = 0.5; // ジャンプの継続時間（秒）
+    this.jumpHeight = 30; // ジャンプの高さ（ピクセル）
+    this.originalY = y; // 元のY座標
   }
   
   // 更新処理
@@ -129,6 +136,23 @@ export class Player {
         // 通常の発射
         this.shoot();
       }
+    }
+    
+    // ジャンプアニメーション更新
+    if (this.isJumping) {
+      this.jumpTimer += deltaTime;
+      
+      if (this.jumpTimer >= this.jumpDuration) {
+        // ジャンプ終了
+        this.jumpTimer = 0;
+      }
+      
+      // ジャンプの高さ計算（サイン波を使って滑らかに）
+      const jumpProgress = (this.jumpTimer / this.jumpDuration) * Math.PI;
+      this.y = this.originalY - Math.sin(jumpProgress) * this.jumpHeight;
+      
+      // ジャンプ中は前向き
+      this.direction = 1; // 後ろ向き（ゲームクリア時）
     }
     
     // アニメーション更新
@@ -221,5 +245,19 @@ export class Player {
     // クールダウン設定
     this.canShoot = false;
     this.shootTimer = 0;
+  }
+  
+  // ゲームクリア時のジャンプ開始
+  startJump() {
+    this.isJumping = true;
+    this.jumpTimer = 0;
+    this.originalY = this.y;
+  }
+  
+  // ジャンプ停止
+  stopJump() {
+    this.isJumping = false;
+    this.y = this.originalY;
+    this.direction = 0; // 前向きに戻す
   }
 }
