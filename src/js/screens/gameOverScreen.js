@@ -1,8 +1,11 @@
 /**
- * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.0
+ * CNP インベーダー - ゲームオーバー画面（リファクタリング版）
+ * Version: 0.1.5
  * SPDX-License-Identifier: MIT
  */
+
+import { GameConfig } from '../config/gameConfig.js';
+import { UIUtils } from '../utils/uiUtils.js';
 
 export class GameOverScreen {
   constructor(game) {
@@ -10,108 +13,88 @@ export class GameOverScreen {
     this.canvas = game.canvas;
     this.ctx = game.ctx;
     
-    // ゲームオーバー画面のUI要素
-    this.gameOverElement = null;
-    this.finalScoreElement = null;
-    this.retryButton = null;
-    this.titleButton = null;
+    // UI要素
+    this.versionDisplay = null;
+    this.scoreDisplay = null;
   }
   
   // 画面に入る時の処理
   enter() {
-    this.createGameOverUI();
+    console.log('ゲームオーバー画面に入りました');
+    
+    // キャンバスを非表示にしてHTML UIを表示
+    if (this.canvas) {
+      this.canvas.style.display = 'none';
+    }
+    
+    // UI要素の作成
+    this.createUI();
+    
+    const gameOverContainer = document.getElementById('game-over-container');
+    if (gameOverContainer) {
+      gameOverContainer.style.display = 'block';
+    }
+    
+    // スコア情報を更新
+    this.updateScoreInfo();
   }
   
   // 画面から出る時の処理
   exit() {
-    this.removeGameOverUI();
-  }
-  
-  // 更新処理
-  update(deltaTime) {
-    // ゲームオーバー画面では特に更新処理はない
-  }
-  
-  // 描画処理
-  render(ctx) {
-    // 背景の描画
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-  
-  // ゲームオーバー画面のUI作成
-  createGameOverUI() {
-    // ゲームオーバー画面のコンテナ
-    const gameOverScreen = document.createElement('div');
-    gameOverScreen.className = 'game-over';
+    console.log('ゲームオーバー画面から退出します');
     
-    // タイトル
-    const title = document.createElement('h2');
-    title.textContent = 'ゲームオーバー';
+    // UI要素の削除
+    this.removeUI();
     
-    // 最終スコア
-    const finalScore = document.createElement('div');
-    finalScore.className = 'final-score';
-    const score = this.game.scoreManager.getScore();
+    const gameOverContainer = document.getElementById('game-over-container');
+    if (gameOverContainer) {
+      gameOverContainer.style.display = 'none';
+    }
+  }
+  
+  // UI要素の作成
+  createUI() {
+    // バージョン表示
+    this.versionDisplay = UIUtils.createVersionDisplay();
+    document.body.appendChild(this.versionDisplay);
+    
+    // スコア表示
+    this.scoreDisplay = UIUtils.createScoreDisplay(this.game.scoreManager);
+    this.scoreDisplay.style.top = '80px';
+    this.scoreDisplay.style.left = '50%';
+    this.scoreDisplay.style.transform = 'translateX(-50%)';
+    this.scoreDisplay.style.textAlign = 'center';
+    document.body.appendChild(this.scoreDisplay);
+  }
+  
+  // UI要素の削除
+  removeUI() {
+    UIUtils.removeElements(this.versionDisplay, this.scoreDisplay);
+    this.versionDisplay = null;
+    this.scoreDisplay = null;
+  }
+  
+  // スコア情報の更新
+  updateScoreInfo() {
+    const finalScore = this.game.scoreManager.getScore();
     const highScore = this.game.scoreManager.getHighScore();
     
-    // ハイスコア更新チェック
-    const isNewHighScore = score === highScore && score > 0;
+    // HTMLの要素を更新
+    const finalScoreEl = document.getElementById('final-score');
+    const highScoreEl = document.getElementById('high-score');
+    const newHighScoreEl = document.getElementById('new-high-score');
     
-    if (isNewHighScore) {
-      finalScore.innerHTML = `
-        <div class="score-line">最終スコア: ${score}</div>
-        <div class="high-score-update">🎉 新ハイスコア! 🎉</div>
-        <div class="score-line">ハイスコア: ${highScore}</div>
-      `;
-    } else {
-      finalScore.innerHTML = `
-        <div class="score-line">最終スコア: ${score}</div>
-        <div class="score-line">ハイスコア: ${highScore}</div>
-      `;
+    if (finalScoreEl) {
+      finalScoreEl.textContent = finalScore;
     }
     
-    // メニューボタンのコンテナ
-    const menuButtons = document.createElement('div');
-    menuButtons.className = 'menu-buttons';
+    if (highScoreEl) {
+      highScoreEl.textContent = highScore;
+    }
     
-    // リトライボタン
-    const retryBtn = document.createElement('button');
-    retryBtn.className = 'menu-btn';
-    retryBtn.textContent = 'もう一度プレイ';
-    retryBtn.addEventListener('click', () => {
-      this.game.switchScreen('game');
-    });
-    
-    // タイトルに戻るボタン
-    const titleBtn = document.createElement('button');
-    titleBtn.className = 'menu-btn';
-    titleBtn.textContent = 'タイトルに戻る';
-    titleBtn.addEventListener('click', () => {
-      this.game.switchScreen('title');
-    });
-    
-    // 要素の追加
-    menuButtons.appendChild(retryBtn);
-    menuButtons.appendChild(titleBtn);
-    
-    gameOverScreen.appendChild(title);
-    gameOverScreen.appendChild(finalScore);
-    gameOverScreen.appendChild(menuButtons);
-    
-    document.body.appendChild(gameOverScreen);
-    
-    // 参照を保存
-    this.gameOverElement = gameOverScreen;
-    this.finalScoreElement = finalScore;
-    this.retryButton = retryBtn;
-    this.titleButton = titleBtn;
-  }
-  
-  // ゲームオーバー画面のUI削除
-  removeGameOverUI() {
-    if (this.gameOverElement && this.gameOverElement.parentNode) {
-      this.gameOverElement.parentNode.removeChild(this.gameOverElement);
+    // 最高スコア更新時の表示
+    if (finalScore === highScore && finalScore > 0 && newHighScoreEl) {
+      newHighScoreEl.style.display = 'block';
     }
   }
 }

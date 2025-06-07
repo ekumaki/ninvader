@@ -8,10 +8,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .js",
-    "version:sync": "node scripts/update-version.cjs",
+    "version:sync": "node ./scripts/update-version.cjs",
     "version:update": "npm version patch && npm run version:sync",
     "version:minor": "npm version minor && npm run version:sync",
-    "version:major": "npm version major && npm run version:sync"
+    "version:major": "npm version major && npm run version:sync",
+    "version:patch": "npm run version:update"
   },
   "keywords": [
     "game",
