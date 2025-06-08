@@ -70,6 +70,7 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
+      align-items: center;
     }
     .menu-btn {
       padding: 10px 20px;
@@ -89,7 +90,7 @@
       position: fixed;
       bottom: 10px;
       right: 10px;
-      font-size: 10px;
+      font-size: 12px;
       color: #999;
       background-color: transparent;
       padding: 0;
@@ -117,9 +118,10 @@
     }
     
     .game-over-title {
-      font-size: 48px;
+      font-size: 36px;
       margin-bottom: 30px;
       color: #ff4444;
+      text-align: center;
     }
     
     .score-info {
@@ -159,6 +161,7 @@
     .instructions-title {
       font-size: 32px;
       margin-bottom: 30px;
+      text-align: center;
     }
     
     .instructions-content {
@@ -193,7 +196,7 @@
     
     <!-- タイトル画面 -->
     <div id="game-ui">
-      <div class="version-info">v1.0.0</div>
+      <div class="version-info" id="version-display"></div>
       <h1 class="title">CNP インベーダー</h1>
       <div class="high-score-display" id="title-high-score">ハイスコア: 0</div>
       <div class="menu-buttons">
@@ -205,7 +208,7 @@
     
     <!-- ゲームオーバー画面 -->
     <div id="game-over-container">
-      <h1 class="game-over-title">ゲームオーバー</h1>
+      <h1 class="game-over-title">GAME OVER</h1>
       <div class="score-info">
         <div>スコア: <span id="final-score">0</span></div>
         <div>ハイスコア: <span id="high-score">0</span></div>
@@ -213,7 +216,7 @@
       <div id="new-high-score">新記録達成！</div>
       <div class="menu-buttons">
         <button class="menu-btn" id="retry-btn">リトライ</button>
-        <button class="menu-btn" id="back-to-title-btn">タイトルへ戻る</button>
+        <button class="menu-btn" id="back-to-title-btn">タイトルへもどる</button>
       </div>
     </div>
     
@@ -225,18 +228,11 @@
           <strong>基本操作</strong><br>
           ← → : プレイヤー移動<br>
           スペースキー : 弾を発射<br>
-          スペース長押し : 必殺技チャージ
-        </div>
-        <div class="instructions-controls">
-          <strong>ルール</strong><br>
-          ・敵を倒してスコアを獲得<br>
-          ・敵の弾に当たるとゲームオーバー<br>
-          ・必殺技で複数の敵を一度に倒そう<br>
-          ・UFOやボスを倒すと高得点
+          スペース長押し : 必殺技
         </div>
       </div>
       <div class="menu-buttons">
-        <button class="menu-btn" id="back-from-instructions-btn">戻る</button>
+        <button class="menu-btn" id="back-from-instructions-btn">タイトルへもどる</button>
       </div>
     </div>
     
@@ -265,7 +261,7 @@
         // テスト用のテキストを描画
         ctx.fillStyle = '#FFFFFF';
         ctx.font = '20px Arial';
-        ctx.fillText('CNPインベーダー v0.1.2', 80, 100);
+        ctx.fillText('CNPインベーダー', 80, 100);
         ctx.fillText('キャンバス描画テスト', 80, 130);
         
         // シンプルなアニメーション
@@ -280,7 +276,7 @@
           // タイトルを描画
           ctx.fillStyle = '#FFFFFF';
           ctx.font = '20px Arial';
-          ctx.fillText('CNPインベーダー v0.1.2', 80, 100);
+          ctx.fillText('CNPインベーダー', 80, 100);
           
           // 動くオブジェクトを描画
           ctx.fillStyle = '#FF0000';
@@ -348,7 +344,9 @@
       
       document.getElementById('credits-btn').addEventListener('click', function() {
         console.log('クレジットボタンがクリックされました');
-        alert('CNP インベーダー\nVersion 1.0.0\n© 2025 All Rights Reserved');
+        // GameConfigが利用可能な場合は動的バージョン、そうでなければ固定値
+        const version = window.gameInstance?.gameConfig?.VERSION || '0.1.7';
+        alert(`CNP インベーダー\nVersion ${version}\n© 2025 All Rights Reserved`);
       });
       
       // ゲームオーバー画面のボタンイベント

@@ -33,6 +33,9 @@ export class TitleScreen {
     if (existingUI) {
       console.log('既存のHTML UIを表示します');
       existingUI.style.display = 'flex';
+      
+      // バージョン表示を動的に更新
+      this.updateVersionDisplay();
     } else {
       // 既存UIがない場合は独自のUIを作成
       console.log('既存UIが見つからないため、独自のUIを作成します');
@@ -79,14 +82,6 @@ export class TitleScreen {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     
-    // バージョン情報の描画
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '16px Arial';
-    
-    // package.jsonから取得したバージョンを表示
-    const version = '0.1.6'; // 現在のバージョン
-    ctx.fillText(`CNPインベーダー v${version}`, 10, 30);
-    
     console.log('タイトル画面を描画しました');
   }
   
@@ -126,7 +121,7 @@ export class TitleScreen {
       // バージョン表示
       const version = document.createElement('div');
       version.className = 'game-version';
-      version.textContent = 'v0.1.6';
+      version.textContent = `v${GameConfig.VERSION}`;
       version.style.fontSize = '16px';
       version.style.margin = '0 0 20px 0';
       version.style.textAlign = 'center';
@@ -179,7 +174,7 @@ export class TitleScreen {
       styleButton(creditsBtn);
       creditsBtn.addEventListener('click', () => {
         console.log('クレジットボタンがクリックされました');
-        alert('CNP インベーダー\nVersion 0.1.6\n 2025 All Rights Reserved');
+        alert(`CNP インベーダー\nVersion ${GameConfig.VERSION}\n© 2025 All Rights Reserved`);
       });
       
       // 要素の追加
@@ -258,6 +253,15 @@ export class TitleScreen {
   removeScoreDisplay() {
     if (this.scoreDisplay && this.scoreDisplay.parentNode) {
       this.scoreDisplay.parentNode.removeChild(this.scoreDisplay);
+    }
+  }
+  
+  // バージョン表示を更新
+  updateVersionDisplay() {
+    const versionElement = document.getElementById('version-display');
+    if (versionElement) {
+      versionElement.textContent = `v${GameConfig.VERSION}`;
+      console.log(`バージョン表示を更新: v${GameConfig.VERSION}`);
     }
   }
   
