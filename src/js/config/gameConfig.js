@@ -5,8 +5,8 @@
  */
 
 export const GameConfig = {
-  // ゲーム基本設定
-  VERSION: '0.1.7',
+  // ゲームバージョン
+  VERSION: '0.1.8',
   CANVAS_WIDTH: 360,
   CANVAS_HEIGHT: 640,
   TARGET_FPS: 60,

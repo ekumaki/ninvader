@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.2
+ * Version: 0.1.7
  * SPDX-License-Identifier: MIT
  */
 
@@ -28,31 +28,20 @@ export class Player {
     this.requiredChargeTime = 3000; // 必要なチャージ時間（ミリ秒）
     this.specialReady = false;
     
-    // 画像の読み込み
+    // 画像の読み込み（背面向き専用画像）
     this.image = new Image();
     
     // 画像読み込みエラーのデバッグ
     this.image.onerror = () => {
-      console.error('プレイヤー画像の読み込みに失敗しました:', '/src/assets/img/player/player_A.png');
+      console.error('プレイヤー画像の読み込みに失敗しました:', 'player_A_back.png');
     };
     
     this.image.onload = () => {
-      console.log('プレイヤー画像の読み込みに成功しました');
+      console.log('プレイヤー背面向き画像の読み込みに成功しました');
     };
     
-    // Vite開発サーバーでは相対パスを使用
-    this.image.src = './src/assets/img/player/player_A.png';
-    
-    // スプライトシートの設定
-    this.frameWidth = 256; // スプライトシートの1フレームの幅
-    this.frameHeight = 384; // スプライトシートの1フレームの高さ
-    this.currentFrame = 0; // 現在のフレーム
-    this.direction = 1; // 0: 前向き, 1: 後ろ向き（背面・通常時）, 2: 左向き, 3: 右向き
-    
-    // アニメーション関連
-    this.animationSpeed = 0.1; // アニメーション速度（秒）
-    this.animationTimer = 0;
-    this.totalFrames = 4; // 各方向のフレーム数
+    // 背面向き画像を読み込み
+    this.image.src = './src/assets/img/player/player_A_back.png';
     
     // ゲームクリア時のジャンプアニメーション
     this.isJumping = false;
@@ -76,9 +65,6 @@ export class Player {
     if (inputManager.isKeyDown('ArrowRight')) {
       dx += this.speed * deltaTime;
     }
-    
-    // 常に背面を維持（移動中も）
-    this.direction = 1; // 背面（常時）
     
     // 位置の更新（画面外に出ないように制限）
     this.x = Math.max(this.width / 2, Math.min(this.game.canvas.width - this.width / 2, this.x + dx));
@@ -146,16 +132,6 @@ export class Player {
       // ジャンプの高さ計算（サイン波を使って滑らかに）
       const jumpProgress = (this.jumpTimer / this.jumpDuration) * Math.PI;
       this.y = this.originalY - Math.sin(jumpProgress) * this.jumpHeight;
-      
-      // ジャンプ中も背面を維持
-      this.direction = 1; // 背面（常時）
-    }
-    
-    // アニメーション更新
-    this.animationTimer += deltaTime;
-    if (this.animationTimer >= this.animationSpeed) {
-      this.currentFrame = (this.currentFrame + 1) % this.totalFrames;
-      this.animationTimer = 0;
     }
   }
   
@@ -164,15 +140,13 @@ export class Player {
     // プレイヤーが非アクティブなら描画しない
     if (!this.isActive) return;
     
-    // スプライトシートから適切なフレームを描画
-    const sx = this.currentFrame * this.frameWidth;
-    const sy = this.direction * this.frameHeight;
-    
-    // 描画（中心を基準に）
+    // 背面向き画像をシンプルに描画
     ctx.drawImage(
       this.image,
-      sx, sy, this.frameWidth, this.frameHeight,
-      this.x - this.width / 2, this.y - this.height / 2, this.width, this.height
+      this.x - this.width / 2, 
+      this.y - this.height / 2, 
+      this.width, 
+      this.height
     );
     
     // チャージバーの表示（チャージ中のみ）
@@ -254,6 +228,5 @@ export class Player {
   stopJump() {
     this.isJumping = false;
     this.y = this.originalY;
-    this.direction = 1; // 背面を維持
   }
-}
+} 
