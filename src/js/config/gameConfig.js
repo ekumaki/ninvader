@@ -1,5 +1,5 @@
 /**
- * CNP インベーダー - ゲーム設定
+ * CNP インベーダー - ゲーム設定 UPDATED
  * Version: 0.1.5
  * SPDX-License-Identifier: MIT
  */
@@ -28,11 +28,11 @@ export const GameConfig = {
     JUMP_HEIGHT: 30
   },
   
-  // 敵設定
+  // 敵設定 - ゲームバランス調整済み
   ENEMY: {
     HEALTH: 1,
-    FORMATION_SPEED: 30,
-    FORMATION_INTERVAL: 0.5,
+    FORMATION_SPEED: 15.0,   // 適度な移動速度
+    FORMATION_INTERVAL: 4.0, // 非常にゆっくりとした移動間隔（4.0秒）
     DROP_DISTANCE: 20,
     EDGE_MARGIN: 30,
     MIN_SPEED_MULTIPLIER: 0.3

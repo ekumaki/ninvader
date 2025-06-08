@@ -47,7 +47,7 @@ export class Player {
     this.frameWidth = 256; // スプライトシートの1フレームの幅
     this.frameHeight = 384; // スプライトシートの1フレームの高さ
     this.currentFrame = 0; // 現在のフレーム
-    this.direction = 0; // 0: 前向き, 1: 後ろ向き, 2: 左向き, 3: 右向き
+    this.direction = 1; // 0: 前向き, 1: 後ろ向き（背面・通常時）, 2: 左向き, 3: 右向き
     
     // アニメーション関連
     this.animationSpeed = 0.1; // アニメーション速度（秒）
@@ -71,18 +71,14 @@ export class Player {
     
     if (inputManager.isKeyDown('ArrowLeft')) {
       dx -= this.speed * deltaTime;
-      this.direction = 2; // 左向き
     }
     
     if (inputManager.isKeyDown('ArrowRight')) {
       dx += this.speed * deltaTime;
-      this.direction = 3; // 右向き
     }
     
-    // 移動がない場合は前向き
-    if (dx === 0) {
-      this.direction = 0; // 前向き
-    }
+    // 常に背面を維持（移動中も）
+    this.direction = 1; // 背面（常時）
     
     // 位置の更新（画面外に出ないように制限）
     this.x = Math.max(this.width / 2, Math.min(this.game.canvas.width - this.width / 2, this.x + dx));
@@ -151,8 +147,8 @@ export class Player {
       const jumpProgress = (this.jumpTimer / this.jumpDuration) * Math.PI;
       this.y = this.originalY - Math.sin(jumpProgress) * this.jumpHeight;
       
-      // ジャンプ中は前向き
-      this.direction = 1; // 後ろ向き（ゲームクリア時）
+      // ジャンプ中も背面を維持
+      this.direction = 1; // 背面（常時）
     }
     
     // アニメーション更新
@@ -258,6 +254,6 @@ export class Player {
   stopJump() {
     this.isJumping = false;
     this.y = this.originalY;
-    this.direction = 0; // 前向きに戻す
+    this.direction = 1; // 背面を維持
   }
 }

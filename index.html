@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CNP インベーダー v0.1.5</title>
+  <title>CNP インベーダー v0.1.6</title>
   <style>
     body {
       margin: 0;
@@ -25,12 +25,12 @@
       padding: 5px;
     }
     #game-container {
-      position: relative;
       width: 100vw;
       height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
     }
     #game-canvas {
       background-color: #000;
@@ -86,14 +86,102 @@
       background-color: #555;
     }
     .version-info {
-      position: absolute;
-      top: 10px;
+      position: fixed;
+      bottom: 10px;
       right: 10px;
-      font-size: 12px;
-      color: #888;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 3px 8px;
-      border-radius: 3px;
+      font-size: 10px;
+      color: #999;
+      background-color: transparent;
+      padding: 0;
+      border-radius: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    
+    /* ゲームオーバー画面 */
+    #game-over-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 360px;
+      height: 640px;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.9);
+      border: 1px solid #333;
+    }
+    
+    .game-over-title {
+      font-size: 48px;
+      margin-bottom: 30px;
+      color: #ff4444;
+    }
+    
+    .score-info {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    #new-high-score {
+      color: #ffcc00;
+      font-size: 18px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    /* 操作説明画面 */
+    #instructions-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 360px;
+      height: 640px;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.9);
+      border: 1px solid #333;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    
+    .instructions-title {
+      font-size: 32px;
+      margin-bottom: 30px;
+    }
+    
+    .instructions-content {
+      font-size: 18px;
+      line-height: 1.8;
+      max-width: 500px;
+      text-align: center;
+    }
+    
+    .instructions-controls {
+      margin: 20px 0;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    
+    /* ハイスコア表示 */
+    .high-score-display {
+      position: absolute;
+      top: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 18px;
+      color: #ffcc00;
     }
   </style>
 </head>
@@ -102,15 +190,56 @@
   
   <div id="game-container">
     <canvas id="game-canvas" width="360" height="640"></canvas>
+    
+    <!-- タイトル画面 -->
     <div id="game-ui">
-      <div class="version-info">v0.1.4</div>
+      <div class="version-info">v1.0.0</div>
       <h1 class="title">CNP インベーダー</h1>
+      <div class="high-score-display" id="title-high-score">ハイスコア: 0</div>
       <div class="menu-buttons">
         <button class="menu-btn" id="start-btn">ゲーム開始</button>
         <button class="menu-btn" id="instructions-btn">操作説明</button>
         <button class="menu-btn" id="credits-btn">クレジット</button>
       </div>
     </div>
+    
+    <!-- ゲームオーバー画面 -->
+    <div id="game-over-container">
+      <h1 class="game-over-title">ゲームオーバー</h1>
+      <div class="score-info">
+        <div>スコア: <span id="final-score">0</span></div>
+        <div>ハイスコア: <span id="high-score">0</span></div>
+      </div>
+      <div id="new-high-score">新記録達成！</div>
+      <div class="menu-buttons">
+        <button class="menu-btn" id="retry-btn">リトライ</button>
+        <button class="menu-btn" id="back-to-title-btn">タイトルへ戻る</button>
+      </div>
+    </div>
+    
+    <!-- 操作説明画面 -->
+    <div id="instructions-container">
+      <h1 class="instructions-title">操作説明</h1>
+      <div class="instructions-content">
+        <div class="instructions-controls">
+          <strong>基本操作</strong><br>
+          ← → : プレイヤー移動<br>
+          スペースキー : 弾を発射<br>
+          スペース長押し : 必殺技チャージ
+        </div>
+        <div class="instructions-controls">
+          <strong>ルール</strong><br>
+          ・敵を倒してスコアを獲得<br>
+          ・敵の弾に当たるとゲームオーバー<br>
+          ・必殺技で複数の敵を一度に倒そう<br>
+          ・UFOやボスを倒すと高得点
+        </div>
+      </div>
+      <div class="menu-buttons">
+        <button class="menu-btn" id="back-from-instructions-btn">戻る</button>
+      </div>
+    </div>
+    
     <div id="debug-info">ゲームキャンバスの初期化中...</div>
   </div>
 
@@ -119,6 +248,9 @@
     document.addEventListener('DOMContentLoaded', function() {
       console.log('ページが読み込まれました');
       document.getElementById('debug-header').textContent = 'デバッグモード: ページ読み込み完了';
+      
+      // ハイスコア表示の更新
+      updateHighScoreDisplay();
       
       // キャンバスの基本描画テスト
       const canvas = document.getElementById('game-canvas');
@@ -216,13 +348,67 @@
       
       document.getElementById('credits-btn').addEventListener('click', function() {
         console.log('クレジットボタンがクリックされました');
-        alert('CNP インベーダー\nVersion 0.1.5\n© 2025 All Rights Reserved');
+        alert('CNP インベーダー\nVersion 1.0.0\n© 2025 All Rights Reserved');
       });
+      
+      // ゲームオーバー画面のボタンイベント
+      document.getElementById('retry-btn').addEventListener('click', function() {
+        console.log('リトライボタンがクリックされました');
+        // ゲームを再開
+        const gameInstance = window.gameInstance;
+        if (gameInstance) {
+          const gameOverContainer = document.getElementById('game-over-container');
+          if (gameOverContainer) {
+            gameOverContainer.style.display = 'none';
+          }
+          gameInstance.switchScreen('game');
+        }
+      });
+      
+      document.getElementById('back-to-title-btn').addEventListener('click', function() {
+        console.log('タイトルへ戻るボタンがクリックされました');
+        // タイトル画面に戻る
+        const gameInstance = window.gameInstance;
+        if (gameInstance) {
+          const gameOverContainer = document.getElementById('game-over-container');
+          if (gameOverContainer) {
+            gameOverContainer.style.display = 'none';
+          }
+          gameInstance.switchScreen('title');
+        }
+      });
+      
+      // 操作説明画面のボタンイベント
+      document.getElementById('back-from-instructions-btn').addEventListener('click', function() {
+        console.log('操作説明から戻るボタンがクリックされました');
+        // タイトル画面に戻る
+        const gameInstance = window.gameInstance;
+        if (gameInstance) {
+          const instructionsContainer = document.getElementById('instructions-container');
+          if (instructionsContainer) {
+            instructionsContainer.style.display = 'none';
+          }
+          gameInstance.switchScreen('title');
+        }
+      });
+      
+      // ハイスコア表示更新関数
+      function updateHighScoreDisplay() {
+        try {
+          const savedHighScore = localStorage.getItem('cnp-invader-highscore');
+          const highScore = savedHighScore ? parseInt(savedHighScore) : 0;
+          const titleHighScore = document.getElementById('title-high-score');
+          if (titleHighScore) {
+            titleHighScore.textContent = `ハイスコア: ${highScore}`;
+          }
+        } catch (error) {
+          console.error('ハイスコア表示更新エラー:', error);
+        }
+      }
     });
   </script>
   
   <!-- ゲームのメインスクリプト -->
   <script type="module" src="./src/js/main.js"></script>
-  <script type="module" src="./src/js/fix-navigation.js"></script>
 </body>
 </html>

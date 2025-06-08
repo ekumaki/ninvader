@@ -19,7 +19,7 @@ export class Enemy {
     this.isActive = true;
     
     // 移動パターン
-    this.speed = 5; // 移動速度を上げる
+    this.speed = 0.05; // 移動速度を大幅に下げる（0.2→0.05）
     this.direction = 1; // 1: 右, -1: 左
     this.dropDistance = 2; // 下降距離を元に戻す
     this.moveDelay = 0; // 移動遅延（ランダム化用）
@@ -68,32 +68,33 @@ export class Enemy {
     const prevX = this.x;
     const prevY = this.y;
     
-    // 移動
-    const movement = this.direction * this.speed * deltaTime;
-    this.x += movement;
+    // 移動制御をFormationSystemに一元化するため、個別の移動処理をコメントアウト
+    // const movement = this.direction * this.speed * deltaTime;
+    // this.x += movement;
     
-    // 移動量が異常に大きい場合は警告を出す
-    if (Math.abs(movement) > 20) {
-      console.error('警告: 敵の移動量が異常に大きいです:', movement, 'deltaTime:', deltaTime);
-      // 安全な値にリセット
-      this.x = prevX;
-      return;
-    }
+    // 移動量が異常に大きい場合は警告を出す（移動処理無効化のためコメントアウト）
+    // if (Math.abs(movement) > 20) {
+    //   console.error('警告: 敵の移動量が異常に大きいです:', movement, 'deltaTime:', deltaTime);
+    //   // 安全な値にリセット
+    //   this.x = prevX;
+    //   return;
+    // }
     
+    // 画面端判定と方向転換もFormationSystemで行うためコメントアウト
     // 画面端に到達したら方向転換と下降
     // canvasWidthプロパティが存在すればそちらを使用、なければgame.canvas.widthを使用
-    const screenWidth = this.canvasWidth || this.game.canvas.width;
+    // const screenWidth = this.canvasWidth || this.game.canvas.width;
     
     // 画面端判定の詳細情報
-    if (Math.random() < 0.01) { // 1%の確率でログ出力してログ量を減らす
-      console.log('敵位置確認 - X:', this.x, 'Y:', this.y, '画面幅:', screenWidth, '余白:', this.edgeMargin);
-    }
+    // if (Math.random() < 0.01) { // 1%の確率でログ出力してログ量を減らす
+    //   console.log('敵位置確認 - X:', this.x, 'Y:', this.y, '画面幅:', screenWidth, '余白:', this.edgeMargin);
+    // }
     
-    if (this.x <= this.edgeMargin || this.x >= screenWidth - this.edgeMargin) {
-      console.log('敵が画面端に到達 - X:', this.x, 'Y:', this.y);
-      this.changeDirectionAndDrop();
-      console.log('敵が方向転換しました: 方向=' + this.direction);
-    }
+    // if (this.x <= this.edgeMargin || this.x >= screenWidth - this.edgeMargin) {
+    //   console.log('敵が画面端に到達 - X:', this.x, 'Y:', this.y);
+    //   this.changeDirectionAndDrop();
+    //   console.log('敵が方向転換しました: 方向=' + this.direction);
+    // }
     
     // 発射クールダウンの更新
     if (!this.canShoot) {

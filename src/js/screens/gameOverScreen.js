@@ -54,24 +54,12 @@ export class GameOverScreen {
   
   // UI要素の作成
   createUI() {
-    // バージョン表示
-    this.versionDisplay = UIUtils.createVersionDisplay();
-    document.body.appendChild(this.versionDisplay);
-    
-    // スコア表示
-    this.scoreDisplay = UIUtils.createScoreDisplay(this.game.scoreManager);
-    this.scoreDisplay.style.top = '80px';
-    this.scoreDisplay.style.left = '50%';
-    this.scoreDisplay.style.transform = 'translateX(-50%)';
-    this.scoreDisplay.style.textAlign = 'center';
-    document.body.appendChild(this.scoreDisplay);
+    // HTMLの要素のみを使用するため、JS側での要素作成は一切行わない
   }
   
   // UI要素の削除
   removeUI() {
-    UIUtils.removeElements(this.versionDisplay, this.scoreDisplay);
-    this.versionDisplay = null;
-    this.scoreDisplay = null;
+    // HTMLの要素のみを使用するため、JS側での要素削除は行わない
   }
   
   // スコア情報の更新
