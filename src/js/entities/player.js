@@ -12,8 +12,8 @@ export class Player {
     this.game = game;
     this.x = x;
     this.y = y;
-    this.width = 64;
-    this.height = 96;
+    this.width = 48;
+    this.height = 72;
     this.speed = 200; // 1秒あたりの移動ピクセル数
     this.isActive = true; // プレイヤーがアクティブかどうか
     

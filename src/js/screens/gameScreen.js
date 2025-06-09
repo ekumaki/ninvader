@@ -96,11 +96,11 @@ export class GameScreen {
   
   // ゲーム初期化
   initializeGame() {
-    // プレイヤーの作成
+    // プレイヤーの作成（画面下端から50px上に配置）
     this.player = new Player(
       this.game,
       this.canvas.width / 2,
-      this.canvas.height - 100
+      this.canvas.height - 50
     );
     
     // 敵の配置

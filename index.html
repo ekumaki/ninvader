@@ -180,11 +180,11 @@
     /* ハイスコア表示 */
     .high-score-display {
       position: absolute;
-      top: 120px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: calc(50% - 320px + 20px);
+      left: calc(50% - 180px + 20px);
       font-size: 18px;
       color: #ffcc00;
+      z-index: 20;
     }
   </style>
 </head>
@@ -198,11 +198,11 @@
     <div id="game-ui">
       <div class="version-info" id="version-display"></div>
       <h1 class="title">CNP インベーダー</h1>
-      <div class="high-score-display" id="title-high-score">ハイスコア: 0</div>
+      <div class="high-score-display" id="title-high-score">HI SCORE: 0</div>
       <div class="menu-buttons">
         <button class="menu-btn" id="start-btn">ゲーム開始</button>
         <button class="menu-btn" id="instructions-btn">操作説明</button>
-        <button class="menu-btn" id="credits-btn">クレジット</button>
+        <button class="menu-btn" id="credits-btn" style="display: none;">クレジット</button>
       </div>
     </div>
     
@@ -397,7 +397,7 @@
           const highScore = savedHighScore ? parseInt(savedHighScore) : 0;
           const titleHighScore = document.getElementById('title-high-score');
           if (titleHighScore) {
-            titleHighScore.textContent = `ハイスコア: ${highScore}`;
+            titleHighScore.textContent = `HI SCORE: ${highScore}`;
           }
         } catch (error) {
           console.error('ハイスコア表示更新エラー:', error);

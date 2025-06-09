@@ -6,7 +6,7 @@
 
 export const GameConfig = {
   // ゲームバージョン
-  VERSION: '0.1.8',
+  VERSION: '0.1.9',
   CANVAS_WIDTH: 360,
   CANVAS_HEIGHT: 640,
   TARGET_FPS: 60,
@@ -32,7 +32,7 @@ export const GameConfig = {
   ENEMY: {
     HEALTH: 1,
     FORMATION_SPEED: 15.0,   // 適度な移動速度
-    FORMATION_INTERVAL: 4.0, // 非常にゆっくりとした移動間隔（4.0秒）
+    FORMATION_INTERVAL: 3.0, // より活発な移動間隔（3.0秒）
     DROP_DISTANCE: 20,
     EDGE_MARGIN: 30,
     MIN_SPEED_MULTIPLIER: 0.3

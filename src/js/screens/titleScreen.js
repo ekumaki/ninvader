@@ -180,16 +180,19 @@ export class TitleScreen {
       // 要素の追加
       menuButtons.appendChild(startBtn);
       menuButtons.appendChild(instructionsBtn);
+      // クレジットボタンは非表示にするが機能は保持
+      creditsBtn.style.display = 'none';
       menuButtons.appendChild(creditsBtn);
       
-      // ハイスコア表示
+      // ハイスコア表示（左上に配置）
       const highScoreDisplay = document.createElement('div');
       highScoreDisplay.className = 'high-score-display';
       const highScore = this.game.scoreManager.getHighScore();
-      highScoreDisplay.textContent = `ハイスコア: ${highScore}`;
+      highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
       highScoreDisplay.style.fontSize = '18px';
-      highScoreDisplay.style.margin = '10px 0';
-      highScoreDisplay.style.textAlign = 'center';
+      highScoreDisplay.style.position = 'absolute';
+      highScoreDisplay.style.top = '20px';
+      highScoreDisplay.style.left = '20px';
       highScoreDisplay.style.color = '#FFD700';
       
       titleScreen.appendChild(title);
@@ -243,7 +246,7 @@ export class TitleScreen {
     scoreDisplay.className = 'score-display';
     
     const highScore = this.game.scoreManager.getHighScore();
-    scoreDisplay.innerHTML = `ハイスコア: ${highScore}`;
+    scoreDisplay.innerHTML = `HI SCORE: ${highScore}`;
     
     document.body.appendChild(scoreDisplay);
     this.scoreDisplay = scoreDisplay;
