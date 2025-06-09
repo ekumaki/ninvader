@@ -182,8 +182,8 @@
       position: absolute;
       top: calc(50% - 320px + 20px);
       left: calc(50% - 180px + 20px);
-      font-size: 18px;
-      color: #ffcc00;
+      font-size: 14px;
+      color: #ffffff;
       z-index: 20;
     }
   </style>
@@ -198,7 +198,7 @@
     <div id="game-ui">
       <div class="version-info" id="version-display"></div>
       <h1 class="title">CNP インベーダー</h1>
-      <div class="high-score-display" id="title-high-score">HI SCORE: 0</div>
+      <div class="high-score-display" id="title-high-score">HIGH SCORE: 0</div>
       <div class="menu-buttons">
         <button class="menu-btn" id="start-btn">ゲーム開始</button>
         <button class="menu-btn" id="instructions-btn">操作説明</button>
@@ -397,7 +397,7 @@
           const highScore = savedHighScore ? parseInt(savedHighScore) : 0;
           const titleHighScore = document.getElementById('title-high-score');
           if (titleHighScore) {
-            titleHighScore.textContent = `HI SCORE: ${highScore}`;
+            titleHighScore.textContent = `HIGH SCORE: ${highScore}`;
           }
         } catch (error) {
           console.error('ハイスコア表示更新エラー:', error);

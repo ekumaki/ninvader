@@ -131,7 +131,7 @@ export class GameScreen {
   createEnemies() {
     this.enemies = [];
     
-    const marginX = 80;
+    const marginX = 70;
     const usableWidth = this.canvas.width - marginX * 2;
     const enemySpacing = usableWidth / (GameConfig.ENEMY.COLS - 1 || 7);
     
