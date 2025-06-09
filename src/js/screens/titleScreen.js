@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.6
+ * Version: 0.2.0
  * SPDX-License-Identifier: MIT
  */
 
@@ -132,7 +132,8 @@ export class TitleScreen {
       menuButtons.className = 'menu-buttons';
       menuButtons.style.display = 'flex';
       menuButtons.style.flexDirection = 'column';
-      menuButtons.style.gap = '10px';
+      menuButtons.style.gap = '15px';
+      menuButtons.style.marginTop = '250px'; // ゲームクリア・ゲームオーバー画面と同じ位置
       
       // ボタンの共通スタイル関数
       const styleButton = (btn) => {
@@ -145,6 +146,15 @@ export class TitleScreen {
         btn.style.cursor = 'pointer';
         btn.style.width = '200px';
         btn.style.textAlign = 'center';
+        btn.style.transition = 'background-color 0.3s';
+        
+        // ホバー効果
+        btn.addEventListener('mouseenter', () => {
+          btn.style.backgroundColor = '#555';
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.style.backgroundColor = '#333';
+        });
       };
       
       // スタートボタン

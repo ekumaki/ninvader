@@ -1,11 +1,10 @@
 /**
- * CNP インベーダー - ゲームオーバー画面（リファクタリング版）
- * Version: 0.1.5
+ * CNP インベーダー - ゲームオーバー画面
+ * Version: 0.2.0
  * SPDX-License-Identifier: MIT
  */
 
 import { GameConfig } from '../config/gameConfig.js';
-import { UIUtils } from '../utils/uiUtils.js';
 
 export class GameOverScreen {
   constructor(game) {
@@ -14,75 +13,147 @@ export class GameOverScreen {
     this.ctx = game.ctx;
     
     // UI要素
-    this.versionDisplay = null;
-    this.scoreDisplay = null;
+    this.gameOverUI = null;
   }
   
   // 画面に入る時の処理
   enter() {
-    console.log('ゲームオーバー画面に入りました');
-    
-    // キャンバスを非表示にしてHTML UIを表示
-    if (this.canvas) {
-      this.canvas.style.display = 'none';
-    }
-    
-    // UI要素の作成
-    this.createUI();
-    
-    const gameOverContainer = document.getElementById('game-over-container');
-    if (gameOverContainer) {
-      gameOverContainer.style.display = 'block';
-    }
-    
-    // スコア情報を更新
-    this.updateScoreInfo();
+    console.log('ゲームオーバー画面にenterしました');
+    this.createGameOverUI();
   }
   
   // 画面から出る時の処理
-  exit() {
-    console.log('ゲームオーバー画面から退出します');
+  async exit() {
+    console.log('ゲームオーバー画面からexitします');
+    this.removeGameOverUI();
+  }
+  
+  // 更新処理（アニメーションなし）
+  update(deltaTime) {
+    // ゲームオーバー画面では特にアニメーションは不要
+  }
+  
+  // 描画処理
+  render(ctx) {
+    // 背景の描画
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     
-    // UI要素の削除
-    this.removeUI();
+    // タイトル表示（ゲームクリア画面と同じ位置 y=100）
+    ctx.fillStyle = '#FF4444';
+    ctx.font = 'bold 32px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('💀 GAME OVER 💀', this.canvas.width / 2, 100);
     
-    const gameOverContainer = document.getElementById('game-over-container');
-    if (gameOverContainer) {
-      gameOverContainer.style.display = 'none';
-    }
-  }
-  
-  // UI要素の作成
-  createUI() {
-    // HTMLの要素のみを使用するため、JS側での要素作成は一切行わない
-  }
-  
-  // UI要素の削除
-  removeUI() {
-    // HTMLの要素のみを使用するため、JS側での要素削除は行わない
-  }
-  
-  // スコア情報の更新
-  updateScoreInfo() {
-    const finalScore = this.game.scoreManager.getScore();
+    // スコア表示（ゲームクリア画面と同じ位置 y=160）
+    const score = this.game.scoreManager.getScore();
     const highScore = this.game.scoreManager.getHighScore();
     
-    // HTMLの要素を更新
-    const finalScoreEl = document.getElementById('final-score');
-    const highScoreEl = document.getElementById('high-score');
-    const newHighScoreEl = document.getElementById('new-high-score');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '24px Arial';
+    ctx.fillText(`スコア: ${score}`, this.canvas.width / 2, 160);
     
-    if (finalScoreEl) {
-      finalScoreEl.textContent = finalScore;
+    // ハイスコア更新チェック（ゲームクリア画面と同じ位置 y=190）
+    if (score >= highScore) {
+      ctx.fillStyle = '#FFD700';
+      ctx.font = '18px Arial';
+      ctx.fillText('🏆 NEW HIGH SCORE! 🏆', this.canvas.width / 2, 190);
     }
     
-    if (highScoreEl) {
-      highScoreEl.textContent = highScore;
+    console.log('ゲームオーバー画面を描画しました');
+  }
+  
+  // ゲームオーバー画面UI作成
+  createGameOverUI() {
+    // 既存のゲームオーバー画面があれば削除
+    const existingGameOverScreen = document.querySelector('.game-over-screen');
+    if (existingGameOverScreen) {
+      existingGameOverScreen.remove();
     }
     
-    // 最高スコア更新時の表示
-    if (finalScore === highScore && finalScore > 0 && newHighScoreEl) {
-      newHighScoreEl.style.display = 'block';
+    // ゲームオーバー画面のコンテナ
+    const gameOverScreen = document.createElement('div');
+    gameOverScreen.className = 'game-over-screen';
+    gameOverScreen.style.position = 'absolute';
+    gameOverScreen.style.top = '50%';
+    gameOverScreen.style.left = '50%';
+    gameOverScreen.style.transform = 'translate(-50%, -50%)';
+    gameOverScreen.style.width = '360px';
+    gameOverScreen.style.height = '640px';
+    gameOverScreen.style.display = 'flex';
+    gameOverScreen.style.flexDirection = 'column';
+    gameOverScreen.style.justifyContent = 'center';
+    gameOverScreen.style.alignItems = 'center';
+    gameOverScreen.style.color = '#FFFFFF';
+    gameOverScreen.style.zIndex = '10';
+    
+    // ボタンコンテナ（縦並び、ゲームクリア画面と同じ位置）
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.flexDirection = 'column';
+    buttonContainer.style.gap = '15px';
+    buttonContainer.style.marginTop = '250px';
+    
+    // ボタンの共通スタイル関数
+    const styleButton = (btn) => {
+      btn.style.padding = '10px 20px';
+      btn.style.fontSize = '18px';
+      btn.style.backgroundColor = '#333';
+      btn.style.color = '#FFF';
+      btn.style.border = '1px solid #666';
+      btn.style.borderRadius = '5px';
+      btn.style.cursor = 'pointer';
+      btn.style.width = '200px';
+      btn.style.textAlign = 'center';
+      btn.style.transition = 'background-color 0.3s';
+      
+      // ホバー効果
+      btn.addEventListener('mouseenter', () => {
+        btn.style.backgroundColor = '#555';
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.backgroundColor = '#333';
+      });
+    };
+    
+    // リトライボタン
+    const retryBtn = document.createElement('button');
+    retryBtn.textContent = 'リトライ';
+    styleButton(retryBtn);
+    retryBtn.addEventListener('click', () => {
+      console.log('リトライボタンがクリックされました');
+      this.game.switchScreen('game');
+    });
+    
+    // タイトルへ戻るボタン
+    const titleBtn = document.createElement('button');
+    titleBtn.textContent = 'タイトルへもどる';
+    styleButton(titleBtn);
+    titleBtn.addEventListener('click', () => {
+      console.log('タイトルへ戻るボタンがクリックされました');
+      this.game.switchScreen('title');
+    });
+    
+    // 要素の追加
+    buttonContainer.appendChild(retryBtn);
+    buttonContainer.appendChild(titleBtn);
+    gameOverScreen.appendChild(buttonContainer);
+    
+    // ゲームコンテナに追加
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+      gameContainer.appendChild(gameOverScreen);
+    } else {
+      document.body.appendChild(gameOverScreen);
+    }
+    
+    this.gameOverUI = gameOverScreen;
+  }
+  
+  // ゲームオーバー画面UI削除
+  removeGameOverUI() {
+    if (this.gameOverUI && this.gameOverUI.parentNode) {
+      this.gameOverUI.parentNode.removeChild(this.gameOverUI);
     }
   }
 }

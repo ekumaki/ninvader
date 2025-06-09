@@ -56,19 +56,14 @@ const updateConfigs = [
     file: 'index.html',
     updates: [
       {
-        pattern: /<div class="version-info">Version [\d.]+<\/div>/,
-        replacement: (version) => `<div class="version-info">Version ${version}</div>`,
-        description: 'UI バージョン表示'
-      },
-      {
-        pattern: /alert\('CNP インベーダー\\nVersion [\d.]+\\n© 2025 All Rights Reserved'\)/,
-        replacement: (version) => `alert('CNP インベーダー\\nVersion ${version}\\n© 2025 All Rights Reserved')`,
-        description: 'クレジット アラート'
-      },
-      {
         pattern: /<title>CNP インベーダー v[\d.]+<\/title>/,
         replacement: (version) => `<title>CNP インベーダー v${version}</title>`,
         description: 'ページタイトル'
+      },
+      {
+        pattern: /const version = window\.gameInstance\?\.gameConfig\?\.VERSION \|\| '[\d.]+'/,
+        replacement: (version) => `const version = window.gameInstance?.gameConfig?.VERSION || '${version}'`,
+        description: 'クレジット デフォルトバージョン'
       }
     ]
   },
@@ -101,19 +96,9 @@ const updateConfigs = [
         description: 'ヘッダーコメント'
       },
       {
-        pattern: /const version = '[\d.]+'/,
-        replacement: (version) => `const version = '${version}'`,
-        description: 'バージョン変数'
-      },
-      {
-        pattern: /version\.textContent = 'v[\d.]+'/,
-        replacement: (version) => `version.textContent = 'v${version}'`,
-        description: 'バージョン表示'
-      },
-      {
-        pattern: /alert\('CNP インベーダー\\nVersion [\d.]+\\n 2025 All Rights Reserved'\)/,
-        replacement: (version) => `alert('CNP インベーダー\\nVersion ${version}\\n 2025 All Rights Reserved')`,
-        description: 'クレジット アラート'
+        pattern: /alert\(`CNP インベーダー\\nVersion \$\{GameConfig\.VERSION\}\\n© 2025 All Rights Reserved`\)/,
+        replacement: (version) => `alert(\`CNP インベーダー\\nVersion \${GameConfig.VERSION}\\n© 2025 All Rights Reserved\`)`,
+        description: 'クレジット アラート (GameConfig使用)'
       }
     ]
   },
@@ -134,6 +119,51 @@ const updateConfigs = [
         pattern: / \* Version: [\d.]+/,
         replacement: (version) => ` * Version: ${version}`,
         description: 'ヘッダーコメント'
+      }
+    ]
+  },
+  {
+    file: 'src/js/screens/gameClearScreen.js',
+    updates: [
+      {
+        pattern: / \* Version: [\d.]+/,
+        replacement: (version) => ` * Version: ${version}`,
+        description: 'ヘッダーコメント'
+      }
+    ]
+  },
+  {
+    file: 'src/js/screens/gameOverScreen.js',
+    updates: [
+      {
+        pattern: / \* Version: [\d.]+/,
+        replacement: (version) => ` * Version: ${version}`,
+        description: 'ヘッダーコメント'
+      }
+    ]
+  },
+  {
+    file: 'src/js/screens/instructionsScreen.js',
+    updates: [
+      {
+        pattern: / \* Version: [\d.]+/,
+        replacement: (version) => ` * Version: ${version}`,
+        description: 'ヘッダーコメント'
+      }
+    ]
+  },
+  {
+    file: 'src/js/config/gameConfig.js',
+    updates: [
+      {
+        pattern: / \* Version: [\d.]+/,
+        replacement: (version) => ` * Version: ${version}`,
+        description: 'ヘッダーコメント'
+      },
+      {
+        pattern: /VERSION: '[\d.]+'/,
+        replacement: (version) => `VERSION: '${version}'`,
+        description: 'GameConfig VERSION定数'
       }
     ]
   }

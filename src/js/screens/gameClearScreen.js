@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - ゲームクリア画面
- * Version: 0.1.10
+ * Version: 0.2.0
  * SPDX-License-Identifier: MIT
  */
 
@@ -124,7 +124,7 @@ export class GameClearScreen {
     buttonContainer.style.display = 'flex';
     buttonContainer.style.flexDirection = 'column';
     buttonContainer.style.gap = '15px';
-    buttonContainer.style.marginTop = '250px'; // プレイヤーより上に配置
+    buttonContainer.style.marginTop = '250px';
     
     // ボタンの共通スタイル関数
     const styleButton = (btn) => {
