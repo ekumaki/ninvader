@@ -9,6 +9,7 @@ import { TitleScreen } from './screens/titleScreen.js';
 import { GameScreen } from './screens/gameScreen.js';
 import { InstructionsScreen } from './screens/instructionsScreen.js';
 import { GameOverScreen } from './screens/gameOverScreen.js';
+import { GameClearScreen } from './screens/gameClearScreen.js';
 import { AudioManager } from './managers/audioManager.js';
 
 // ゲームの初期化
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     game.addScreen('game', new GameScreen(game));
     game.addScreen('instructions', new InstructionsScreen(game));
     game.addScreen('gameOver', new GameOverScreen(game));
+    game.addScreen('gameClear', new GameClearScreen(game));
     console.log('画面初期化完了');
     
     // 既存のUIボタンとの連携

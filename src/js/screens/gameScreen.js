@@ -34,6 +34,7 @@ export class GameScreen {
     // ゲーム状態
     this.gameTime = 0;
     this.gameOver = false;
+    this.gameCleared = false;
     this.collisionEnabled = false;
     this.enemyRespawnScheduled = false;
     
@@ -115,6 +116,7 @@ export class GameScreen {
     // ゲーム状態のリセット
     this.gameTime = 0;
     this.gameOver = false;
+    this.gameCleared = false;
     this.enemyRespawnScheduled = false;
     this.collisionEnabled = false;
     
@@ -172,7 +174,7 @@ export class GameScreen {
   
   // 更新処理
   update(deltaTime) {
-    if (this.gameOver) return;
+    if (this.gameOver || this.gameCleared) return;
     
     this.gameTime += deltaTime;
     
@@ -223,22 +225,22 @@ export class GameScreen {
   
   // ボスの更新
   updateBoss(deltaTime) {
-    // ボスの出現条件チェック
-    if (!this.boss && this.gameTime >= GameConfig.BOSS.SPAWN_TIME) {
-      console.log('ボスが出現しました');
-      this.boss = new Boss(this.game);
-    }
-    
     // ボスの更新
     if (this.boss) {
       this.boss.update(deltaTime);
       
       if (!this.boss.isActive) {
-        console.log('ボスを倒しました');
+        console.log('ボスを倒しました！ゲームクリア！');
+        this.gameCleared = true; // ゲームクリアフラグを設定
         this.boss = null;
-        this.createEnemies();
-        this.game.scoreManager.addScore(GameConfig.SCORE.BOSS_KILL);
-        this.updateScoreDisplay();
+        // スコア追加は衝突判定で既に行われているため削除
+        // this.game.scoreManager.addScore(GameConfig.SCORE.BOSS_KILL);
+        // this.updateScoreDisplay();
+        
+        // ゲームクリア画面へ遷移
+        setTimeout(() => {
+          this.game.switchScreen('gameClear');
+        }, 1000);
       }
     }
   }
@@ -260,18 +262,13 @@ export class GameScreen {
   
   // ゲーム状態の確認
   checkGameState() {
-    // 敵が全滅した場合
+    // ゲームクリア済みの場合は何もしない
+    if (this.gameCleared) return;
+    
+    // 敵が全滅した場合 → ボス出現
     if (this.enemies.length === 0 && !this.boss && !this.enemyRespawnScheduled) {
-      console.log('敵を全滅させました！');
-      
-      this.enemyRespawnScheduled = true;
-      
-      setTimeout(() => {
-        this.createEnemies();
-        this.game.scoreManager.addScore(GameConfig.SCORE.STAGE_CLEAR);
-        this.updateScoreDisplay();
-        this.enemyRespawnScheduled = false;
-      }, 1500);
+      console.log('敵を全滅させました！ボスが出現します');
+      this.boss = new Boss(this.game);
     }
   }
   

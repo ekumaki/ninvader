@@ -65,7 +65,6 @@ export class CollisionSystem {
         if (!boss.isActive) {
           this.game.scoreManager.addScore(GameConfig.SCORE.BOSS_KILL);
           gameScreen.updateScoreDisplay();
-          gameScreen.boss = null;
           this.game.audioManager.play('explosion', 0.5);
         }
       }
