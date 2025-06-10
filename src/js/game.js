@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.2.0
+ * Version: 0.2.1
  * SPDX-License-Identifier: MIT
  */
 

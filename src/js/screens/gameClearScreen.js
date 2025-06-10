@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - ゲームクリア画面
- * Version: 0.2.0
+ * Version: 0.2.1
  * SPDX-License-Identifier: MIT
  */
 
