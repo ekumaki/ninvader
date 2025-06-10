@@ -16,8 +16,8 @@ export class Boss {
     this.height = 128;
     this.speed = 50; // 基本速度
     this.direction = 1; // 1: 右, -1: 左
-    this.health = 10; // HP
-    this.maxHealth = 10;
+    this.health = 30; // HP
+    this.maxHealth = 30;
     this.points = 1000; // 倒した時の得点
     this.isActive = true;
     

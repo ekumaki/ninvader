@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - ゲーム画面（リファクタリング版）
- * Version: 0.2.1
+ * Version: 0.2.2
  * SPDX-License-Identifier: MIT
  */
 
@@ -140,7 +140,7 @@ export class GameScreen {
     for (let row = 0; row < (GameConfig.ENEMY.ROWS || 5); row++) {
       for (let col = 0; col < (GameConfig.ENEMY.COLS || 8); col++) {
         const x = marginX + col * enemySpacing;
-        const y = 50 + row * 50;
+        const y = 120 + row * 50; // UFO（64px）と重ならないよう120pxから開始
         
         const enemy = new Enemy(this.game, x, y);
         this.enemies.push(enemy);
@@ -152,9 +152,41 @@ export class GameScreen {
   
   // UI要素の作成
   createUI() {
-    // スコア表示
-    this.scoreDisplay = UIUtils.createScoreDisplay(this.game.scoreManager);
-    document.body.appendChild(this.scoreDisplay);
+    const gameContainer = document.getElementById('game-container');
+    
+    // ハイスコア表示（ゲームキャンバス内の左上）
+    this.highScoreDisplay = document.createElement('div');
+    this.highScoreDisplay.className = 'high-score-display';
+    const highScore = this.game.scoreManager.getHighScore();
+    this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
+    this.highScoreDisplay.style.fontSize = '14px';
+    this.highScoreDisplay.style.position = 'absolute';
+    this.highScoreDisplay.style.top = 'calc(50% - 320px + 20px)';
+    this.highScoreDisplay.style.left = 'calc(50% - 180px + 20px)';
+    this.highScoreDisplay.style.color = '#ffffff';
+    this.highScoreDisplay.style.zIndex = '1000';
+    if (gameContainer) {
+      gameContainer.appendChild(this.highScoreDisplay);
+    } else {
+      document.body.appendChild(this.highScoreDisplay);
+    }
+
+    // 現在のスコア表示（ゲームキャンバス内の右上）
+    this.currentScoreDisplay = document.createElement('div');
+    this.currentScoreDisplay.className = 'current-score-display';
+    const currentScore = this.game.scoreManager.getScore();
+    this.currentScoreDisplay.textContent = `SCORE: ${currentScore}`;
+    this.currentScoreDisplay.style.fontSize = '14px';
+    this.currentScoreDisplay.style.position = 'absolute';
+    this.currentScoreDisplay.style.top = 'calc(50% - 320px + 20px)';
+    this.currentScoreDisplay.style.right = 'calc(50% - 180px + 20px)';
+    this.currentScoreDisplay.style.color = '#ffffff';
+    this.currentScoreDisplay.style.zIndex = '1000';
+    if (gameContainer) {
+      gameContainer.appendChild(this.currentScoreDisplay);
+    } else {
+      document.body.appendChild(this.currentScoreDisplay);
+    }
     
     // バージョン表示
     this.versionDisplay = UIUtils.createVersionDisplay();
@@ -166,8 +198,9 @@ export class GameScreen {
   
   // UI要素の削除
   removeUI() {
-    UIUtils.removeElements(this.scoreDisplay, this.versionDisplay, this.chargeBar);
-    this.scoreDisplay = null;
+    UIUtils.removeElements(this.highScoreDisplay, this.currentScoreDisplay, this.versionDisplay, this.chargeBar);
+    this.highScoreDisplay = null;
+    this.currentScoreDisplay = null;
     this.versionDisplay = null;
     this.chargeBar = null;
   }
@@ -398,16 +431,21 @@ export class GameScreen {
   
   // スコア表示の更新
   updateScoreDisplay() {
-    if (this.scoreDisplay) {
-      const score = this.game.scoreManager.getScore();
+    if (this.highScoreDisplay) {
       const highScore = this.game.scoreManager.getHighScore();
-      this.scoreDisplay.innerHTML = `スコア: ${score}<br>ハイスコア: ${highScore}`;
+      this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
+    }
+    
+    if (this.currentScoreDisplay) {
+      const currentScore = this.game.scoreManager.getScore();
+      this.currentScoreDisplay.textContent = `SCORE: ${currentScore}`;
     }
   }
   
   // UI更新
   updateUI() {
     this.updateChargeBar();
+    this.updateScoreDisplay();
   }
   
   // チャージバーの作成

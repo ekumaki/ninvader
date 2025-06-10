@@ -19,13 +19,8 @@ export class FormationSystem {
     
     if (enemies.length === 0) return;
 
-    // 敵の数に応じて移動速度を調整（少なくなるほど速く）
-    const speedMultiplier = Math.max(
-      GameConfig.ENEMY.MIN_SPEED_MULTIPLIER, 
-      1 - (enemies.length / 50)
-    );
-    // GameConfigから動的に読み込むように修正
-    const currentMoveInterval = GameConfig.ENEMY.FORMATION_INTERVAL * speedMultiplier;
+    // 固定の移動間隔を使用
+    const currentMoveInterval = GameConfig.ENEMY.FORMATION_INTERVAL;
 
     console.log('FormationSystem: currentMoveInterval:', currentMoveInterval, 'FORMATION_INTERVAL:', GameConfig.ENEMY.FORMATION_INTERVAL);
 

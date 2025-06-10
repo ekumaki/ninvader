@@ -1,12 +1,12 @@
 /**
  * CNP インベーダー - ゲーム設定
- * Version: 0.2.1
+ * Version: 0.2.2
  * SPDX-License-Identifier: MIT
  */
 
 export const GameConfig = {
   // ゲームバージョン
-  VERSION: '0.2.1',
+  VERSION: '0.2.2',
   CANVAS_WIDTH: 360,
   CANVAS_HEIGHT: 640,
   TARGET_FPS: 60,
@@ -32,22 +32,21 @@ export const GameConfig = {
   ENEMY: {
     HEALTH: 1,
     FORMATION_SPEED: 15.0,   // 適度な移動速度
-    FORMATION_INTERVAL: 3.0, // より活発な移動間隔（3.0秒）
+    FORMATION_INTERVAL: 1.0, // 固定の移動間隔（1.0秒）
     DROP_DISTANCE: 20,
-    EDGE_MARGIN: 30,
-    MIN_SPEED_MULTIPLIER: 0.3
+    EDGE_MARGIN: 30
   },
   
   // UFO設定
   UFO: {
-    SPAWN_INTERVAL: 20,
+    SPAWN_INTERVAL: 10,
     SPEED: 100
   },
   
   // ボス設定
   BOSS: {
     SPAWN_TIME: 180,
-    HEALTH: 10
+    HEALTH: 30
   },
   
   // 弾設定

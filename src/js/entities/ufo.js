@@ -18,8 +18,8 @@ export class UFO {
     this.direction = 1; // 1: 右, -1: 左
     
     // 出現タイミング
-    this.appearanceInterval = 20; // 出現間隔（秒）
-    this.appearanceTimer = Math.random() * 10 + 10; // 初回出現時間
+    this.appearanceInterval = 10; // 出現間隔（秒）
+    this.appearanceTimer = Math.random() * 5 + 5; // 初回出現時間
     
     // 画像の読み込み
     this.image = new Image();
@@ -97,10 +97,10 @@ export class UFO {
     UFO.spawnTimer += deltaTime;
     
     // 出現間隔を超えたら新しいUFOを生成
-    if (UFO.spawnTimer >= 20) { // 20秒ごとに出現
+    if (UFO.spawnTimer >= 10) { // 10秒ごとに出現
       UFO.spawnTimer = 0;
       
-      // 出現位置（上部1/4の範囲）
+      // 出現位置（上部10%の高さ）
       const y = game.canvas.height * 0.1;
       
       // ランダムに左右どちらかから登場
