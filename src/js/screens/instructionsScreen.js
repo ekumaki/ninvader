@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 説明画面（リファクタリング版）
- * Version: 0.2.3
+ * Version: 0.2.4
  * SPDX-License-Identifier: MIT
  */
 

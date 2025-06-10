@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - ゲームオーバー画面
- * Version: 0.2.3
+ * Version: 0.2.4
  * SPDX-License-Identifier: MIT
  */
 
@@ -12,8 +12,22 @@ export class GameOverScreen {
     this.canvas = game.canvas;
     this.ctx = game.ctx;
     
+    // 敵アニメーション用
+    this.enemyX = this.canvas.width / 2;
+    this.enemyY = this.canvas.height - 50; // 下部配置（ゲームクリア画面と同じ）
+    this.enemyWidth = 48;
+    this.enemyHeight = 48;
+    this.jumpOffset = 0;
+    this.jumpDirection = 1;
+    this.jumpSpeed = 1.5;
+    this.maxJumpHeight = 25;
+    
     // UI要素
     this.gameOverUI = null;
+    
+    // 敵画像
+    this.enemyImage = new Image();
+    this.enemyImage.src = './src/assets/img/enemy/enemy_01.png';
   }
   
   // 画面に入る時の処理
@@ -28,9 +42,16 @@ export class GameOverScreen {
     this.removeGameOverUI();
   }
   
-  // 更新処理（アニメーションなし）
+  // 更新処理
   update(deltaTime) {
-    // ゲームオーバー画面では特にアニメーションは不要
+    // 敵ジャンプアニメーション（ゲームクリア画面と同じロジック）
+    this.jumpOffset += this.jumpDirection * this.jumpSpeed;
+    
+    if (this.jumpOffset >= this.maxJumpHeight || this.jumpOffset <= 0) {
+      this.jumpDirection *= -1;
+    }
+    
+    this.jumpOffset = Math.max(0, Math.min(this.maxJumpHeight, this.jumpOffset));
   }
   
   // 描画処理
@@ -51,13 +72,24 @@ export class GameOverScreen {
     
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '24px Arial';
-    ctx.fillText(`スコア: ${score}`, this.canvas.width / 2, 160);
+    ctx.fillText(`SCORE: ${score}`, this.canvas.width / 2, 160);
     
     // ハイスコア更新チェック（ゲームクリア画面と同じ位置 y=190）
     if (score >= highScore) {
       ctx.fillStyle = '#FFD700';
       ctx.font = '18px Arial';
       ctx.fillText('🏆 NEW HIGH SCORE! 🏆', this.canvas.width / 2, 190);
+    }
+    
+    // 敵キャラクターの描画（ゲームクリア画面のプレイヤーと同じ位置・動き）
+    if (this.enemyImage.complete) {
+      ctx.drawImage(
+        this.enemyImage,
+        this.enemyX - this.enemyWidth / 2,
+        this.enemyY - this.enemyHeight / 2 - this.jumpOffset,
+        this.enemyWidth,
+        this.enemyHeight
+      );
     }
     
     console.log('ゲームオーバー画面を描画しました');

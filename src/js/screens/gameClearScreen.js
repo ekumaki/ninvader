@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - ゲームクリア画面
- * Version: 0.2.3
+ * Version: 0.2.4
  * SPDX-License-Identifier: MIT
  */
 
@@ -72,7 +72,7 @@ export class GameClearScreen {
     
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '24px Arial';
-    ctx.fillText(`スコア: ${score}`, this.canvas.width / 2, 160);
+    ctx.fillText(`SCORE: ${score}`, this.canvas.width / 2, 160);
     
     // ハイスコア更新チェック
     if (score >= highScore) {
