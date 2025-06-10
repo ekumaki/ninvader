@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CNP インベーダー v0.2.4</title>
+  <title>CNP インベーダー v0.2.5</title>
   <style>
     body {
       margin: 0;
@@ -67,12 +67,20 @@
       margin-top: 100px;
       text-align: center;
     }
+    .title-controls-info {
+      font-size: 16px;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.6;
+      margin: 20px auto;
+      max-width: 300px;
+    }
     .menu-buttons {
       display: flex;
       flex-direction: column;
       gap: 15px;
       align-items: center;
-      margin-top: 320px;
+      margin-top: 15px;
     }
     .menu-btn {
       padding: 10px 20px;
@@ -199,13 +207,18 @@
     <!-- タイトル画面 -->
     <div id="game-ui">
       <div class="version-info" id="version-display"></div>
-      <h1 class="title">CNP インベーダー</h1>
+      <img src="./src/assets/img/ui/title_logo.png" alt="CNP インベーダー" class="title-logo" style="max-width: 300px; height: auto; margin: 120px auto 20px auto; display: block;">
       <!-- ハイスコア表示は一時的に非表示（将来の実装用に保持）
       <div class="high-score-display" id="title-high-score">HIGH SCORE: 0</div>
       -->
+      <div class="title-controls-info">
+        ← → : プレイヤー移動<br>
+        スペースキー : 弾を発射<br>
+        スペース長押し : 必殺技
+      </div>
       <div class="menu-buttons">
         <button class="menu-btn" id="start-btn">ゲーム開始</button>
-        <button class="menu-btn" id="instructions-btn">操作説明</button>
+        <button class="menu-btn" id="instructions-btn" style="display: none;">操作説明</button>
         <button class="menu-btn" id="credits-btn" style="display: none;">クレジット</button>
       </div>
     </div>
@@ -224,8 +237,8 @@
       </div>
     </div>
     
-    <!-- 操作説明画面 -->
-    <div id="instructions-container">
+    <!-- 操作説明画面（将来の実装用に保持・現在は非表示） -->
+    <div id="instructions-container" style="display: none !important;">
       <h1 class="instructions-title">操作説明</h1>
       <div class="instructions-content">
         <div class="instructions-controls">
@@ -349,7 +362,7 @@
       document.getElementById('credits-btn').addEventListener('click', function() {
         console.log('クレジットボタンがクリックされました');
         // GameConfigが利用可能な場合は動的バージョン、そうでなければ固定値
-        const version = window.gameInstance?.gameConfig?.VERSION || '0.2.4';
+        const version = window.gameInstance?.gameConfig?.VERSION || '0.2.5';
         alert(`CNP インベーダー\nVersion ${version}\n© 2025 All Rights Reserved`);
       });
       

@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.2.4
+ * Version: 0.2.5
  * SPDX-License-Identifier: MIT
  */
 
@@ -37,7 +37,7 @@ export class TitleScreen {
       // メニューボタン位置を他画面と合わせる
       const menuButtons = existingUI.querySelector('.menu-buttons');
       if (menuButtons) {
-        menuButtons.style.marginTop = '292px';
+        menuButtons.style.marginTop = '49px';
       }
 
       // バージョン表示を動的に更新
