@@ -16,6 +16,7 @@ export class Player {
     this.height = 72;
     this.speed = 200; // 1秒あたりの移動ピクセル数
     this.isActive = true; // プレイヤーがアクティブかどうか
+    this.health = 1; // プレイヤーのHP（一撃死仕様）
     
     // 弾の発射関連
     this.canShoot = true;
@@ -228,5 +229,17 @@ export class Player {
   stopJump() {
     this.isJumping = false;
     this.y = this.originalY;
+  }
+  
+  // ダメージを受ける
+  takeDamage(amount) {
+    this.health -= amount;
+    
+    if (this.health <= 0) {
+      this.isActive = false;
+      return true; // プレイヤーが死亡した
+    }
+    
+    return false;
   }
 } 

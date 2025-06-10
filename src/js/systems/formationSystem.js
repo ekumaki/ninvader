@@ -89,6 +89,11 @@ export class FormationSystem {
         }
       }
       
+      // 弾発射処理
+      if (enemy.canShoot && Math.random() < enemy.shootProbability) {
+        enemy.shoot();
+      }
+      
       // アニメーション更新
       if (enemy.animationTimer !== undefined) {
         enemy.animationTimer += deltaTime;

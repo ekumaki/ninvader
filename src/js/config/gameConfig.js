@@ -1,12 +1,12 @@
 /**
  * CNP インベーダー - ゲーム設定
- * Version: 0.2.2
+ * Version: 0.2.3
  * SPDX-License-Identifier: MIT
  */
 
 export const GameConfig = {
   // ゲームバージョン
-  VERSION: '0.2.2',
+  VERSION: '0.2.3',
   CANVAS_WIDTH: 360,
   CANVAS_HEIGHT: 640,
   TARGET_FPS: 60,
@@ -61,7 +61,8 @@ export const GameConfig = {
     VERSION_FONT_SIZE: '12px',
     VERSION_COLOR: '#888',
     SCORE_FONT_SIZE: '14px',
-    HIGHSCORE_COLOR: '#FFD700'
+    HIGHSCORE_COLOR: '#FFD700',
+    SHOW_HIGH_SCORE: false // ハイスコア表示の制御フラグ（将来の実装用）
   },
   
   // オーディオ設定

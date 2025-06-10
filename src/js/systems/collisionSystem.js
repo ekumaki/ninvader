@@ -73,13 +73,24 @@ export class CollisionSystem {
 
   // 敵の弾とプレイヤーの衝突判定
   checkEnemyBulletCollisions(enemyBullets, player, gameScreen) {
-    if (!player) return;
+    if (!player || !player.isActive) return;
     
     for (const bullet of enemyBullets) {
       if (this.checkEntityCollision(bullet, player)) {
         console.log('敵の弾がプレイヤーに当たりました');
-        gameScreen.handleGameOver();
+        
+        // プレイヤーにダメージを与える
+        const isDead = player.takeDamage(1);
         bullet.isActive = false;
+        
+        // プレイヤーが死亡した場合はゲームオーバー
+        if (isDead) {
+          gameScreen.handleGameOver();
+        }
+        
+        // 被弾音を再生
+        this.game.audioManager.play('explosion', 0.3);
+        break;
       }
     }
   }
@@ -111,7 +122,17 @@ export class CollisionSystem {
       
       if (collision) {
         console.log('プレイヤーと敵が衝突しました');
-        gameScreen.handleGameOver();
+        
+        // プレイヤーにダメージを与える
+        const isDead = player.takeDamage(1);
+        
+        // プレイヤーが死亡した場合はゲームオーバー
+        if (isDead) {
+          gameScreen.handleGameOver();
+        }
+        
+        // 被弾音を再生
+        this.game.audioManager.play('explosion', 0.3);
         return;
       }
     }
@@ -124,8 +145,8 @@ export class CollisionSystem {
     // プレイヤーの弾と敵の衝突
     this.checkPlayerBulletCollisions(playerBullets, enemies, ufo, boss, gameScreen);
     
-    // 敵の弾とプレイヤーの衝突（現在無効化中）
-    // this.checkEnemyBulletCollisions(enemyBullets, player, gameScreen);
+    // 敵の弾とプレイヤーの衝突
+    this.checkEnemyBulletCollisions(enemyBullets, player, gameScreen);
     
     // プレイヤーと敵の直接衝突
     this.checkPlayerEnemyCollisions(player, enemies, gameScreen);

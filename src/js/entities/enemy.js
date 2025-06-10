@@ -27,7 +27,7 @@ export class Enemy {
     
     // 攻撃パターン
     this.canShoot = true;
-    this.shootProbability = 0.001; // 1フレームあたりの発射確率
+    this.shootProbability = 0.0005; // 1フレームあたりの発射確率（0.05%）
     this.shootCooldown = 2; // 発射クールダウン（秒）
     this.shootTimer = 0;
     
@@ -106,10 +106,9 @@ export class Enemy {
     }
     
     // ランダムに弾を発射
-    // 一時的に敵の弾の発射を停止
-    // if (this.canShoot && Math.random() < this.shootProbability) {
-    //   this.shoot();
-    // }
+    if (this.canShoot && Math.random() < this.shootProbability) {
+      this.shoot();
+    }
     
     // アニメーション更新
     this.animationTimer += deltaTime;
@@ -159,7 +158,7 @@ export class Enemy {
       this.x,
       this.y + this.height / 2,
       Math.PI / 2, // 下方向
-      200 // 速度
+      150 // 速度（150px/秒に調整）
     );
     
     // 現在のゲーム画面に弾を追加

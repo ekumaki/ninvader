@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.2.2
+ * Version: 0.2.3
  * SPDX-License-Identifier: MIT
  */
 
@@ -200,20 +200,22 @@ export class TitleScreen {
       creditsBtn.style.display = 'none';
       menuButtons.appendChild(creditsBtn);
       
-      // ハイスコア表示（左上に配置）
-      const highScoreDisplay = document.createElement('div');
-      highScoreDisplay.className = 'high-score-display';
-      const highScore = this.game.scoreManager.getHighScore();
-      highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
-      highScoreDisplay.style.fontSize = '18px';
-      highScoreDisplay.style.position = 'absolute';
-      highScoreDisplay.style.top = '20px';
-      highScoreDisplay.style.left = '20px';
-      highScoreDisplay.style.color = '#FFD700';
+      // ハイスコア表示（左上に配置）- 将来の実装用に保持
+      if (GameConfig.UI.SHOW_HIGH_SCORE) {
+        const highScoreDisplay = document.createElement('div');
+        highScoreDisplay.className = 'high-score-display';
+        const highScore = this.game.scoreManager.getHighScore();
+        highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
+        highScoreDisplay.style.fontSize = '18px';
+        highScoreDisplay.style.position = 'absolute';
+        highScoreDisplay.style.top = '20px';
+        highScoreDisplay.style.left = '20px';
+        highScoreDisplay.style.color = '#FFD700';
+        titleScreen.appendChild(highScoreDisplay);
+      }
       
       titleScreen.appendChild(title);
       titleScreen.appendChild(version);
-      titleScreen.appendChild(highScoreDisplay);
       titleScreen.appendChild(menuButtons);
       
       // ゲームコンテナに追加

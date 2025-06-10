@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - ゲーム画面（リファクタリング版）
- * Version: 0.2.2
+ * Version: 0.2.3
  * SPDX-License-Identifier: MIT
  */
 
@@ -154,21 +154,23 @@ export class GameScreen {
   createUI() {
     const gameContainer = document.getElementById('game-container');
     
-    // ハイスコア表示（ゲームキャンバス内の左上）
-    this.highScoreDisplay = document.createElement('div');
-    this.highScoreDisplay.className = 'high-score-display';
-    const highScore = this.game.scoreManager.getHighScore();
-    this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
-    this.highScoreDisplay.style.fontSize = '14px';
-    this.highScoreDisplay.style.position = 'absolute';
-    this.highScoreDisplay.style.top = 'calc(50% - 320px + 20px)';
-    this.highScoreDisplay.style.left = 'calc(50% - 180px + 20px)';
-    this.highScoreDisplay.style.color = '#ffffff';
-    this.highScoreDisplay.style.zIndex = '1000';
-    if (gameContainer) {
-      gameContainer.appendChild(this.highScoreDisplay);
-    } else {
-      document.body.appendChild(this.highScoreDisplay);
+    // ハイスコア表示（ゲームキャンバス内の左上）- 将来の実装用に保持
+    if (GameConfig.UI.SHOW_HIGH_SCORE) {
+      this.highScoreDisplay = document.createElement('div');
+      this.highScoreDisplay.className = 'high-score-display';
+      const highScore = this.game.scoreManager.getHighScore();
+      this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
+      this.highScoreDisplay.style.fontSize = '14px';
+      this.highScoreDisplay.style.position = 'absolute';
+      this.highScoreDisplay.style.top = 'calc(50% - 320px + 20px)';
+      this.highScoreDisplay.style.left = 'calc(50% - 180px + 20px)';
+      this.highScoreDisplay.style.color = '#ffffff';
+      this.highScoreDisplay.style.zIndex = '1000';
+      if (gameContainer) {
+        gameContainer.appendChild(this.highScoreDisplay);
+      } else {
+        document.body.appendChild(this.highScoreDisplay);
+      }
     }
 
     // 現在のスコア表示（ゲームキャンバス内の右上）
@@ -198,7 +200,11 @@ export class GameScreen {
   
   // UI要素の削除
   removeUI() {
-    UIUtils.removeElements(this.highScoreDisplay, this.currentScoreDisplay, this.versionDisplay, this.chargeBar);
+    const elementsToRemove = [this.currentScoreDisplay, this.versionDisplay, this.chargeBar];
+    if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
+      elementsToRemove.push(this.highScoreDisplay);
+    }
+    UIUtils.removeElements(...elementsToRemove);
     this.highScoreDisplay = null;
     this.currentScoreDisplay = null;
     this.versionDisplay = null;
@@ -431,7 +437,7 @@ export class GameScreen {
   
   // スコア表示の更新
   updateScoreDisplay() {
-    if (this.highScoreDisplay) {
+    if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
       const highScore = this.game.scoreManager.getHighScore();
       this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
     }

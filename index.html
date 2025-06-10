@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CNP インベーダー v0.2.2</title>
+  <title>CNP インベーダー v0.2.3</title>
   <style>
     body {
       margin: 0;
@@ -200,7 +200,9 @@
     <div id="game-ui">
       <div class="version-info" id="version-display"></div>
       <h1 class="title">CNP インベーダー</h1>
+      <!-- ハイスコア表示は一時的に非表示（将来の実装用に保持）
       <div class="high-score-display" id="title-high-score">HIGH SCORE: 0</div>
+      -->
       <div class="menu-buttons">
         <button class="menu-btn" id="start-btn">ゲーム開始</button>
         <button class="menu-btn" id="instructions-btn">操作説明</button>
@@ -227,7 +229,7 @@
       <h1 class="instructions-title">操作説明</h1>
       <div class="instructions-content">
         <div class="instructions-controls">
-          <strong>基本操作</strong><br>
+  
           ← → : プレイヤー移動<br>
           スペースキー : 弾を発射<br>
           スペース長押し : 必殺技
@@ -347,7 +349,7 @@
       document.getElementById('credits-btn').addEventListener('click', function() {
         console.log('クレジットボタンがクリックされました');
         // GameConfigが利用可能な場合は動的バージョン、そうでなければ固定値
-        const version = window.gameInstance?.gameConfig?.VERSION || '0.2.2';
+        const version = window.gameInstance?.gameConfig?.VERSION || '0.2.3';
         alert(`CNP インベーダー\nVersion ${version}\n© 2025 All Rights Reserved`);
       });
       
