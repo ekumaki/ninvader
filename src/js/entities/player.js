@@ -23,10 +23,10 @@ export class Player {
     this.shootCooldown = 0.3; // 発射クールダウン（秒）
     this.shootTimer = 0;
     
-    // 特殊弾発射システム
+    // 必殺技発射システム
     this.isCharging = false;
     this.chargeTime = 0;
-    this.specialChargeTime = 1.0; // 特殊弾に必要なチャージ時間（秒）
+    this.specialChargeTime = 1.0; // 必殺技に必要なチャージ時間（秒）
     this.specialReady = false;
     
     // 画像の読み込み（背面向き専用画像）
@@ -79,7 +79,7 @@ export class Player {
       }
     }
     
-    // 特殊弾チャージシステム
+    // 必殺技チャージシステム
     if (inputManager.isKeyDown(' ')) {
       if (!this.isCharging) {
         this.isCharging = true;
@@ -88,7 +88,7 @@ export class Player {
       
       this.chargeTime += deltaTime;
       
-      // 特殊弾チャージ完了判定
+      // 必殺技チャージ完了判定
       if (this.chargeTime >= this.specialChargeTime && !this.specialReady) {
         this.specialReady = true;
         // チャージ完了音（あれば）
@@ -100,7 +100,7 @@ export class Player {
         this.isCharging = false;
         
         if (this.specialReady && this.canShoot) {
-          // 特殊弾発射
+          // 必殺技発射
           this.shootSpecial();
           this.specialReady = false;
         } else if (this.canShoot) {
@@ -155,7 +155,7 @@ export class Player {
       
       // チャージ量
       if (this.specialReady) {
-        // 特殊弾準備完了時はキラキラエフェクト
+        // 必殺技準備完了時はキラキラエフェクト
         ctx.fillStyle = '#ffcc00';
         ctx.shadowColor = '#ffcc00';
         ctx.shadowBlur = 10;
@@ -169,13 +169,13 @@ export class Player {
       // 影をリセット
       ctx.shadowBlur = 0;
       
-      // 特殊弾準備完了時のテキスト表示
+      // 必殺技準備完了時のテキスト表示
       if (this.specialReady) {
         ctx.save();
         ctx.fillStyle = '#ffcc00';
         ctx.font = '12px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('特殊弾準備完了!', this.x, barY - 5);
+        ctx.fillText('必殺技準備完了!', this.x, barY - 5);
         ctx.restore();
       }
     }
@@ -208,11 +208,11 @@ export class Player {
     this.shootTimer = 0;
   }
   
-  // 特殊弾の発射
+  // 必殺技の発射
   shootSpecial() {
     if (!this.canShoot) return;
     
-    // 特殊弾の生成
+    // 必殺技弾の生成
     const specialBullet = new SpecialBullet(
       this.game,
       this.x,
@@ -221,16 +221,16 @@ export class Player {
       600 // 速度（通常より速い）
     );
     
-    // 現在のゲーム画面に特殊弾を追加
+    // 現在のゲーム画面に必殺技弾を追加
     const gameScreen = this.game.screens['game'];
     if (gameScreen) {
       gameScreen.addBullet(specialBullet);
     }
     
-    // 特殊弾発射音の再生
+    // 必殺技発射音の再生
     this.game.audioManager.play('shoot', 0.8); // 一時的に通常音を使用
     
-    // クールダウン設定（特殊弾は少し長め）
+    // クールダウン設定（必殺技は少し長め）
     this.canShoot = false;
     this.shootTimer = 0;
     this.shootCooldown = 0.5; // 通常より長いクールダウン

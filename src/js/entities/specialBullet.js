@@ -11,8 +11,8 @@ export class SpecialBullet extends Bullet {
     super(game, x, y, angle, speed);
     
     // 特殊弾の設定（通常弾の4倍サイズ）
-    this.width = 64;  // 通常弾16px × 4
-    this.height = 64; // 通常弾16px × 4
+    this.width = 32;  // サイズを32pxに変更
+    this.height = 32; // サイズを32pxに変更
     this.damage = 3; // ダメージ量3
     this.penetrating = true; // 無限貫通
     this.penetratingCount = Infinity; // 無限貫通回数
