@@ -17,6 +17,9 @@ export class SpecialBullet extends Bullet {
     this.penetrating = true; // 無限貫通
     this.penetratingCount = Infinity; // 無限貫通回数
     
+    // 既にヒットした敵を記録するSet（重複ヒット防止）
+    this.hitEntities = new Set();
+    
     // 画像の読み込み（通常弾を拡大して使用）
     this.image = new Image();
     this.image.onload = () => {

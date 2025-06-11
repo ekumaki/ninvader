@@ -141,44 +141,78 @@ export class Player {
       this.height
     );
     
-    // チャージバーの表示
-    if (this.isCharging) {
-      const chargePercent = Math.min(this.chargeTime / this.specialChargeTime, 1);
-      const barWidth = 60;
-      const barHeight = 6;
-      const barX = this.x - barWidth / 2;
-      const barY = this.y + this.height / 2 + 15;
-      
-      // 背景
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.fillRect(barX, barY, barWidth, barHeight);
-      
-      // チャージ量
+    // 必殺技チャージゲージを常時表示
+    this.renderSpecialGauge(ctx);
+  }
+  
+  // 必殺技チャージゲージの描画
+  renderSpecialGauge(ctx) {
+    const chargePercent = this.isCharging ? Math.min(this.chargeTime / this.specialChargeTime, 1) : 0;
+    const gaugeWidth = 50;
+    const gaugeHeight = 5;
+    const gaugeX = this.x - gaugeWidth / 2;
+    const gaugeY = this.y + this.height / 2 + 6;
+    
+    ctx.save();
+    
+    // ゲージ外枠
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(gaugeX - 1, gaugeY - 1, gaugeWidth + 2, gaugeHeight + 2);
+    
+    // ゲージ背景
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fillRect(gaugeX, gaugeY, gaugeWidth, gaugeHeight);
+    
+    // チャージ量表示
+    if (chargePercent > 0) {
       if (this.specialReady) {
-        // 必殺技準備完了時はキラキラエフェクト
-        ctx.fillStyle = '#ffcc00';
+        // 必殺技準備完了時のエフェクト
+        const pulseIntensity = Math.sin(Date.now() * 0.01) * 0.3 + 0.7;
+        
+        // 発光エフェクト
         ctx.shadowColor = '#ffcc00';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 15 * pulseIntensity;
+        
+        // グラデーション作成
+        const gradient = ctx.createLinearGradient(gaugeX, gaugeY, gaugeX, gaugeY + gaugeHeight);
+        gradient.addColorStop(0, '#ffff00');
+        gradient.addColorStop(0.5, '#ffcc00');
+        gradient.addColorStop(1, '#ff9900');
+        
+        ctx.fillStyle = gradient;
+        ctx.globalAlpha = pulseIntensity;
+        ctx.fillRect(gaugeX, gaugeY, gaugeWidth, gaugeHeight);
+        
+        // 内側の白いハイライト
+        ctx.globalAlpha = 0.8 * pulseIntensity;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(gaugeX + 1, gaugeY + 1, gaugeWidth - 2, 1);
+        
       } else {
-        // チャージ中は青色
-        ctx.fillStyle = '#4fc3f7';
-      }
-      
-      ctx.fillRect(barX, barY, barWidth * chargePercent, barHeight);
-      
-      // 影をリセット
-      ctx.shadowBlur = 0;
-      
-      // 必殺技準備完了時のテキスト表示
-      if (this.specialReady) {
-        ctx.save();
-        ctx.fillStyle = '#ffcc00';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('必殺技準備完了!', this.x, barY - 5);
-        ctx.restore();
+        // チャージ中のエフェクト
+        const fillWidth = gaugeWidth * chargePercent;
+        
+        // グラデーション作成
+        const gradient = ctx.createLinearGradient(gaugeX, gaugeY, gaugeX, gaugeY + gaugeHeight);
+        gradient.addColorStop(0, '#4fc3f7');
+        gradient.addColorStop(0.5, '#29b6f6');
+        gradient.addColorStop(1, '#0288d1');
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(gaugeX, gaugeY, fillWidth, gaugeHeight);
+        
+        // チャージ進行の光るエフェクト
+        if (chargePercent > 0.1) {
+          ctx.shadowColor = '#4fc3f7';
+          ctx.shadowBlur = 8;
+          ctx.fillStyle = '#87ceeb';
+          ctx.fillRect(gaugeX + fillWidth - 3, gaugeY, 3, gaugeHeight);
+        }
       }
     }
+    
+    ctx.restore();
   }
   
   // 通常弾の発射

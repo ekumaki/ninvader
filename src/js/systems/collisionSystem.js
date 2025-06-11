@@ -36,8 +36,19 @@ export class CollisionSystem {
         const enemy = enemies[j];
         
         if (this.checkEntityCollision(bullet, enemy)) {
+          // 特殊弾の重複ヒット防止チェック
+          if (bullet.hitEntities && bullet.hitEntities.has(enemy)) {
+            // 既にこの敵にヒット済みなら、ダメージを与えずに貫通継続
+            continue;
+          }
+          
           enemy.takeDamage(bulletDamage);
           bulletHitTarget = true;
+          
+          // 特殊弾の場合、ヒット済み敵リストに追加
+          if (bullet.hitEntities) {
+            bullet.hitEntities.add(enemy);
+          }
           
           if (!enemy.isActive) {
             this.game.scoreManager.addScore(GameConfig.SCORE.ENEMY_KILL);
@@ -55,14 +66,24 @@ export class CollisionSystem {
       
       // UFOとの衝突
       if (ufo && this.checkEntityCollision(bullet, ufo)) {
-        ufo.takeDamage(bulletDamage);
-        bulletHitTarget = true;
-        
-        if (!ufo.isActive) {
-          this.game.scoreManager.addScore(GameConfig.SCORE.UFO_KILL);
-          gameScreen.updateScoreDisplay();
-          gameScreen.ufo = null;
-          this.game.audioManager.play('explosion', 0.4);
+        // 特殊弾の重複ヒット防止チェック
+        if (bullet.hitEntities && bullet.hitEntities.has(ufo)) {
+          // 既にUFOにヒット済みなら、ダメージを与えずに貫通継続
+        } else {
+          ufo.takeDamage(bulletDamage);
+          bulletHitTarget = true;
+          
+          // 特殊弾の場合、ヒット済み敵リストに追加
+          if (bullet.hitEntities) {
+            bullet.hitEntities.add(ufo);
+          }
+          
+          if (!ufo.isActive) {
+            this.game.scoreManager.addScore(GameConfig.SCORE.UFO_KILL);
+            gameScreen.updateScoreDisplay();
+            gameScreen.ufo = null;
+            this.game.audioManager.play('explosion', 0.4);
+          }
         }
         
         // 貫通しない弾の場合はここで削除
@@ -74,13 +95,23 @@ export class CollisionSystem {
       
       // ボスとの衝突
       if (boss && this.checkEntityCollision(bullet, boss)) {
-        boss.takeDamage(bulletDamage);
-        bulletHitTarget = true;
-        
-        if (!boss.isActive) {
-          this.game.scoreManager.addScore(GameConfig.SCORE.BOSS_KILL);
-          gameScreen.updateScoreDisplay();
-          this.game.audioManager.play('explosion', 0.5);
+        // 特殊弾の重複ヒット防止チェック
+        if (bullet.hitEntities && bullet.hitEntities.has(boss)) {
+          // 既にボスにヒット済みなら、ダメージを与えずに貫通継続
+        } else {
+          boss.takeDamage(bulletDamage);
+          bulletHitTarget = true;
+          
+          // 特殊弾の場合、ヒット済み敵リストに追加
+          if (bullet.hitEntities) {
+            bullet.hitEntities.add(boss);
+          }
+          
+          if (!boss.isActive) {
+            this.game.scoreManager.addScore(GameConfig.SCORE.BOSS_KILL);
+            gameScreen.updateScoreDisplay();
+            this.game.audioManager.play('explosion', 0.5);
+          }
         }
         
         // 貫通しない弾の場合はここで削除
