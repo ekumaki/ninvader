@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 和風インベーダーゲーム
- * Version: 0.1.7
+ * Version: 0.2.6
  * SPDX-License-Identifier: MIT
  */
 
@@ -23,11 +23,11 @@ export class Player {
     this.shootCooldown = 0.3; // 発射クールダウン（秒）
     this.shootTimer = 0;
     
-    // 必殺技関連（一時的に無効化）
-    // this.isCharging = false;
-    // this.chargeTime = 0;
-    // this.requiredChargeTime = 3000; // 必要なチャージ時間（ミリ秒）
-    // this.specialReady = false;
+    // 特殊弾発射システム
+    this.isCharging = false;
+    this.chargeTime = 0;
+    this.specialChargeTime = 1.0; // 特殊弾に必要なチャージ時間（秒）
+    this.specialReady = false;
     
     // 画像の読み込み（背面向き専用画像）
     this.image = new Image();
@@ -79,53 +79,37 @@ export class Player {
       }
     }
     
-    // 必殺技のチャージ処理（一時的に無効化）
-    /*
+    // 特殊弾チャージシステム
     if (inputManager.isKeyDown(' ')) {
-      const pressedTime = inputManager.getKeyPressedTime(' ');
+      if (!this.isCharging) {
+        this.isCharging = true;
+        this.chargeTime = 0;
+      }
       
-      if (pressedTime > 0) {
-        if (!this.isCharging) {
-          this.isCharging = true;
-          this.chargeTime = 0;
-          // チャージ開始音
-          this.game.audioManager.play('specialCharge', 0.5);
-        }
-        
-        this.chargeTime = pressedTime;
-        
-        // チャージ完了判定
-        if (this.chargeTime >= this.requiredChargeTime && !this.specialReady) {
-          this.specialReady = true;
-          // チャージ完了音
-          this.game.audioManager.play('specialCharge', 1.0);
-        }
+      this.chargeTime += deltaTime;
+      
+      // 特殊弾チャージ完了判定
+      if (this.chargeTime >= this.specialChargeTime && !this.specialReady) {
+        this.specialReady = true;
+        // チャージ完了音（あれば）
+        // this.game.audioManager.play('specialCharge', 1.0);
       }
     } else {
-      // ボタンを離した時の処理
+      // スペースキーを離した時の処理
       if (this.isCharging) {
         this.isCharging = false;
         
-        if (this.specialReady) {
-          // 必殺技の発射
+        if (this.specialReady && this.canShoot) {
+          // 特殊弾発射
           this.shootSpecial();
           this.specialReady = false;
         } else if (this.canShoot) {
-          // 通常弾の発射
+          // 通常弾発射
           this.shoot();
         }
         
         this.chargeTime = 0;
-      } else if (inputManager.isKeyDown(' ') && this.canShoot) {
-        // 通常の発射
-        this.shoot();
       }
-    }
-    */
-    
-    // 簡単なスペースキー発射
-    if (inputManager.isKeyDown(' ') && this.canShoot) {
-      this.shoot();
     }
     
     // ジャンプアニメーション更新
@@ -157,22 +141,44 @@ export class Player {
       this.height
     );
     
-    // チャージバーの表示（一時的に無効化）
-    /*
+    // チャージバーの表示
     if (this.isCharging) {
-      const chargePercent = Math.min(this.chargeTime / this.requiredChargeTime, 1);
-      const barWidth = 50;
-      const barHeight = 5;
+      const chargePercent = Math.min(this.chargeTime / this.specialChargeTime, 1);
+      const barWidth = 60;
+      const barHeight = 6;
+      const barX = this.x - barWidth / 2;
+      const barY = this.y + this.height / 2 + 15;
       
       // 背景
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-      ctx.fillRect(this.x - barWidth / 2, this.y + this.height / 2 + 10, barWidth, barHeight);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillRect(barX, barY, barWidth, barHeight);
       
       // チャージ量
-      ctx.fillStyle = this.specialReady ? '#ffcc00' : '#ffffff';
-      ctx.fillRect(this.x - barWidth / 2, this.y + this.height / 2 + 10, barWidth * chargePercent, barHeight);
+      if (this.specialReady) {
+        // 特殊弾準備完了時はキラキラエフェクト
+        ctx.fillStyle = '#ffcc00';
+        ctx.shadowColor = '#ffcc00';
+        ctx.shadowBlur = 10;
+      } else {
+        // チャージ中は青色
+        ctx.fillStyle = '#4fc3f7';
+      }
+      
+      ctx.fillRect(barX, barY, barWidth * chargePercent, barHeight);
+      
+      // 影をリセット
+      ctx.shadowBlur = 0;
+      
+      // 特殊弾準備完了時のテキスト表示
+      if (this.specialReady) {
+        ctx.save();
+        ctx.fillStyle = '#ffcc00';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('特殊弾準備完了!', this.x, barY - 5);
+        ctx.restore();
+      }
     }
-    */
   }
   
   // 通常弾の発射
@@ -202,16 +208,17 @@ export class Player {
     this.shootTimer = 0;
   }
   
-  // 必殺技の発射（一時的に無効化）
-  /*
+  // 特殊弾の発射
   shootSpecial() {
+    if (!this.canShoot) return;
+    
     // 特殊弾の生成
     const specialBullet = new SpecialBullet(
       this.game,
       this.x,
       this.y - this.height / 2,
       -Math.PI/2, // 上方向をラジアンで指定 (-90度 = -π/2)
-      800 // 速度（通常の2倍、正の値）
+      600 // 速度（通常より速い）
     );
     
     // 現在のゲーム画面に特殊弾を追加
@@ -220,14 +227,21 @@ export class Player {
       gameScreen.addBullet(specialBullet);
     }
     
-    // 必殺技発射音の再生
-    this.game.audioManager.play('specialShoot', 0.8);
+    // 特殊弾発射音の再生
+    this.game.audioManager.play('shoot', 0.8); // 一時的に通常音を使用
     
-    // クールダウン設定
+    // クールダウン設定（特殊弾は少し長め）
     this.canShoot = false;
     this.shootTimer = 0;
+    this.shootCooldown = 0.5; // 通常より長いクールダウン
+    
+    // 次回は通常のクールダウンに戻す
+    setTimeout(() => {
+      if (this.canShoot) {
+        this.shootCooldown = 0.3;
+      }
+    }, 500);
   }
-  */
   
   // ゲームクリア時のジャンプ開始
   startJump() {

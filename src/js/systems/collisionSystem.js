@@ -1,6 +1,6 @@
 /**
  * CNP インベーダー - 衝突判定システム
- * Version: 0.1.5
+ * Version: 0.2.6
  * SPDX-License-Identifier: MIT
  */
 
@@ -25,14 +25,19 @@ export class CollisionSystem {
   checkPlayerBulletCollisions(playerBullets, enemies, ufo, boss, gameScreen) {
     for (let i = playerBullets.length - 1; i >= 0; i--) {
       const bullet = playerBullets[i];
+      let bulletHitTarget = false;
+      
+      // 弾のダメージとペネトレーション設定
+      const bulletDamage = bullet.damage || 1;
+      const bulletPenetrating = bullet.penetrating || false;
       
       // 敵との衝突
       for (let j = enemies.length - 1; j >= 0; j--) {
         const enemy = enemies[j];
         
         if (this.checkEntityCollision(bullet, enemy)) {
-          enemy.takeDamage(1);
-          playerBullets.splice(i, 1);
+          enemy.takeDamage(bulletDamage);
+          bulletHitTarget = true;
           
           if (!enemy.isActive) {
             this.game.scoreManager.addScore(GameConfig.SCORE.ENEMY_KILL);
@@ -40,14 +45,18 @@ export class CollisionSystem {
             enemies.splice(j, 1);
             this.game.audioManager.play('explosion', 0.3);
           }
-          break;
+          
+          // 貫通しない弾は最初のヒットで終了
+          if (!bulletPenetrating) {
+            break;
+          }
         }
       }
       
       // UFOとの衝突
       if (ufo && this.checkEntityCollision(bullet, ufo)) {
-        ufo.takeDamage(1);
-        playerBullets.splice(i, 1);
+        ufo.takeDamage(bulletDamage);
+        bulletHitTarget = true;
         
         if (!ufo.isActive) {
           this.game.scoreManager.addScore(GameConfig.SCORE.UFO_KILL);
@@ -55,18 +64,35 @@ export class CollisionSystem {
           gameScreen.ufo = null;
           this.game.audioManager.play('explosion', 0.4);
         }
+        
+        // 貫通しない弾の場合はここで削除
+        if (!bulletPenetrating) {
+          playerBullets.splice(i, 1);
+          continue;
+        }
       }
       
       // ボスとの衝突
       if (boss && this.checkEntityCollision(bullet, boss)) {
-        boss.takeDamage(1);
-        playerBullets.splice(i, 1);
+        boss.takeDamage(bulletDamage);
+        bulletHitTarget = true;
         
         if (!boss.isActive) {
           this.game.scoreManager.addScore(GameConfig.SCORE.BOSS_KILL);
           gameScreen.updateScoreDisplay();
           this.game.audioManager.play('explosion', 0.5);
         }
+        
+        // 貫通しない弾の場合はここで削除
+        if (!bulletPenetrating) {
+          playerBullets.splice(i, 1);
+          continue;
+        }
+      }
+      
+      // 貫通しない弾で何かに当たった場合は削除
+      if (bulletHitTarget && !bulletPenetrating) {
+        playerBullets.splice(i, 1);
       }
     }
   }
