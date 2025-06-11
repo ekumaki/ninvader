@@ -23,11 +23,11 @@ export class Player {
     this.shootCooldown = 0.3; // 発射クールダウン（秒）
     this.shootTimer = 0;
     
-    // 必殺技関連
-    this.isCharging = false;
-    this.chargeTime = 0;
-    this.requiredChargeTime = 3000; // 必要なチャージ時間（ミリ秒）
-    this.specialReady = false;
+    // 必殺技関連（一時的に無効化）
+    // this.isCharging = false;
+    // this.chargeTime = 0;
+    // this.requiredChargeTime = 3000; // 必要なチャージ時間（ミリ秒）
+    // this.specialReady = false;
     
     // 画像の読み込み（背面向き専用画像）
     this.image = new Image();
@@ -79,7 +79,8 @@ export class Player {
       }
     }
     
-    // 必殺技のチャージ処理
+    // 必殺技のチャージ処理（一時的に無効化）
+    /*
     if (inputManager.isKeyDown(' ')) {
       const pressedTime = inputManager.getKeyPressedTime(' ');
       
@@ -120,6 +121,12 @@ export class Player {
         this.shoot();
       }
     }
+    */
+    
+    // 簡単なスペースキー発射
+    if (inputManager.isKeyDown(' ') && this.canShoot) {
+      this.shoot();
+    }
     
     // ジャンプアニメーション更新
     if (this.isJumping) {
@@ -150,7 +157,8 @@ export class Player {
       this.height
     );
     
-    // チャージバーの表示（チャージ中のみ）
+    // チャージバーの表示（一時的に無効化）
+    /*
     if (this.isCharging) {
       const chargePercent = Math.min(this.chargeTime / this.requiredChargeTime, 1);
       const barWidth = 50;
@@ -164,6 +172,7 @@ export class Player {
       ctx.fillStyle = this.specialReady ? '#ffcc00' : '#ffffff';
       ctx.fillRect(this.x - barWidth / 2, this.y + this.height / 2 + 10, barWidth * chargePercent, barHeight);
     }
+    */
   }
   
   // 通常弾の発射
@@ -193,7 +202,8 @@ export class Player {
     this.shootTimer = 0;
   }
   
-  // 必殺技の発射
+  // 必殺技の発射（一時的に無効化）
+  /*
   shootSpecial() {
     // 特殊弾の生成
     const specialBullet = new SpecialBullet(
@@ -217,6 +227,7 @@ export class Player {
     this.canShoot = false;
     this.shootTimer = 0;
   }
+  */
   
   // ゲームクリア時のジャンプ開始
   startJump() {
