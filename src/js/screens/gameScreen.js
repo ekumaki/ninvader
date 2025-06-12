@@ -46,6 +46,7 @@ export class GameScreen {
     this.scoreDisplay = null;
     this.versionDisplay = null;
     this.chargeBar = null;
+    this.warningMessage = null;
   }
   
   // 画面に入る時の処理
@@ -212,11 +213,15 @@ export class GameScreen {
     if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
       elementsToRemove.push(this.highScoreDisplay);
     }
+    if (this.warningMessage) {
+      elementsToRemove.push(this.warningMessage);
+    }
     UIUtils.removeElements(...elementsToRemove);
     this.highScoreDisplay = null;
     this.currentScoreDisplay = null;
     this.versionDisplay = null;
     this.chargeBar = null;
+    this.warningMessage = null;
   }
   
   // 更新処理
@@ -315,12 +320,14 @@ export class GameScreen {
     if (this.bossSpawnScheduled) {
       this.bossSpawnTimer += deltaTime;
       
-      // 3秒経過したらボスを出現させる
-      if (this.bossSpawnTimer >= 3.0) {
+      // 3.5秒経過したらボスを出現させる
+      if (this.bossSpawnTimer >= 3.5) {
         console.log('ボスが出現します！');
         this.boss = new Boss(this.game);
         this.bossSpawnScheduled = false;
         this.bossSpawnTimer = 0;
+        // 警告メッセージを削除
+        this.removeWarningMessage();
       }
     }
   }
@@ -332,9 +339,11 @@ export class GameScreen {
     
     // 敵が全滅した場合 → ボス出現タイマー開始
     if (this.enemies.length === 0 && !this.boss && !this.enemyRespawnScheduled && !this.bossSpawnScheduled) {
-      console.log('敵を全滅させました！3秒後にボスが出現します');
+      console.log('敵を全滅させました！3.5秒後にボスが出現します');
       this.bossSpawnScheduled = true;
       this.bossSpawnTimer = 0;
+      // 警告メッセージを表示
+      this.createWarningMessage();
     }
   }
   
@@ -462,19 +471,6 @@ export class GameScreen {
     this.enemyBullets.push(bullet);
   }
   
-  // スコア表示の更新
-  updateScoreDisplay() {
-    if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
-      const highScore = this.game.scoreManager.getHighScore();
-      this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
-    }
-    
-    if (this.currentScoreDisplay) {
-      const currentScore = this.game.scoreManager.getScore();
-      this.currentScoreDisplay.textContent = `SCORE: ${currentScore}`;
-    }
-  }
-  
   // UI更新
   updateUI() {
     this.updateChargeBar();
@@ -510,6 +506,154 @@ export class GameScreen {
       } ${chargePercent * 100}%, rgba(255, 255, 255, 0.3) ${chargePercent * 100}%)`;
     } else {
       this.chargeBar.style.display = 'none';
+    }
+  }
+
+  // 警告メッセージの作成
+  createWarningMessage() {
+    // 既存の警告メッセージがあれば削除
+    if (this.warningMessage) {
+      this.removeWarningMessage();
+    }
+
+    // 警告メッセージコンテナ
+    this.warningMessage = document.createElement('div');
+    this.warningMessage.className = 'boss-warning-message';
+    this.warningMessage.style.cssText = `
+      position: absolute;
+      top: calc(50% - 100px);
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100px;
+      z-index: 2000;
+      font-family: 'Arial Black', Arial, sans-serif;
+      font-weight: bold;
+      user-select: none;
+      pointer-events: none;
+      overflow: hidden;
+      animation: blink 0.4s ease-in-out infinite alternate;
+    `;
+
+    // 幅をゲームキャンバスに合わせて調整
+    const margin = 20;
+    if (this.canvas) {
+      const msgWidth = this.canvas.width - margin * 2;
+      if (msgWidth > 0) {
+        this.warningMessage.style.width = `${msgWidth}px`;
+      }
+    }
+
+    // 上のストライプ帯
+    const topStripe = document.createElement('div');
+    topStripe.className = 'warning-stripe-top';
+    topStripe.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 300%;
+      height: 20px;
+      background: repeating-linear-gradient(
+        45deg,
+        #ff0000 0px,
+        #ff0000 15px,
+        transparent 15px,
+        transparent 30px
+      );
+      animation: scrollRight 2s linear infinite;
+    `;
+
+    // 下のストライプ帯
+    const bottomStripe = document.createElement('div');
+    bottomStripe.className = 'warning-stripe-bottom';
+    bottomStripe.style.cssText = `
+      position: absolute;
+      bottom: 0;
+      right: -100%;
+      width: 300%;
+      height: 20px;
+      background: repeating-linear-gradient(
+        45deg,
+        #ff0000 0px,
+        #ff0000 15px,
+        transparent 15px,
+        transparent 30px
+      );
+      animation: scrollLeft 2s linear infinite;
+    `;
+
+    // 警告テキスト
+    const warningText = document.createElement('div');
+    warningText.className = 'warning-text';
+    warningText.textContent = 'WARNING';
+    warningText.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      color: #ff0000;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      animation: blink 0.4s ease-in-out infinite alternate;
+      letter-spacing: 4px;
+    `;
+
+    // CSS アニメーションを追加
+    if (!document.querySelector('#warning-animations')) {
+      const style = document.createElement('style');
+      style.id = 'warning-animations';
+      style.textContent = `
+        @keyframes scrollRight {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(50px); }
+        }
+        @keyframes scrollLeft {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50px); }
+        }
+        @keyframes blink {
+          0% { opacity: 0.8; }
+          100% { opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // 要素を組み立て
+    this.warningMessage.appendChild(topStripe);
+    this.warningMessage.appendChild(warningText);
+    this.warningMessage.appendChild(bottomStripe);
+
+    // ゲームコンテナに追加
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+      gameContainer.appendChild(this.warningMessage);
+    } else {
+      document.body.appendChild(this.warningMessage);
+    }
+
+    console.log('警告メッセージを表示しました');
+  }
+
+  // 警告メッセージの削除
+  removeWarningMessage() {
+    if (this.warningMessage && this.warningMessage.parentNode) {
+      this.warningMessage.parentNode.removeChild(this.warningMessage);
+      this.warningMessage = null;
+      console.log('警告メッセージを削除しました');
+    }
+  }
+  
+  // スコア表示の更新
+  updateScoreDisplay() {
+    if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
+      const highScore = this.game.scoreManager.getHighScore();
+      this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
+    }
+    
+    if (this.currentScoreDisplay) {
+      const currentScore = this.game.scoreManager.getScore();
+      this.currentScoreDisplay.textContent = `SCORE: ${currentScore}`;
     }
   }
 }
