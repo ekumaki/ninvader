@@ -6,6 +6,7 @@
 
 import { Bullet } from './bullet.js';
 import { SpecialBullet } from './specialBullet.js';
+import { GameConfig } from '../config/gameConfig.js';
 
 export class Player {
   constructor(game, x, y) {
@@ -50,6 +51,9 @@ export class Player {
     this.jumpDuration = 0.5; // ジャンプの継続時間（秒）
     this.jumpHeight = 30; // ジャンプの高さ（ピクセル）
     this.originalY = y; // 元のY座標
+    
+    // 必殺技残弾数
+    this.specialUses = GameConfig.PLAYER.MAX_SPECIAL_USES;
   }
   
   // 更新処理
@@ -81,18 +85,21 @@ export class Player {
     
     // 必殺技チャージシステム
     if (inputManager.isKeyDown(' ')) {
-      if (!this.isCharging) {
-        this.isCharging = true;
-        this.chargeTime = 0;
-      }
-      
-      this.chargeTime += deltaTime;
-      
-      // 必殺技チャージ完了判定
-      if (this.chargeTime >= this.specialChargeTime && !this.specialReady) {
-        this.specialReady = true;
-        // チャージ完了音（あれば）
-        // this.game.audioManager.play('specialCharge', 1.0);
+      if (this.specialUses > 0) {
+        // ---- チャージ処理 ----
+        if (!this.isCharging) {
+          this.isCharging = true;
+          this.chargeTime = 0;
+        }
+        this.chargeTime += deltaTime;
+        if (this.chargeTime >= this.specialChargeTime && !this.specialReady) {
+          this.specialReady = true;
+        }
+      } else {
+        // 残弾0: すぐ通常弾発射（押し続けによる連射はクールダウン依存）
+        if (this.canShoot) {
+          this.shoot();
+        }
       }
     } else {
       // スペースキーを離した時の処理
@@ -147,7 +154,7 @@ export class Player {
   
   // 必殺技チャージゲージの描画
   renderSpecialGauge(ctx) {
-    const chargePercent = this.isCharging ? Math.min(this.chargeTime / this.specialChargeTime, 1) : 0;
+    const chargePercent = (this.specialUses > 0 && this.isCharging) ? Math.min(this.chargeTime / this.specialChargeTime, 1) : 0;
     const gaugeWidth = 50;
     const gaugeHeight = 5;
     const gaugeX = this.x - gaugeWidth / 2;
@@ -155,17 +162,21 @@ export class Player {
     
     ctx.save();
     
-    // ゲージ外枠
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    // ゲージ外枠（残弾0の場合は破線）
+    ctx.strokeStyle = this.specialUses === 0 ? '#ff4444' : 'rgba(255, 255, 255, 0.8)';
     ctx.lineWidth = 1;
+    if (this.specialUses === 0) {
+      ctx.setLineDash([4, 2]);
+    }
     ctx.strokeRect(gaugeX - 1, gaugeY - 1, gaugeWidth + 2, gaugeHeight + 2);
+    ctx.setLineDash([]);
     
     // ゲージ背景
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fillStyle = this.specialUses === 0 ? 'rgba(50,50,50,0.6)' : 'rgba(0,0,0,0.6)';
     ctx.fillRect(gaugeX, gaugeY, gaugeWidth, gaugeHeight);
     
     // チャージ量表示
-    if (chargePercent > 0) {
+    if (chargePercent > 0 && this.specialUses > 0) {
       if (this.specialReady) {
         // 必殺技準備完了時のエフェクト
         const pulseIntensity = Math.sin(Date.now() * 0.01) * 0.3 + 0.7;
@@ -244,7 +255,7 @@ export class Player {
   
   // 必殺技の発射
   shootSpecial() {
-    if (!this.canShoot) return;
+    if (!this.canShoot || this.specialUses <= 0) return;
     
     // 必殺技弾の生成
     const specialBullet = new SpecialBullet(
@@ -268,6 +279,9 @@ export class Player {
     this.canShoot = false;
     this.shootTimer = 0;
     this.shootCooldown = 0.5; // 通常より長いクールダウン
+    
+    // 残弾を減らす
+    this.specialUses--;
     
     // 次回は通常のクールダウンに戻す
     setTimeout(() => {
