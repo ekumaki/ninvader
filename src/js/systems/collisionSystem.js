@@ -108,9 +108,15 @@ export class CollisionSystem {
           }
           
           if (!boss.isActive) {
+            // 撃破時は追加で大きめの爆発音を再生
             this.game.scoreManager.addScore(GameConfig.SCORE.BOSS_KILL);
             gameScreen.updateScoreDisplay();
             this.game.audioManager.play('explosion', 0.5);
+          }
+          
+          // 被弾時に爆発音（撃破前）
+          if (boss.isActive) {
+            this.game.audioManager.play('explosion', 0.3);
           }
         }
         
