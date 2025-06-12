@@ -46,6 +46,69 @@ npm run version:major
 - バージョン変更時は上記のnpmスクリプトを使用してください
 - これにより全ファイルのバージョン表記が自動的に統一されます
 
+## Git ブランチ運用ルール
+
+公開用ブランチと開発ブランチを切り分け、安心してリリースと開発を並行できるようにしています。
+
+| ブランチ | 役割 |
+|---------|------|
+| `main` (旧 `master`) | 公開・リリース専用。常に動作する安定版のみを配置し、GitHub Pages や Release ZIP はこのブランチから生成します。 |
+| `develop` | 日常的な開発を集約するブランチ。`feature/*` などの作業ブランチはここへマージします。 |
+| `feature/*` | 新機能や改善ごとの短命ブランチ。作業が完了したら PR で `develop` へマージします。 |
+| `hotfix/*` | リリース後に見つかった緊急バグ修正用。`main` をベースに修正し、`main` と `develop` の両方へ取り込んで整合性を保ちます。 |
+
+### 基本フロー
+
+```text
+          ┌─────────────┐        ┌───────────────┐
+          │ feature/xyz │ …PR→ │ develop       │
+          └─────────────┘        │               │
+                                   │ (十分安定したら)
+                                   ▼
+                                ┌────────┐
+                                │ main   │──► GitHub Release / Pages
+                                └────────┘
+```
+
+1. `feature/*` で実装 → PR → `develop` にマージ
+2. リリース時に `develop` → `main` へ PR し、タグ (例: `v0.2.14`) を打つ
+3. 緊急修正は `hotfix/*` → `main` へマージ後、同じ修正を `develop` にも反映
+
+### ブランチ作成コマンド例
+
+```bash
+# develop から機能ブランチを切る
+git checkout develop
+git pull
+git checkout -b feature/awesome-ui
+
+# 作業後コミットしてプッシュ
+git push -u origin feature/awesome-ui
+
+# PR → develop へマージ
+```
+
+### リリース手順例 (パッチ)
+
+```bash
+# main に切替 & 最新取得
+git checkout main
+git pull
+
+# develop を取り込み (Fast-Forward 推奨)
+git merge --no-ff develop
+
+# バージョンアップしてヘッダー同期
+echo "更新内容をCHANGELOGへ追加..."
+npm version patch -m "chore(release): v%s"
+npm run version:sync
+
+# プッシュ & タグ公開
+git push origin main --follow-tags
+```
+
+これらの手順により「公開コードは常に main」「開発は自由に develop/feature」で安心運用できます。
+
 ## 起動方法
 
 ```
