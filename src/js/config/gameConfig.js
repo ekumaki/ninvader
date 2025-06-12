@@ -25,7 +25,8 @@ export const GameConfig = {
     SHOOT_COOLDOWN: 0.3,
     CHARGE_TIME: 3000,
     JUMP_DURATION: 0.5,
-    JUMP_HEIGHT: 30
+    JUMP_HEIGHT: 30,
+    MAX_SPECIAL_USES: 5 // 必殺技の最大使用回数
   },
   
   // 敵設定 - ゲームバランス調整済み

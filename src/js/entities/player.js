@@ -54,6 +54,9 @@ export class Player {
     
     // 必殺技残弾数
     this.specialUses = GameConfig.PLAYER.MAX_SPECIAL_USES;
+    
+    // スペースキー押下状態の前フレーム記憶
+    this.spacePrevDown = false;
   }
   
   // 更新処理
@@ -84,7 +87,9 @@ export class Player {
     }
     
     // 必殺技チャージシステム
-    if (inputManager.isKeyDown(' ')) {
+    const spaceDown = inputManager.isKeyDown(' ');
+    
+    if (spaceDown) {
       if (this.specialUses > 0) {
         // ---- チャージ処理 ----
         if (!this.isCharging) {
@@ -96,8 +101,8 @@ export class Player {
           this.specialReady = true;
         }
       } else {
-        // 残弾0: すぐ通常弾発射（押し続けによる連射はクールダウン依存）
-        if (this.canShoot) {
+        // 残弾0: すぐ通常弾発射（押し続けても1回だけ）
+        if (!this.spacePrevDown && this.canShoot) {
           this.shoot();
         }
       }
@@ -132,6 +137,9 @@ export class Player {
       const jumpProgress = (this.jumpTimer / this.jumpDuration) * Math.PI;
       this.y = this.originalY - Math.sin(jumpProgress) * this.jumpHeight;
     }
+    
+    // スペースキー状態を保存
+    this.spacePrevDown = spaceDown;
   }
   
   // 描画処理

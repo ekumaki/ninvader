@@ -108,6 +108,8 @@ export class GameScreen {
       this.canvas.width / 2,
       this.canvas.height - 50
     );
+    // 残弾リセット
+    this.player.specialUses = GameConfig.PLAYER.MAX_SPECIAL_USES;
     
     // 敵の配置
     this.createEnemies();
@@ -205,11 +207,37 @@ export class GameScreen {
     
     // チャージバー
     this.createChargeBar();
+    
+    // 必殺技残弾アイコン表示（中央上）
+    this.specialUsesContainer = document.createElement('div');
+    this.specialUsesContainer.className = 'special-uses-container';
+    this.specialUsesContainer.style.position = 'absolute';
+    this.specialUsesContainer.style.top = 'calc(50% - 320px + 15px)';
+    this.specialUsesContainer.style.left = '50%';
+    this.specialUsesContainer.style.transform = 'translateX(-50%)';
+    this.specialUsesContainer.style.display = 'flex';
+    this.specialUsesContainer.style.gap = '2px';
+    this.specialUsesContainer.style.zIndex = '1000';
+    this.specialIcons = [];
+    for (let i = 0; i < GameConfig.PLAYER.MAX_SPECIAL_USES; i++) {
+      const img = document.createElement('img');
+      img.src = './src/assets/img/bullet/player_A_special_01.png';
+      img.style.width = '24px';
+      img.style.height = '24px';
+      this.specialUsesContainer.appendChild(img);
+      this.specialIcons.push(img);
+    }
+    this.updateSpecialUsesIcons();
+    if (gameContainer) {
+      gameContainer.appendChild(this.specialUsesContainer);
+    } else {
+      document.body.appendChild(this.specialUsesContainer);
+    }
   }
   
   // UI要素の削除
   removeUI() {
-    const elementsToRemove = [this.currentScoreDisplay, this.versionDisplay, this.chargeBar];
+    const elementsToRemove = [this.currentScoreDisplay, this.versionDisplay, this.chargeBar, this.specialUsesContainer];
     if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
       elementsToRemove.push(this.highScoreDisplay);
     }
@@ -222,6 +250,7 @@ export class GameScreen {
     this.versionDisplay = null;
     this.chargeBar = null;
     this.warningMessage = null;
+    this.specialUsesContainer = null;
   }
   
   // 更新処理
@@ -475,6 +504,9 @@ export class GameScreen {
   updateUI() {
     this.updateChargeBar();
     this.updateScoreDisplay();
+    if (this.specialIcons && this.player) {
+      this.updateSpecialUsesIcons();
+    }
   }
   
   // チャージバーの作成
@@ -654,6 +686,16 @@ export class GameScreen {
     if (this.currentScoreDisplay) {
       const currentScore = this.game.scoreManager.getScore();
       this.currentScoreDisplay.textContent = `SCORE: ${currentScore}`;
+    }
+  }
+
+  // アイコン更新
+  updateSpecialUsesIcons() {
+    if (!this.specialIcons) return;
+    // 5 個のアイコンを左→右の順に保持
+    for (let i = 0; i < this.specialIcons.length; i++) {
+      const visible = i < this.player.specialUses; // 残弾数より右側を非表示
+      this.specialIcons[i].style.visibility = visible ? 'visible' : 'hidden';
     }
   }
 }
