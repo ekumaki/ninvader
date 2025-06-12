@@ -38,6 +38,10 @@ export class GameScreen {
     this.collisionEnabled = false;
     this.enemyRespawnScheduled = false;
     
+    // ボス出現タイマー
+    this.bossSpawnTimer = 0;
+    this.bossSpawnScheduled = false;
+    
     // UI要素
     this.scoreDisplay = null;
     this.versionDisplay = null;
@@ -119,6 +123,10 @@ export class GameScreen {
     this.gameCleared = false;
     this.enemyRespawnScheduled = false;
     this.collisionEnabled = false;
+    
+    // ボス出現タイマーのリセット
+    this.bossSpawnTimer = 0;
+    this.bossSpawnScheduled = false;
     
     // 編隊システムのリセット
     this.formationSystem.reset();
@@ -237,6 +245,9 @@ export class GameScreen {
       this.collisionSystem.checkAllCollisions(this);
     }
     
+    // ボス出現タイマーの更新
+    this.updateBossSpawnTimer(deltaTime);
+    
     // ゲーム状態の確認
     this.checkGameState();
     
@@ -299,15 +310,31 @@ export class GameScreen {
     this.enemyBullets = this.enemyBullets.filter(bullet => bullet.isActive);
   }
   
+  // ボス出現タイマーの更新
+  updateBossSpawnTimer(deltaTime) {
+    if (this.bossSpawnScheduled) {
+      this.bossSpawnTimer += deltaTime;
+      
+      // 3秒経過したらボスを出現させる
+      if (this.bossSpawnTimer >= 3.0) {
+        console.log('ボスが出現します！');
+        this.boss = new Boss(this.game);
+        this.bossSpawnScheduled = false;
+        this.bossSpawnTimer = 0;
+      }
+    }
+  }
+  
   // ゲーム状態の確認
   checkGameState() {
     // ゲームクリア済みの場合は何もしない
     if (this.gameCleared) return;
     
-    // 敵が全滅した場合 → ボス出現
-    if (this.enemies.length === 0 && !this.boss && !this.enemyRespawnScheduled) {
-      console.log('敵を全滅させました！ボスが出現します');
-      this.boss = new Boss(this.game);
+    // 敵が全滅した場合 → ボス出現タイマー開始
+    if (this.enemies.length === 0 && !this.boss && !this.enemyRespawnScheduled && !this.bossSpawnScheduled) {
+      console.log('敵を全滅させました！3秒後にボスが出現します');
+      this.bossSpawnScheduled = true;
+      this.bossSpawnTimer = 0;
     }
   }
   
