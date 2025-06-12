@@ -6,6 +6,7 @@
 
 import { GameConfig } from '../config/gameConfig.js';
 import { UIUtils } from '../utils/uiUtils.js';
+import { Player } from '../entities/player.js';
 
 export class TitleScreen {
   constructor(game) {
@@ -22,6 +23,9 @@ export class TitleScreen {
     
     // スコア表示
     this.scoreDisplay = null;
+
+    // プレビュー用プレイヤー
+    this.previewPlayer = null;
   }
   
   // 画面に入る時の処理
@@ -49,6 +53,9 @@ export class TitleScreen {
     }
     
     this.createScoreDisplay();
+
+    // プレビュー用プレイヤー生成
+    this.createPreviewPlayer();
     console.log('タイトル画面のUIを作成しました');
     
     // デバッグ情報更新
@@ -71,6 +78,9 @@ export class TitleScreen {
     }
     
     this.removeScoreDisplay();
+
+    // プレビュー用プレイヤー削除
+    this.previewPlayer = null;
     
     // デバッグ情報更新
     const debugInfo = document.getElementById('debug-info');
@@ -87,6 +97,11 @@ export class TitleScreen {
     // 背景の描画
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    // プレビュー用プレイヤー描画
+    if (this.previewPlayer) {
+      this.previewPlayer.render(ctx);
+    }
     
     console.log('タイトル画面を描画しました');
   }
@@ -286,5 +301,14 @@ export class TitleScreen {
     }
   }
   
-  // 星空の描画関数は削除しました
+  // プレビュー用プレイヤー生成
+  createPreviewPlayer() {
+    const x = this.canvas.width / 2;
+    const y = this.canvas.height - 50; // ゲーム他画面と同じ位置
+    this.previewPlayer = new Player(this.game, x, y);
+    // 正面向き画像に差し替え
+    this.previewPlayer.image.src = './src/assets/img/player/player_A_front.png';
+    // 必殺技ゲージを非表示にするため、描画関数を空に
+    this.previewPlayer.renderSpecialGauge = () => {};
+  }
 }
