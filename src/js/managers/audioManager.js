@@ -4,8 +4,20 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { GameConfig } from '../config/gameConfig.js';
+
 export class AudioManager {
-  constructor() {
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.enabled] - オーディオを有効にするかどうか。省略時は GameConfig を参照。
+   */
+  constructor(options = {}) {
+    // 設定から有効フラグを取得（優先順位: オプション > GameConfig > デフォルト true）
+    this.enabled =
+      typeof options.enabled === 'boolean'
+        ? options.enabled
+        : (GameConfig?.AUDIO?.ENABLED ?? true);
+
     this.sounds = {};
     this.audioContext = null;
     this.masterGain = null;
@@ -13,8 +25,13 @@ export class AudioManager {
     this.maxSimultaneousSounds = 8; // 同時再生可能な音の数
     this.playingSounds = [];
     
-    this.initAudioContext();
-    this.loadSounds();
+    if (this.enabled) {
+      // 有効な場合のみ初期化と読み込みを行う
+      this.initAudioContext();
+      this.loadSounds();
+    } else {
+      console.log('AudioManager: オーディオは無効化されています');
+    }
   }
   
   // Web Audio APIの初期化
@@ -129,7 +146,7 @@ export class AudioManager {
   
   // 効果音の再生
   play(soundName, volume = 1.0) {
-    if (this.isMuted || !this.sounds[soundName] || !this.audioContext) return null;
+    if (!this.enabled || this.isMuted || !this.sounds[soundName] || !this.audioContext) return null;
     
     // 同時再生数の制限
     if (this.playingSounds.length >= this.maxSimultaneousSounds) {
@@ -184,6 +201,10 @@ export class AudioManager {
   
   // ミュート切り替え
   toggleMute() {
+    if (!this.enabled) {
+      // 無効時は常にミュート扱い
+      return true;
+    }
     this.isMuted = !this.isMuted;
     if (this.masterGain) {
       this.masterGain.gain.value = this.isMuted ? 0 : 0.7;

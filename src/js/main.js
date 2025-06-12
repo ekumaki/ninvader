@@ -11,6 +11,7 @@ import { InstructionsScreen } from './screens/instructionsScreen.js';
 import { GameOverScreen } from './screens/gameOverScreen.js';
 import { GameClearScreen } from './screens/gameClearScreen.js';
 import { AudioManager } from './managers/audioManager.js';
+import { GameConfig } from './config/gameConfig.js';
 
 // ゲームの初期化
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,8 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (debugInfo) debugInfo.textContent = 'オーディオマネージャー初期化中...';
     
-    // オーディオマネージャーの初期化
-    const audioManager = new AudioManager();
+    // オーディオマネージャーの初期化（設定で無効化可能）
+    const audioManager = new AudioManager({ enabled: GameConfig.AUDIO.ENABLED });
     console.log('オーディオマネージャー初期化完了');
     
     if (debugInfo) debugInfo.textContent = 'ゲームインスタンス作成中...';

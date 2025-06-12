@@ -68,6 +68,7 @@ export const GameConfig = {
   
   // オーディオ設定
   AUDIO: {
+    ENABLED: true,
     MASTER_VOLUME: 0.5,
     SFX_VOLUME: 0.5,
     MUSIC_VOLUME: 0.3
