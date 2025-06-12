@@ -40,23 +40,89 @@ export class AudioManager {
     }
   }
   
+  // ---------------- 合成効果音ユーティリティ ----------------
+  createBuffer(durationSec) {
+    const rate = this.audioContext.sampleRate;
+    return this.audioContext.createBuffer(1, rate * durationSec, rate);
+  }
+
+  synthShoot() {
+    const buf = this.createBuffer(0.1);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = i % 20 < 10 ? 0.6 : -0.6;
+    }
+    return buf;
+  }
+
+  synthExplosion() {
+    const buf = this.createBuffer(0.4);
+    const data = buf.getChannelData(0);
+    const len = data.length;
+    for (let i = 0; i < len; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+    }
+    return buf;
+  }
+
+  synthSpecialCharge() {
+    const buf = this.createBuffer(0.8);
+    const data = buf.getChannelData(0);
+    const len = data.length;
+    for (let i = 0; i < len; i++) {
+      const t = i / this.audioContext.sampleRate;
+      const f = 200 + 600 * t; // 200→800Hz
+      data[i] = Math.sin(2 * Math.PI * f * t) * 0.4;
+    }
+    return buf;
+  }
+
+  synthSpecialShoot() {
+    const buf = this.createBuffer(0.25);
+    const data = buf.getChannelData(0);
+    const len = data.length;
+    for (let i = 0; i < len; i++) {
+      const v = ((i % 25) / 25) - 0.5; // のこぎり波
+      data[i] = v * Math.pow(1 - i / len, 1.5);
+    }
+    return buf;
+  }
+  
   // 効果音の読み込み
   async loadSounds() {
+    const base = import.meta.url;
     const soundFiles = {
-      shoot: '/src/assets/audio/sfx/shoot.mp3',
-      explosion: '/src/assets/audio/sfx/explosion.mp3',
-      specialCharge: '/src/assets/audio/sfx/special_charge.mp3',
-      specialShoot: '/src/assets/audio/sfx/special_shoot.mp3'
+      shoot: new URL('../../assets/audio/sfx/shoot.mp3', base).href,
+      explosion: new URL('../../assets/audio/sfx/explosion.mp3', base).href,
+      specialCharge: new URL('../../assets/audio/sfx/special_charge.mp3', base).href,
+      specialShoot: new URL('../../assets/audio/sfx/special_shoot.mp3', base).href
     };
     
     for (const [name, path] of Object.entries(soundFiles)) {
       try {
         const response = await fetch(path);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const arrayBuffer = await response.arrayBuffer();
         const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
         this.sounds[name] = audioBuffer;
       } catch (e) {
-        console.error(`効果音 ${name} の読み込みに失敗しました`, e);
+        console.warn(`効果音 ${name} の読み込みに失敗しました。合成音を使用します`, e);
+        switch (name) {
+          case 'shoot':
+            this.sounds[name] = this.synthShoot();
+            break;
+          case 'explosion':
+            this.sounds[name] = this.synthExplosion();
+            break;
+          case 'specialCharge':
+            this.sounds[name] = this.synthSpecialCharge();
+            break;
+          case 'specialShoot':
+            this.sounds[name] = this.synthSpecialShoot();
+            break;
+          default:
+            break;
+        }
       }
     }
   }
