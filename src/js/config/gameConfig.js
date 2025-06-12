@@ -1,12 +1,12 @@
 /**
  * CNP インベーダー - ゲーム設定
- * Version: 0.2.13
+ * Version: 1.0.0
  * SPDX-License-Identifier: MIT
  */
 
 export const GameConfig = {
   // ゲームバージョン
-  VERSION: '0.2.13',
+  VERSION: '1.0.0',
   CANVAS_WIDTH: 360,
   CANVAS_HEIGHT: 640,
   TARGET_FPS: 60,
