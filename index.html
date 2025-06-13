@@ -199,8 +199,6 @@
   </style>
 </head>
 <body>
-  <h1 id="debug-header">デバッグモード: ページ読み込み中...</h1>
-  
   <div id="game-container">
     <canvas id="game-canvas" width="360" height="640"></canvas>
     
@@ -259,7 +257,6 @@
     // ページ読み込み確認用のスクリプト
     document.addEventListener('DOMContentLoaded', function() {
       console.log('ページが読み込まれました');
-      document.getElementById('debug-header').textContent = 'デバッグモード: ページ読み込み完了';
       
       // ハイスコア表示の更新
       updateHighScoreDisplay();
