@@ -314,13 +314,15 @@ export class Player {
   
   // ダメージを受ける
   takeDamage(amount) {
+    if (GameConfig.DEBUG && GameConfig.DEBUG.GOD_MODE) {
+      // 無敵モード中はダメージを受けない
+      return false;
+    }
     this.health -= amount;
-    
     if (this.health <= 0) {
       this.isActive = false;
       return true; // プレイヤーが死亡した
     }
-    
     return false;
   }
 } 

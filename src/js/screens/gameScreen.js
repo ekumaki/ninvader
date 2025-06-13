@@ -460,21 +460,18 @@ export class GameScreen {
   
   // デバッグ情報の描画
   renderDebugInfo(ctx) {
+    if (!(GameConfig.DEBUG && GameConfig.DEBUG.SHOW_INFO)) return;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     ctx.font = '12px Arial';
-    
     ctx.fillText(`敵: ${this.enemies.length}`, 10, 20);
     ctx.fillText(`弾: ${this.playerBullets.length}`, 10, 40);
     ctx.fillText(`敵弾: ${this.enemyBullets.length}`, 10, 60);
-    
     const minutes = Math.floor(this.gameTime / 60);
     const seconds = Math.floor(this.gameTime % 60);
     ctx.fillText(`時間: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`, 10, 80);
-    
     if (this.player) {
       ctx.fillText(`プレイヤー: X=${Math.round(this.player.x)}, Y=${Math.round(this.player.y)}`, 10, 100);
     }
-    
     const score = this.game.scoreManager.getScore();
     const highScore = this.game.scoreManager.getHighScore();
     ctx.fillText(`スコア: ${score}`, 10, 120);
