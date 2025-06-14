@@ -57,6 +57,9 @@ export class Player {
     
     // スペースキー押下状態の前フレーム記憶
     this.spacePrevDown = false;
+    
+    // チャージ音の再生状態
+    this.chargeSoundPlayed = false;
   }
   
   // 更新処理
@@ -95,10 +98,22 @@ export class Player {
         if (!this.isCharging) {
           this.isCharging = true;
           this.chargeTime = 0;
+          this.chargeSoundPlayed = false;
         }
         this.chargeTime += deltaTime;
+        // 0.1秒以上押し続けたらチャージ音を再生
+        if (!this.chargeSoundPlayed && this.chargeTime > 0.1) {
+          if (this.game.audioManager) {
+            this.game.audioManager.play('specialCharge');
+          }
+          this.chargeSoundPlayed = true;
+        }
         if (this.chargeTime >= this.specialChargeTime && !this.specialReady) {
           this.specialReady = true;
+          // チャージ完了時にチャージ音を止める
+          if (this.game.audioManager) {
+            this.game.audioManager.stop('specialCharge');
+          }
         }
       } else {
         // 残弾0: すぐ通常弾発射（押し続けても1回だけ）
@@ -110,7 +125,11 @@ export class Player {
       // スペースキーを離した時の処理
       if (this.isCharging) {
         this.isCharging = false;
-        
+        // チャージキャンセル時にチャージ音を止める
+        if (this.game.audioManager) {
+          this.game.audioManager.stop('specialCharge');
+        }
+        this.chargeSoundPlayed = false;
         if (this.specialReady && this.canShoot) {
           // 必殺技発射
           this.shootSpecial();
@@ -281,7 +300,9 @@ export class Player {
     }
     
     // 必殺技発射音の再生
-    this.game.audioManager.play('shoot', 0.8); // 一時的に通常音を使用
+    if (this.game.audioManager) {
+      this.game.audioManager.play('specialShoot', 0.9);
+    }
     
     // クールダウン設定（必殺技は少し長め）
     this.canShoot = false;

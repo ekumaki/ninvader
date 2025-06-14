@@ -174,14 +174,17 @@ export class Boss {
   // ダメージを受ける
   takeDamage(amount) {
     this.health -= amount;
-    
     // ダメージエフェクト（点滅など）を追加できる
-    
+    if (this.game.audioManager) {
+      this.game.audioManager.play('bossDamage');
+    }
     if (this.health <= 0) {
       this.isActive = false;
+      if (this.game.audioManager) {
+        this.game.audioManager.play('bossDestroyed');
+      }
       return true; // ボスが倒れた
     }
-    
     return false;
   }
 }

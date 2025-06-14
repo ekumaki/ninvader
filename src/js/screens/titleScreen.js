@@ -26,6 +26,8 @@ export class TitleScreen {
 
     // プレビュー用プレイヤー
     this.previewPlayer = null;
+
+    this.audioToggleBtn = null;
   }
   
   // 画面に入る時の処理
@@ -61,6 +63,8 @@ export class TitleScreen {
     // デバッグ情報更新
     const debugInfo = document.getElementById('debug-info');
     if (debugInfo) debugInfo.textContent = 'タイトル画面表示中';
+
+    this.createAudioToggleButton();
   }
   
   // 画面から出る時の処理
@@ -85,6 +89,8 @@ export class TitleScreen {
     // デバッグ情報更新
     const debugInfo = document.getElementById('debug-info');
     if (debugInfo) debugInfo.textContent = 'タイトル画面から移動中';
+
+    this.removeAudioToggleButton();
   }
   
   // 更新処理
@@ -139,14 +145,26 @@ export class TitleScreen {
       title.style.margin = '0 0 5px 0';
       title.style.textAlign = 'center';
       
-      // バージョン表示
-      const version = document.createElement('div');
-      version.className = 'game-version';
-      version.textContent = `v${GameConfig.VERSION}`;
-      version.style.fontSize = '16px';
-      version.style.margin = '0 0 20px 0';
-      version.style.textAlign = 'center';
-      version.style.color = '#AAA';
+      // バージョン・デバッグ表示
+      let version = null;
+      let debugMode = null;
+      if (GameConfig.DEBUG && GameConfig.DEBUG.SHOW_INFO) {
+        version = document.createElement('div');
+        version.className = 'game-version';
+        version.textContent = `v${GameConfig.VERSION}`;
+        version.style.fontSize = '16px';
+        version.style.margin = '0 0 8px 0';
+        version.style.textAlign = 'center';
+        version.style.color = '#AAA';
+
+        debugMode = document.createElement('div');
+        debugMode.className = 'debug-mode';
+        debugMode.textContent = `デバッグモード: ${GameConfig.DEBUG.GOD_MODE ? 'ON' : 'OFF'}`;
+        debugMode.style.fontSize = '14px';
+        debugMode.style.margin = '0 0 12px 0';
+        debugMode.style.textAlign = 'center';
+        debugMode.style.color = '#ff8888';
+      }
       
       // メニューボタンのコンテナ
       const menuButtons = document.createElement('div');
@@ -184,7 +202,9 @@ export class TitleScreen {
       startBtn.textContent = 'ゲーム開始';
       styleButton(startBtn);
       startBtn.addEventListener('click', () => {
-        console.log('ゲーム開始ボタンがクリックされました');
+        if (this.game.audioManager) {
+          this.game.audioManager.play('gameStart');
+        }
         this.game.switchScreen('game');
       });
       
@@ -230,7 +250,8 @@ export class TitleScreen {
       }
       
       titleScreen.appendChild(title);
-      titleScreen.appendChild(version);
+      if (debugMode) titleScreen.appendChild(debugMode);
+      if (version) titleScreen.appendChild(version);
       titleScreen.appendChild(menuButtons);
       
       // ゲームコンテナに追加
@@ -310,5 +331,64 @@ export class TitleScreen {
     this.previewPlayer.image.src = './src/assets/img/player/player_A_front.png';
     // 必殺技ゲージを非表示にするため、描画関数を空に
     this.previewPlayer.renderSpecialGauge = () => {};
+  }
+
+  createAudioToggleButton() {
+    // すでに存在していれば何もしない
+    if (this.audioToggleBtn) return;
+    const canvas = document.getElementById('game-canvas');
+    if (!canvas) return;
+    // ラッパーdivを探すか作成
+    let wrapper = canvas.parentNode;
+    if (!wrapper.classList.contains('canvas-wrapper')) {
+      // まだラッパーでなければ作成
+      wrapper = document.createElement('div');
+      wrapper.className = 'canvas-wrapper';
+      wrapper.style.position = 'relative';
+      wrapper.style.width = canvas.width + 'px';
+      wrapper.style.height = canvas.height + 'px';
+      // canvasをラッパーに移動
+      canvas.parentNode.insertBefore(wrapper, canvas);
+      wrapper.appendChild(canvas);
+    }
+    // ボタン生成
+    const btn = document.createElement('button');
+    btn.className = 'audio-toggle-btn';
+    btn.title = '音楽・効果音のオン/オフ';
+    btn.style.display = 'flex';
+    // SVGアイコン（初期状態はON）
+    btn.innerHTML = this.getSpeakerSVG(this.game.audioManager.isMuted);
+    // 状態同期
+    const updateIcon = () => {
+      const isMuted = this.game.audioManager.isMuted;
+      btn.innerHTML = this.getSpeakerSVG(isMuted);
+    };
+    // クリックでミュート切り替え
+    btn.addEventListener('click', () => {
+      this.game.audioManager.toggleMute();
+      updateIcon();
+    });
+    // 初期アイコン
+    updateIcon();
+    // 配置（canvasラッパーの右上）
+    wrapper.appendChild(btn);
+    this.audioToggleBtn = btn;
+  }
+
+  removeAudioToggleButton() {
+    if (this.audioToggleBtn && this.audioToggleBtn.parentNode) {
+      this.audioToggleBtn.parentNode.removeChild(this.audioToggleBtn);
+      this.audioToggleBtn = null;
+    }
+  }
+
+  getSpeakerSVG(isMuted) {
+    if (!isMuted) {
+      // スピーカーON
+      return `<svg viewBox="0 0 32 32"><g class='icon-speaker'><polygon points='7,12 15,12 21,7 21,25 15,20 7,20'/><path d='M24 12 Q27 16 24 20'/></g></svg>`;
+    } else {
+      // スピーカーOFF（ミュート: 赤い斜線）
+      return `<svg viewBox="0 0 32 32"><g class='icon-mute'><polygon points='7,12 15,12 21,7 21,25 15,20 7,20'/><line x1='25' y1='11' x2='29' y2='21'/><line x1='29' y1='11' x2='25' y2='21'/></g><line class='icon-mute-line' x1='6' y1='6' x2='26' y2='26'/></svg>`;
+    }
   }
 }

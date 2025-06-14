@@ -21,7 +21,8 @@ export class AudioManager {
     this.sounds = {};
     this.audioContext = null;
     this.masterGain = null;
-    this.isMuted = false;
+    const savedMute = localStorage.getItem('CNP_AUDIO_MUTED');
+    this.isMuted = savedMute !== null ? (savedMute === 'true') : true;
     this.maxSimultaneousSounds = 8; // 同時再生可能な音の数
     this.playingSounds = [];
     
@@ -43,7 +44,7 @@ export class AudioManager {
       
       // マスターゲインの設定
       this.masterGain = this.audioContext.createGain();
-      this.masterGain.gain.value = 0.7; // 全体音量の初期値
+      this.masterGain.gain.value = 0.5; // 全体音量の初期値（0.7→0.5に下げる）
       this.masterGain.connect(this.audioContext.destination);
       
       // ユーザーインタラクションでオーディオコンテキストを開始
@@ -112,7 +113,14 @@ export class AudioManager {
       shoot: new URL('../../assets/audio/sfx/shoot.mp3', base).href,
       explosion: new URL('../../assets/audio/sfx/explosion.mp3', base).href,
       specialCharge: new URL('../../assets/audio/sfx/special_charge.mp3', base).href,
-      specialShoot: new URL('../../assets/audio/sfx/special_shoot.mp3', base).href
+      specialShoot: new URL('../../assets/audio/sfx/special_shoot.mp3', base).href,
+      bossDamage: new URL('../../assets/audio/sfx/boss_damage.mp3', base).href,
+      bossDestroyed: new URL('../../assets/audio/sfx/boss_destroyed.mp3', base).href,
+      playerDestroyed: new URL('../../assets/audio/sfx/player_destroyed.mp3', base).href,
+      bossAlert: new URL('../../assets/audio/sfx/boss_alert.mp3', base).href,
+      gameClear: new URL('../../assets/audio/sfx/game_clear.mp3', base).href,
+      gameOver: new URL('../../assets/audio/sfx/game_over.mp3', base).href,
+      gameStart: new URL('../../assets/audio/sfx/game_start.mp3', base).href,
     };
     
     for (const [name, path] of Object.entries(soundFiles)) {
@@ -137,6 +145,7 @@ export class AudioManager {
           case 'specialShoot':
             this.sounds[name] = this.synthSpecialShoot();
             break;
+          // 追加効果音は合成音なし
           default:
             break;
         }
@@ -146,6 +155,14 @@ export class AudioManager {
   
   // 効果音の再生
   play(soundName, volume = 1.0) {
+    // 音量を効果音ごとに調整
+    if (typeof volume === 'undefined' || volume === null) {
+      if (soundName === 'specialCharge') {
+        volume = 0.5;
+      } else if (soundName === 'gameClear' || soundName === 'gameOver' || soundName === 'bossAlert') {
+        volume = 0.1;
+      }
+    }
     if (!this.enabled || this.isMuted || !this.sounds[soundName] || !this.audioContext) return null;
     
     // 同時再生数の制限
@@ -185,6 +202,21 @@ export class AudioManager {
         }
       };
       
+      // bossAlert音は再生中のsourceを記録
+      if (soundName === 'bossAlert') {
+        if (this.bossAlertSource) {
+          try { this.bossAlertSource.stop(); } catch {}
+        }
+        this.bossAlertSource = source;
+      }
+      // specialCharge音も再生中のsourceを記録
+      if (soundName === 'specialCharge') {
+        if (this.specialChargeSource) {
+          try { this.specialChargeSource.stop(); } catch {}
+        }
+        this.specialChargeSource = source;
+      }
+      
       return soundInfo;
     } catch (e) {
       console.error(`効果音 ${soundName} の再生に失敗しました`, e);
@@ -201,14 +233,22 @@ export class AudioManager {
   
   // ミュート切り替え
   toggleMute() {
-    if (!this.enabled) {
-      // 無効時は常にミュート扱い
-      return true;
-    }
     this.isMuted = !this.isMuted;
-    if (this.masterGain) {
-      this.masterGain.gain.value = this.isMuted ? 0 : 0.7;
+    localStorage.setItem('CNP_AUDIO_MUTED', this.isMuted);
+    if (this.masterGain && this.enabled) {
+      this.masterGain.gain.value = this.isMuted ? 0 : 0.5;
     }
     return this.isMuted;
+  }
+
+  stop(soundName) {
+    if (soundName === 'bossAlert' && this.bossAlertSource) {
+      try { this.bossAlertSource.stop(); } catch {}
+      this.bossAlertSource = null;
+    }
+    if (soundName === 'specialCharge' && this.specialChargeSource) {
+      try { this.specialChargeSource.stop(); } catch {}
+      this.specialChargeSource = null;
+    }
   }
 }

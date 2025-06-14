@@ -38,6 +38,7 @@
       width: 360px;
       height: 640px;
       display: block;
+      position: relative;
     }
     #debug-info {
       position: absolute;
@@ -196,6 +197,54 @@
       color: #ffffff;
       z-index: 20;
     }
+    
+    /* 音量ボタン（タイトル画面右上） */
+    .audio-toggle-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 38px;
+      height: 38px;
+      background: transparent;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      transition: background 0.2s;
+      padding: 0;
+      pointer-events: auto;
+    }
+    .audio-toggle-btn:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    .audio-toggle-btn svg {
+      width: 22px;
+      height: 22px;
+      display: block;
+    }
+    .audio-toggle-btn .icon-speaker {
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2.2;
+    }
+    .audio-toggle-btn .icon-mute {
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2.2;
+    }
+    .audio-toggle-btn .icon-mute-line {
+      stroke: #f44;
+      stroke-width: 3.2;
+      stroke-linecap: round;
+    }
+    .canvas-wrapper {
+      display: block;
+      margin: auto;
+      position: relative;
+    }
   </style>
 </head>
 <body>
@@ -249,8 +298,6 @@
         <button class="menu-btn" id="back-from-instructions-btn">タイトルへもどる</button>
       </div>
     </div>
-    
-    <div id="debug-info">ゲームキャンバスの初期化中...</div>
   </div>
 
   <script>
@@ -264,7 +311,6 @@
       // キャンバスの基本描画テスト
       const canvas = document.getElementById('game-canvas');
       const ctx = canvas.getContext('2d');
-      const debugInfo = document.getElementById('debug-info');
       
       if (ctx) {
         // 背景を黒く塗りつぶす
@@ -305,21 +351,15 @@
         
         // アニメーション開始
         animate();
-        
-        if (debugInfo) debugInfo.textContent = 'キャンバスアニメーション実行中';
-      } else {
-        if (debugInfo) debugInfo.textContent = 'エラー: キャンバスコンテキストを取得できません';
       }
       
       // ボタンイベント設定
       document.getElementById('start-btn').addEventListener('click', function() {
         console.log('ゲーム開始ボタンがクリックされました');
-        if (debugInfo) debugInfo.textContent = 'ゲーム開始ボタンがクリックされました';
       });
       
       document.getElementById('instructions-btn').addEventListener('click', function() {
         console.log('操作説明ボタンがクリックされました');
-        if (debugInfo) debugInfo.textContent = '操作説明ボタンがクリックされました';
         
         // ゲームインスタンスを探して操作説明画面に遷移
         setTimeout(() => {
