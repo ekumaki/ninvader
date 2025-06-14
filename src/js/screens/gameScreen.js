@@ -45,7 +45,6 @@ export class GameScreen {
     // UI要素
     this.scoreDisplay = null;
     this.versionDisplay = null;
-    this.chargeBar = null;
     this.warningMessage = null;
   }
   
@@ -205,9 +204,6 @@ export class GameScreen {
     this.versionDisplay = UIUtils.createVersionDisplay();
     document.body.appendChild(this.versionDisplay);
     
-    // チャージバー
-    this.createChargeBar();
-    
     // 必殺技残弾アイコン表示（中央上）
     this.specialUsesContainer = document.createElement('div');
     this.specialUsesContainer.className = 'special-uses-container';
@@ -237,7 +233,7 @@ export class GameScreen {
   
   // UI要素の削除
   removeUI() {
-    const elementsToRemove = [this.currentScoreDisplay, this.versionDisplay, this.chargeBar, this.specialUsesContainer];
+    const elementsToRemove = [this.currentScoreDisplay, this.versionDisplay, this.specialUsesContainer];
     if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
       elementsToRemove.push(this.highScoreDisplay);
     }
@@ -248,7 +244,6 @@ export class GameScreen {
     this.highScoreDisplay = null;
     this.currentScoreDisplay = null;
     this.versionDisplay = null;
-    this.chargeBar = null;
     this.warningMessage = null;
     this.specialUsesContainer = null;
   }
@@ -510,42 +505,32 @@ export class GameScreen {
   
   // UI更新
   updateUI() {
-    this.updateChargeBar();
     this.updateScoreDisplay();
     if (this.specialIcons && this.player) {
       this.updateSpecialUsesIcons();
     }
   }
   
-  // チャージバーの作成
-  createChargeBar() {
-    this.chargeBar = document.createElement('div');
-    this.chargeBar.className = 'charge-bar';
-    this.chargeBar.style.position = 'absolute';
-    this.chargeBar.style.bottom = '20px';
-    this.chargeBar.style.left = '10px';
-    this.chargeBar.style.width = '200px';
-    this.chargeBar.style.height = '10px';
-    this.chargeBar.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-    this.chargeBar.style.border = '1px solid #fff';
-    this.chargeBar.style.display = 'none';
-    this.chargeBar.style.zIndex = '1000';
+  // スコア表示の更新
+  updateScoreDisplay() {
+    if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
+      const highScore = this.game.scoreManager.getHighScore();
+      this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
+    }
     
-    document.body.appendChild(this.chargeBar);
+    if (this.currentScoreDisplay) {
+      const currentScore = this.game.scoreManager.getScore();
+      this.currentScoreDisplay.textContent = `SCORE: ${currentScore}`;
+    }
   }
-  
-  // チャージバーの更新
-  updateChargeBar() {
-    if (!this.chargeBar || !this.player) return;
-    
-    if (this.player.isCharging) {
-      this.chargeBar.style.display = 'block';
-      const chargePercent = Math.min(this.player.chargeTime / this.player.requiredChargeTime, 1);
-      this.chargeBar.style.background = `linear-gradient(to right, ${
-        this.player.specialReady ? '#ffcc00' : '#ffffff'
-      } ${chargePercent * 100}%, rgba(255, 255, 255, 0.3) ${chargePercent * 100}%)`;
-    } else {
-      this.chargeBar.style.display = 'none';
+
+  // アイコン更新
+  updateSpecialUsesIcons() {
+    if (!this.specialIcons) return;
+    // 5 個のアイコンを左→右の順に保持
+    for (let i = 0; i < this.specialIcons.length; i++) {
+      const visible = i < this.player.specialUses; // 残弾数より右側を非表示
+      this.specialIcons[i].style.visibility = visible ? 'visible' : 'hidden';
     }
   }
 
@@ -681,29 +666,6 @@ export class GameScreen {
       this.warningMessage.parentNode.removeChild(this.warningMessage);
       this.warningMessage = null;
       console.log('警告メッセージを削除しました');
-    }
-  }
-  
-  // スコア表示の更新
-  updateScoreDisplay() {
-    if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
-      const highScore = this.game.scoreManager.getHighScore();
-      this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
-    }
-    
-    if (this.currentScoreDisplay) {
-      const currentScore = this.game.scoreManager.getScore();
-      this.currentScoreDisplay.textContent = `SCORE: ${currentScore}`;
-    }
-  }
-
-  // アイコン更新
-  updateSpecialUsesIcons() {
-    if (!this.specialIcons) return;
-    // 5 個のアイコンを左→右の順に保持
-    for (let i = 0; i < this.specialIcons.length; i++) {
-      const visible = i < this.player.specialUses; // 残弾数より右側を非表示
-      this.specialIcons[i].style.visibility = visible ? 'visible' : 'hidden';
     }
   }
 }

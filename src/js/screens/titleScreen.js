@@ -54,8 +54,6 @@ export class TitleScreen {
       this.createTitleUI();
     }
     
-    this.createScoreDisplay();
-
     // プレビュー用プレイヤー生成
     this.createPreviewPlayer();
     console.log('タイトル画面のUIを作成しました');
@@ -81,8 +79,6 @@ export class TitleScreen {
       this.removeTitleUI();
     }
     
-    this.removeScoreDisplay();
-
     // プレビュー用プレイヤー削除
     this.previewPlayer = null;
     
@@ -291,25 +287,6 @@ export class TitleScreen {
   removeTitleUI() {
     if (this.titleElement && this.titleElement.parentNode) {
       this.titleElement.parentNode.removeChild(this.titleElement);
-    }
-  }
-  
-  // スコア表示の作成
-  createScoreDisplay() {
-    const scoreDisplay = document.createElement('div');
-    scoreDisplay.className = 'score-display';
-    
-    const highScore = this.game.scoreManager.getHighScore();
-    scoreDisplay.innerHTML = `HI SCORE: ${highScore}`;
-    
-    document.body.appendChild(scoreDisplay);
-    this.scoreDisplay = scoreDisplay;
-  }
-  
-  // スコア表示の削除
-  removeScoreDisplay() {
-    if (this.scoreDisplay && this.scoreDisplay.parentNode) {
-      this.scoreDisplay.parentNode.removeChild(this.scoreDisplay);
     }
   }
   
