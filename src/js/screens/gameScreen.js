@@ -45,7 +45,6 @@ export class GameScreen {
     // UI要素
     this.scoreDisplay = null;
     this.versionDisplay = null;
-    this.chargeBar = null;
     this.warningMessage = null;
   }
   
@@ -205,9 +204,6 @@ export class GameScreen {
     this.versionDisplay = UIUtils.createVersionDisplay();
     document.body.appendChild(this.versionDisplay);
     
-    // チャージバー
-    this.createChargeBar();
-    
     // 必殺技残弾アイコン表示（中央上）
     this.specialUsesContainer = document.createElement('div');
     this.specialUsesContainer.className = 'special-uses-container';
@@ -237,7 +233,7 @@ export class GameScreen {
   
   // UI要素の削除
   removeUI() {
-    const elementsToRemove = [this.currentScoreDisplay, this.versionDisplay, this.chargeBar, this.specialUsesContainer];
+    const elementsToRemove = [this.currentScoreDisplay, this.versionDisplay, this.specialUsesContainer];
     if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
       elementsToRemove.push(this.highScoreDisplay);
     }
@@ -248,7 +244,6 @@ export class GameScreen {
     this.highScoreDisplay = null;
     this.currentScoreDisplay = null;
     this.versionDisplay = null;
-    this.chargeBar = null;
     this.warningMessage = null;
     this.specialUsesContainer = null;
   }
@@ -309,20 +304,16 @@ export class GameScreen {
   
   // ボスの更新
   updateBoss(deltaTime) {
-    // ボスの更新
     if (this.boss) {
       this.boss.update(deltaTime);
-      
       if (!this.boss.isActive) {
         console.log('ボスを倒しました！ゲームクリア！');
-        this.gameCleared = true; // ゲームクリアフラグを設定
+        this.gameCleared = true;
         this.boss = null;
-        // スコア追加は衝突判定で既に行われているため削除
-        // this.game.scoreManager.addScore(GameConfig.SCORE.BOSS_KILL);
-        // this.updateScoreDisplay();
-        
-        // ゲームクリア画面へ遷移
         setTimeout(() => {
+          if (this.game.audioManager) {
+            this.game.audioManager.play('gameClear');
+          }
           this.game.switchScreen('gameClear');
         }, 1000);
       }
@@ -348,15 +339,18 @@ export class GameScreen {
   updateBossSpawnTimer(deltaTime) {
     if (this.bossSpawnScheduled) {
       this.bossSpawnTimer += deltaTime;
-      
       // 3.5秒経過したらボスを出現させる
       if (this.bossSpawnTimer >= 3.5) {
         console.log('ボスが出現します！');
         this.boss = new Boss(this.game);
         this.bossSpawnScheduled = false;
         this.bossSpawnTimer = 0;
-        // 警告メッセージを削除
+        // 警告メッセージを必ず削除
         this.removeWarningMessage();
+        // ボス出現時にアラート音を停止
+        if (this.game.audioManager) {
+          this.game.audioManager.stop('bossAlert');
+        }
       }
     }
   }
@@ -365,7 +359,6 @@ export class GameScreen {
   checkGameState() {
     // ゲームクリア済みの場合は何もしない
     if (this.gameCleared) return;
-    
     // 敵が全滅した場合 → ボス出現タイマー開始
     if (this.enemies.length === 0 && !this.boss && !this.enemyRespawnScheduled && !this.bossSpawnScheduled) {
       console.log('敵を全滅させました！3.5秒後にボスが出現します');
@@ -373,21 +366,27 @@ export class GameScreen {
       this.bossSpawnTimer = 0;
       // 警告メッセージを表示
       this.createWarningMessage();
+      if (this.game.audioManager) {
+        this.game.audioManager.play('bossAlert');
+      }
     }
   }
   
   // ゲームオーバー処理
   handleGameOver() {
     if (this.gameTime < 2 || this.gameOver) return;
-    
     console.log('ゲームオーバーが発生しました');
     this.gameOver = true;
-    
     if (this.player) {
       this.player.isActive = false;
+      if (this.game.audioManager) {
+        this.game.audioManager.play('playerDestroyed');
+      }
     }
-    
     setTimeout(() => {
+      if (this.game.audioManager) {
+        this.game.audioManager.play('gameOver');
+      }
       this.game.switchScreen('gameOver');
     }, 1000);
   }
@@ -460,25 +459,29 @@ export class GameScreen {
   
   // デバッグ情報の描画
   renderDebugInfo(ctx) {
+    if (!(GameConfig.DEBUG && GameConfig.DEBUG.SHOW_INFO)) return;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     ctx.font = '12px Arial';
-    
-    ctx.fillText(`敵: ${this.enemies.length}`, 10, 20);
-    ctx.fillText(`弾: ${this.playerBullets.length}`, 10, 40);
-    ctx.fillText(`敵弾: ${this.enemyBullets.length}`, 10, 60);
-    
+
+    // デバッグモード・バージョン・状態
+    ctx.fillText(`デバッグモード: ${GameConfig.DEBUG.GOD_MODE ? 'ON' : 'OFF'}`, 10, 16);
+    ctx.fillText(`ゲーム実行中`, 10, 32);
+    ctx.fillText(`バージョン: v${GameConfig.VERSION}`, 10, 48);
+
+    let y = 64;
+    ctx.fillText(`敵: ${this.enemies.length}`, 10, y); y += 20;
+    ctx.fillText(`弾: ${this.playerBullets.length}`, 10, y); y += 20;
+    ctx.fillText(`敵弾: ${this.enemyBullets.length}`, 10, y); y += 20;
     const minutes = Math.floor(this.gameTime / 60);
     const seconds = Math.floor(this.gameTime % 60);
-    ctx.fillText(`時間: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`, 10, 80);
-    
+    ctx.fillText(`時間: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`, 10, y); y += 20;
     if (this.player) {
-      ctx.fillText(`プレイヤー: X=${Math.round(this.player.x)}, Y=${Math.round(this.player.y)}`, 10, 100);
+      ctx.fillText(`プレイヤー: X=${Math.round(this.player.x)}, Y=${Math.round(this.player.y)}`, 10, y); y += 20;
     }
-    
     const score = this.game.scoreManager.getScore();
     const highScore = this.game.scoreManager.getHighScore();
-    ctx.fillText(`スコア: ${score}`, 10, 120);
-    ctx.fillText(`ハイスコア: ${highScore}`, 10, 140);
+    ctx.fillText(`スコア: ${score}`, 10, y); y += 20;
+    ctx.fillText(`ハイスコア: ${highScore}`, 10, y);
   }
   
   // エラー描画
@@ -502,42 +505,32 @@ export class GameScreen {
   
   // UI更新
   updateUI() {
-    this.updateChargeBar();
     this.updateScoreDisplay();
     if (this.specialIcons && this.player) {
       this.updateSpecialUsesIcons();
     }
   }
   
-  // チャージバーの作成
-  createChargeBar() {
-    this.chargeBar = document.createElement('div');
-    this.chargeBar.className = 'charge-bar';
-    this.chargeBar.style.position = 'absolute';
-    this.chargeBar.style.bottom = '20px';
-    this.chargeBar.style.left = '10px';
-    this.chargeBar.style.width = '200px';
-    this.chargeBar.style.height = '10px';
-    this.chargeBar.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-    this.chargeBar.style.border = '1px solid #fff';
-    this.chargeBar.style.display = 'none';
-    this.chargeBar.style.zIndex = '1000';
+  // スコア表示の更新
+  updateScoreDisplay() {
+    if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
+      const highScore = this.game.scoreManager.getHighScore();
+      this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
+    }
     
-    document.body.appendChild(this.chargeBar);
+    if (this.currentScoreDisplay) {
+      const currentScore = this.game.scoreManager.getScore();
+      this.currentScoreDisplay.textContent = `SCORE: ${currentScore}`;
+    }
   }
-  
-  // チャージバーの更新
-  updateChargeBar() {
-    if (!this.chargeBar || !this.player) return;
-    
-    if (this.player.isCharging) {
-      this.chargeBar.style.display = 'block';
-      const chargePercent = Math.min(this.player.chargeTime / this.player.requiredChargeTime, 1);
-      this.chargeBar.style.background = `linear-gradient(to right, ${
-        this.player.specialReady ? '#ffcc00' : '#ffffff'
-      } ${chargePercent * 100}%, rgba(255, 255, 255, 0.3) ${chargePercent * 100}%)`;
-    } else {
-      this.chargeBar.style.display = 'none';
+
+  // アイコン更新
+  updateSpecialUsesIcons() {
+    if (!this.specialIcons) return;
+    // 5 個のアイコンを左→右の順に保持
+    for (let i = 0; i < this.specialIcons.length; i++) {
+      const visible = i < this.player.specialUses; // 残弾数より右側を非表示
+      this.specialIcons[i].style.visibility = visible ? 'visible' : 'hidden';
     }
   }
 
@@ -673,29 +666,6 @@ export class GameScreen {
       this.warningMessage.parentNode.removeChild(this.warningMessage);
       this.warningMessage = null;
       console.log('警告メッセージを削除しました');
-    }
-  }
-  
-  // スコア表示の更新
-  updateScoreDisplay() {
-    if (GameConfig.UI.SHOW_HIGH_SCORE && this.highScoreDisplay) {
-      const highScore = this.game.scoreManager.getHighScore();
-      this.highScoreDisplay.textContent = `HI SCORE: ${highScore}`;
-    }
-    
-    if (this.currentScoreDisplay) {
-      const currentScore = this.game.scoreManager.getScore();
-      this.currentScoreDisplay.textContent = `SCORE: ${currentScore}`;
-    }
-  }
-
-  // アイコン更新
-  updateSpecialUsesIcons() {
-    if (!this.specialIcons) return;
-    // 5 個のアイコンを左→右の順に保持
-    for (let i = 0; i < this.specialIcons.length; i++) {
-      const visible = i < this.player.specialUses; // 残弾数より右側を非表示
-      this.specialIcons[i].style.visibility = visible ? 'visible' : 'hidden';
     }
   }
 }

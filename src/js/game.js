@@ -79,8 +79,8 @@ export class Game {
       }
       
       // デバッグ情報更新
-      const debugInfo = document.getElementById('debug-info');
-      if (debugInfo) debugInfo.textContent = `画面切り替え完了: ${name}`;
+      // const debugInfo = document.getElementById('debug-info');
+      // if (debugInfo) debugInfo.textContent = `画面切り替え完了: ${name}`;
     } catch (error) {
       console.error('画面切り替え中の予期せぬエラー:', error);
       alert(`画面切り替えエラー: ${error.message}`);
@@ -109,10 +109,10 @@ export class Game {
       if (!this.isRunning) return;
       
       // デバッグ情報更新
-      const debugInfo = document.getElementById('debug-info');
-      if (debugInfo && this.frameCount % 60 === 0) { // 1秒に1回更新
-        debugInfo.textContent = `ゲーム実行中 - FPS: ${Math.round(1000 / (currentTime - this.lastTime))}`;
-      }
+      // const debugInfo = document.getElementById('debug-info');
+      // if (debugInfo && this.frameCount % 60 === 0) { // 1秒に1回更新
+      //   debugInfo.textContent = `ゲーム実行中 - FPS: ${Math.round(1000 / (currentTime - this.lastTime))}`;
+      // }
       
       // 経過時間の計算
       const deltaTime = currentTime - this.lastTime;
@@ -142,8 +142,8 @@ export class Game {
       requestAnimationFrame(this.gameLoop.bind(this));
     } catch (error) {
       console.error('ゲームループエラー:', error);
-      const debugInfo = document.getElementById('debug-info');
-      if (debugInfo) debugInfo.textContent = `エラー: ${error.message}`;
+      // const debugInfo = document.getElementById('debug-info');
+      // if (debugInfo) debugInfo.textContent = `エラー: ${error.message}`;
       
       // エラー表示
       this.ctx.fillStyle = '#000000';

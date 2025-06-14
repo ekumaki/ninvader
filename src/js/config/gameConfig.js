@@ -78,5 +78,11 @@ export const GameConfig = {
   COLLISION: {
     GAME_OVER_THRESHOLD: 0.9, // 画面高さの90%
     ADJUSTMENT_FACTOR: 0.8 // 衝突判定サイズ調整
+  },
+  
+  // デバッグ設定
+  DEBUG: {
+    GOD_MODE: true, // trueでプレイヤー無敵
+    SHOW_INFO: false // trueでデバッグ情報表示
   }
 }; 
