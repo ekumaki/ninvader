@@ -82,7 +82,7 @@ export const GameConfig = {
   
   // デバッグ設定
   DEBUG: {
-    GOD_MODE: true, // trueでプレイヤー無敵
+    GOD_MODE: false, // trueでプレイヤー無敵
     SHOW_INFO: false // trueでデバッグ情報表示
   }
 }; 
