@@ -43,7 +43,7 @@ export class GameOverScreen {
   }
   
   // 更新処理
-  update(deltaTime) {
+  update(_deltaTime) {
     // 敵ジャンプアニメーション（ゲームクリア画面と同じロジック）
     this.jumpOffset += this.jumpDirection * this.jumpSpeed;
     

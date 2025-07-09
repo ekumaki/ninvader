@@ -64,37 +64,11 @@ export class Enemy {
       return;
     }
     
-    // 前の位置を保存
-    const prevX = this.x;
-    const prevY = this.y;
+    // 前の位置を保存（FormationSystemで使用される可能性のため保持）
+    const _prevX = this.x;
+    const _prevY = this.y;
     
-    // 移動制御をFormationSystemに一元化するため、個別の移動処理をコメントアウト
-    // const movement = this.direction * this.speed * deltaTime;
-    // this.x += movement;
-    
-    // 移動量が異常に大きい場合は警告を出す（移動処理無効化のためコメントアウト）
-    // if (Math.abs(movement) > 20) {
-    //   console.error('警告: 敵の移動量が異常に大きいです:', movement, 'deltaTime:', deltaTime);
-    //   // 安全な値にリセット
-    //   this.x = prevX;
-    //   return;
-    // }
-    
-    // 画面端判定と方向転換もFormationSystemで行うためコメントアウト
-    // 画面端に到達したら方向転換と下降
-    // canvasWidthプロパティが存在すればそちらを使用、なければgame.canvas.widthを使用
-    // const screenWidth = this.canvasWidth || this.game.canvas.width;
-    
-    // 画面端判定の詳細情報
-    // if (Math.random() < 0.01) { // 1%の確率でログ出力してログ量を減らす
-    //   console.log('敵位置確認 - X:', this.x, 'Y:', this.y, '画面幅:', screenWidth, '余白:', this.edgeMargin);
-    // }
-    
-    // if (this.x <= this.edgeMargin || this.x >= screenWidth - this.edgeMargin) {
-    //   console.log('敵が画面端に到達 - X:', this.x, 'Y:', this.y);
-    //   this.changeDirectionAndDrop();
-    //   console.log('敵が方向転換しました: 方向=' + this.direction);
-    // }
+    // 移動制御はFormationSystemに一元化されているため、個別の移動処理は無効化
     
     // 発射クールダウンの更新
     if (!this.canShoot) {
@@ -139,9 +113,7 @@ export class Enemy {
       // 下降距離を少し減らす
       const actualDropDistance = this.dropDistance * 0.7;
       this.y += actualDropDistance;
-      console.log('敵が下降しました - Y座標:', this.y, '下降距離:', actualDropDistance);
     } else {
-      console.log('敵の下降をスキップしました - Y座標:', this.y);
     }
     
     // 移動遅延を少し長くして方向転換の頻度を減らす

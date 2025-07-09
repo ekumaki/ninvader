@@ -15,20 +15,17 @@ export class FormationSystem {
 
   // 編隊移動の更新
   update(deltaTime, enemies) {
-    console.log('FormationSystem.update called', 'deltaTime:', deltaTime, 'enemies:', enemies.length, 'moveTimer:', this.moveTimer);
     
     if (enemies.length === 0) return;
 
     // 固定の移動間隔を使用
     const currentMoveInterval = GameConfig.ENEMY.FORMATION_INTERVAL;
 
-    console.log('FormationSystem: currentMoveInterval:', currentMoveInterval, 'FORMATION_INTERVAL:', GameConfig.ENEMY.FORMATION_INTERVAL);
 
     this.moveTimer += deltaTime;
 
     // 編隊移動のタイミング
     if (this.moveTimer >= currentMoveInterval) {
-      console.log('FormationSystem: 移動タイミング到達', 'moveTimer:', this.moveTimer, 'currentMoveInterval:', currentMoveInterval);
       this.moveTimer = 0;
       this.executeFormationMove(enemies);
     }
@@ -39,7 +36,6 @@ export class FormationSystem {
 
   // 編隊移動の実行
   executeFormationMove(enemies) {
-    console.log('FormationSystem: 移動実行中', 'FORMATION_SPEED:', GameConfig.ENEMY.FORMATION_SPEED, 'FORMATION_INTERVAL:', GameConfig.ENEMY.FORMATION_INTERVAL);
     
     // 画面端チェック用の最端の敵を見つける
     let leftmostX = enemies[0].x;
@@ -58,7 +54,6 @@ export class FormationSystem {
     if (shouldChangeDirection) {
       // 方向転換と下降
       this.direction *= -1;
-      console.log('FormationSystem: 方向転換と下降');
       
       // 全ての敵を下降
       for (const enemy of enemies) {
@@ -67,7 +62,6 @@ export class FormationSystem {
     } else {
       // 横移動 - GameConfigから直接読み込むように修正
       const moveAmount = this.direction * GameConfig.ENEMY.FORMATION_SPEED;
-      console.log('FormationSystem: 横移動', 'moveAmount:', moveAmount);
       
       for (const enemy of enemies) {
         enemy.x += moveAmount;

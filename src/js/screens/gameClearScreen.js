@@ -43,7 +43,7 @@ export class GameClearScreen {
   }
   
   // 更新処理
-  update(deltaTime) {
+  update(_deltaTime) {
     // プレイヤージャンプアニメーション
     this.jumpOffset += this.jumpDirection * this.jumpSpeed;
     

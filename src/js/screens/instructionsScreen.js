@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { GameConfig } from '../config/gameConfig.js';
 import { UIUtils } from '../utils/uiUtils.js';
 
 export class InstructionsScreen {

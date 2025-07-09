@@ -52,7 +52,7 @@ export class CollisionSystem {
           
           if (!enemy.isActive) {
             this.game.scoreManager.addScore(GameConfig.SCORE.ENEMY_KILL);
-            gameScreen.updateScoreDisplay();
+            gameScreen.gameUI.updateUI();
             enemies.splice(j, 1);
             this.game.audioManager.play('explosion', 0.3);
           }
@@ -80,7 +80,7 @@ export class CollisionSystem {
           
           if (!ufo.isActive) {
             this.game.scoreManager.addScore(GameConfig.SCORE.UFO_KILL);
-            gameScreen.updateScoreDisplay();
+            gameScreen.gameUI.updateUI();
             gameScreen.ufo = null;
             this.game.audioManager.play('explosion', 0.4);
           }
@@ -110,7 +110,7 @@ export class CollisionSystem {
           if (!boss.isActive) {
             // 撃破時は追加で大きめの爆発音を再生
             this.game.scoreManager.addScore(GameConfig.SCORE.BOSS_KILL);
-            gameScreen.updateScoreDisplay();
+            gameScreen.gameUI.updateUI();
             this.game.audioManager.play('explosion', 0.5);
           }
           
@@ -140,7 +140,6 @@ export class CollisionSystem {
     
     for (const bullet of enemyBullets) {
       if (this.checkEntityCollision(bullet, player)) {
-        console.log('敵の弾がプレイヤーに当たりました');
         
         // プレイヤーにダメージを与える
         const isDead = player.takeDamage(1);
@@ -170,7 +169,6 @@ export class CollisionSystem {
       const enemyBottomPosition = enemy.y + enemy.height / 2;
       
       if (enemyBottomPosition > gameOverThreshold) {
-        console.log('敵が画面下端に到達しました');
         gameScreen.handleGameOver();
         return;
       }
@@ -184,7 +182,6 @@ export class CollisionSystem {
       );
       
       if (collision) {
-        console.log('プレイヤーと敵が衝突しました');
         
         // プレイヤーにダメージを与える
         const isDead = player.takeDamage(1);

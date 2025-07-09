@@ -5,8 +5,8 @@
  */
 
 import { GameConfig } from '../config/gameConfig.js';
-import { UIUtils } from '../utils/uiUtils.js';
 import { Player } from '../entities/player.js';
+import { Button } from '../components/Button.js';
 
 export class TitleScreen {
   constructor(game) {
@@ -90,7 +90,7 @@ export class TitleScreen {
   }
   
   // 更新処理
-  update(deltaTime) {
+  update(_deltaTime) {
     // タイトル画面では特に更新処理はない
   }
   
@@ -170,59 +170,52 @@ export class TitleScreen {
       menuButtons.style.gap = '15px';
       menuButtons.style.marginTop = '250px'; // ゲームクリア・ゲームオーバー画面と同じ位置
       
-      // ボタンの共通スタイル関数
-      const styleButton = (btn) => {
-        btn.style.padding = '10px 20px';
-        btn.style.fontSize = '18px';
-        btn.style.backgroundColor = '#333';
-        btn.style.color = '#FFF';
-        btn.style.border = '1px solid #666';
-        btn.style.borderRadius = '5px';
-        btn.style.cursor = 'pointer';
-        btn.style.width = '200px';
-        btn.style.textAlign = 'center';
-        btn.style.transition = 'background-color 0.3s';
-        
-        // ホバー効果
-        btn.addEventListener('mouseenter', () => {
-          btn.style.backgroundColor = '#555';
-        });
-        btn.addEventListener('mouseleave', () => {
-          btn.style.backgroundColor = '#333';
-        });
-      };
-      
       // スタートボタン
-      const startBtn = document.createElement('button');
-      startBtn.className = 'menu-btn';
-      startBtn.textContent = 'ゲーム開始';
-      styleButton(startBtn);
-      startBtn.addEventListener('click', () => {
-        if (this.game.audioManager) {
-          this.game.audioManager.play('gameStart');
+      const startBtn = Button.createPrimary({
+        text: 'ゲーム開始',
+        id: 'start-btn',
+        onClick: () => {
+          if (this.game.audioManager) {
+            this.game.audioManager.play('gameStart');
+          }
+          this.game.switchScreen('game');
+        },
+        style: {
+          width: '200px',
+          fontSize: '18px'
         }
-        this.game.switchScreen('game');
       });
+      startBtn.className = 'menu-btn';
       
       // 操作説明ボタン
-      const instructionsBtn = document.createElement('button');
-      instructionsBtn.className = 'menu-btn';
-      instructionsBtn.textContent = '操作説明';
-      styleButton(instructionsBtn);
-      instructionsBtn.addEventListener('click', () => {
-        console.log('操作説明ボタンがクリックされました');
-        this.game.switchScreen('instructions');
+      const instructionsBtn = Button.create({
+        text: '操作説明',
+        id: 'instructions-btn',
+        onClick: () => {
+          console.log('操作説明ボタンがクリックされました');
+          this.game.switchScreen('instructions');
+        },
+        style: {
+          width: '200px',
+          fontSize: '18px'
+        }
       });
+      instructionsBtn.className = 'menu-btn';
       
       // クレジットボタン
-      const creditsBtn = document.createElement('button');
-      creditsBtn.className = 'menu-btn';
-      creditsBtn.textContent = 'クレジット';
-      styleButton(creditsBtn);
-      creditsBtn.addEventListener('click', () => {
-        console.log('クレジットボタンがクリックされました');
-        alert(`CNP インベーダー\nVersion ${GameConfig.VERSION}\n© 2025 All Rights Reserved`);
+      const creditsBtn = Button.create({
+        text: 'クレジット',
+        id: 'credits-btn',
+        onClick: () => {
+          console.log('クレジットボタンがクリックされました');
+          alert(`CNP インベーダー\nVersion ${GameConfig.VERSION}\n© 2025 All Rights Reserved`);
+        },
+        style: {
+          width: '200px',
+          fontSize: '18px'
+        }
       });
+      creditsBtn.className = 'menu-btn';
       
       // 要素の追加
       menuButtons.appendChild(startBtn);
