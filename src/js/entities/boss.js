@@ -5,26 +5,30 @@
  */
 
 import { EnemyBullet } from './enemyBullet.js';
+import { GameConfig } from '../config/gameConfig.js';
 
 export class Boss {
-  constructor(game, stage = 1) {
+  constructor(game, stage = 1, type = 'A') {
     this.game = game;
     this.stage = stage;
+    this.type = type;
+    this.config = GameConfig.BOSS[type];
+    
     this.x = game.canvas.width / 2;
     this.y = game.canvas.height * 0.2;
-    this.width = 128;
-    this.height = 128;
-    this.speed = 50; // 基本速度
+    this.width = this.config.SIZE.WIDTH;
+    this.height = this.config.SIZE.HEIGHT;
+    this.speed = this.config.SPEED;
     this.direction = 1; // 1: 右, -1: 左
-    this.health = 30; // HP
-    this.maxHealth = 30;
-    this.points = 1000; // 倒した時の得点
+    this.health = this.config.HEALTH;
+    this.maxHealth = this.config.MAX_HEALTH;
+    this.points = this.config.POINTS;
     this.isActive = true;
     
     // 攻撃パターン
     this.attackPatterns = [
-      { name: 'single', cooldown: 1.5, timer: 0 },
-      { name: 'spread', cooldown: 4, timer: 2 }
+      { name: 'single', cooldown: this.config.ATTACKS.SINGLE.COOLDOWN, timer: 0 },
+      { name: 'spread', cooldown: this.config.ATTACKS.SPREAD.COOLDOWN, timer: 2 }
     ];
     
     // 画像の読み込み
@@ -35,7 +39,7 @@ export class Boss {
     this.image.onerror = () => {
       console.error('ボス画像の読み込みに失敗しました');
     };
-    this.image.src = './src/assets/img/boss/boss_stage1.png';
+    this.image.src = `./src/assets/img/boss/${this.config.IMAGE}`;
     
     // 岩弾の画像
     this.rockBulletImage = new Image();
@@ -45,7 +49,7 @@ export class Boss {
     this.rockBulletImage.onerror = () => {
       console.error('ボス弾画像の読み込みに失敗しました');
     };
-    this.rockBulletImage.src = './src/assets/img/bullet/enemy_rock.png';
+    this.rockBulletImage.src = `./src/assets/img/bullet/${this.config.BULLET_IMAGE}`;
     
     // アニメーション関連
     this.currentFrame = 0;
@@ -135,27 +139,29 @@ export class Boss {
     switch (patternName) {
       case 'single':
         // 単発の岩弾
-        this.shootRockBullet(this.x, this.y + this.height / 2);
+        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2, this.config.ATTACKS.SINGLE.BULLET_SPEED);
         break;
         
       case 'spread':
         // 扇状に3発の岩弾
-        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 - 0.3);
-        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2);
-        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 + 0.3);
+        const spread = this.config.ATTACKS.SPREAD.ANGLE_SPREAD;
+        const speed = this.config.ATTACKS.SPREAD.BULLET_SPEED;
+        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 - spread, speed);
+        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2, speed);
+        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 + spread, speed);
         break;
     }
   }
   
   // 岩弾の発射
-  shootRockBullet(x, y, angle = Math.PI / 2) {
+  shootRockBullet(x, y, angle = Math.PI / 2, speed = 150) {
     // 弾の生成
     const bullet = new EnemyBullet(
       this.game,
       x,
       y,
       angle,
-      150 // 速度
+      speed
     );
     
     // 岩弾の特性

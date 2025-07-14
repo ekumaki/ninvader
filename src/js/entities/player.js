@@ -9,25 +9,28 @@ import { SpecialBullet } from './specialBullet.js';
 import { GameConfig } from '../config/gameConfig.js';
 
 export class Player {
-  constructor(game, x, y) {
+  constructor(game, x, y, type = 'A') {
     this.game = game;
+    this.type = type;
+    this.config = GameConfig.PLAYER[type];
+    
     this.x = x;
     this.y = y;
-    this.width = 48;
-    this.height = 72;
-    this.speed = 200; // 1秒あたりの移動ピクセル数
-    this.isActive = true; // プレイヤーがアクティブかどうか
-    this.health = 1; // プレイヤーのHP（一撃死仕様）
+    this.width = this.config.SIZE.WIDTH;
+    this.height = this.config.SIZE.HEIGHT;
+    this.speed = this.config.SPEED;
+    this.isActive = true;
+    this.health = this.config.HEALTH;
     
     // 弾の発射関連
     this.canShoot = true;
-    this.shootCooldown = 0.3; // 発射クールダウン（秒）
+    this.shootCooldown = this.config.SHOOT_COOLDOWN;
     this.shootTimer = 0;
     
     // 必殺技発射システム
     this.isCharging = false;
     this.chargeTime = 0;
-    this.specialChargeTime = 1.0; // 必殺技に必要なチャージ時間（秒）
+    this.specialChargeTime = this.config.CHARGE_TIME;
     this.specialReady = false;
     
     // 画像の読み込み（背面向き専用画像）
@@ -43,17 +46,17 @@ export class Player {
     };
     
     // 背面向き画像を読み込み
-    this.image.src = './src/assets/img/player/player_A_back.png';
+    this.image.src = `./src/assets/img/player/${this.config.IMAGE}`;
     
     // ゲームクリア時のジャンプアニメーション
     this.isJumping = false;
     this.jumpTimer = 0;
-    this.jumpDuration = 0.5; // ジャンプの継続時間（秒）
-    this.jumpHeight = 30; // ジャンプの高さ（ピクセル）
-    this.originalY = y; // 元のY座標
+    this.jumpDuration = this.config.JUMP_DURATION;
+    this.jumpHeight = this.config.JUMP_HEIGHT;
+    this.originalY = y;
     
     // 必殺技残弾数
-    this.specialUses = GameConfig.PLAYER.MAX_SPECIAL_USES;
+    this.specialUses = this.config.MAX_SPECIAL_USES;
     
     // スペースキー押下状態の前フレーム記憶
     this.spacePrevDown = false;
@@ -290,7 +293,7 @@ export class Player {
       this.x,
       this.y - this.height / 2,
       -Math.PI/2, // 上方向をラジアンで指定 (-90度 = -π/2)
-      600 // 速度（通常より速い）
+      this.config.SPECIAL_BULLET_SPEED
     );
     
     // 現在のゲーム画面に必殺技弾を追加
@@ -307,7 +310,8 @@ export class Player {
     // クールダウン設定（必殺技は少し長め）
     this.canShoot = false;
     this.shootTimer = 0;
-    this.shootCooldown = 0.5; // 通常より長いクールダウン
+    const specialCooldown = this.config.SHOOT_COOLDOWN * 1.5;
+    this.shootCooldown = specialCooldown;
     
     // 残弾を減らす
     this.specialUses--;
@@ -315,9 +319,9 @@ export class Player {
     // 次回は通常のクールダウンに戻す
     setTimeout(() => {
       if (this.canShoot) {
-        this.shootCooldown = 0.3;
+        this.shootCooldown = this.config.SHOOT_COOLDOWN;
       }
-    }, 500);
+    }, specialCooldown * 1000);
   }
   
   // ゲームクリア時のジャンプ開始
@@ -335,10 +339,13 @@ export class Player {
   
   // ダメージを受ける
   takeDamage(amount) {
+    console.log('takeDamage called, GOD_MODE:', GameConfig.DEBUG?.GOD_MODE);
     if (GameConfig.DEBUG && GameConfig.DEBUG.GOD_MODE) {
       // 無敵モード中はダメージを受けない
+      console.log('無敵モード: ダメージを無効化');
       return false;
     }
+    console.log('ダメージを受けました:', amount);
     this.health -= amount;
     if (this.health <= 0) {
       this.isActive = false;

@@ -19,23 +19,89 @@ export const GameConfig = {
     STAGE_CLEAR: 100
   },
   
-  // プレイヤー設定
+  // プレイヤー設定（3体対応）
   PLAYER: {
-    SPEED: 200,
-    SHOOT_COOLDOWN: 0.3,
-    CHARGE_TIME: 3000,
-    JUMP_DURATION: 0.5,
-    JUMP_HEIGHT: 30,
-    MAX_SPECIAL_USES: 5 // 必殺技の最大使用回数
+    A: {
+      HEALTH: 1,
+      SPEED: 200,
+      SHOOT_COOLDOWN: 0.3,
+      CHARGE_TIME: 1.0,
+      JUMP_DURATION: 0.5,
+      JUMP_HEIGHT: 30,
+      MAX_SPECIAL_USES: 5,
+      SPECIAL_BULLET_SPEED: 600,
+      SIZE: { WIDTH: 48, HEIGHT: 72 },
+      IMAGE: 'player_A_back.png'
+    },
+    B: {
+      HEALTH: 1,
+      SPEED: 180,
+      SHOOT_COOLDOWN: 0.25,
+      CHARGE_TIME: 1.2,
+      JUMP_DURATION: 0.4,
+      JUMP_HEIGHT: 25,
+      MAX_SPECIAL_USES: 7,
+      SPECIAL_BULLET_SPEED: 500,
+      SIZE: { WIDTH: 48, HEIGHT: 72 },
+      IMAGE: 'player_B_back.png'
+    },
+    C: {
+      HEALTH: 1,
+      SPEED: 220,
+      SHOOT_COOLDOWN: 0.35,
+      CHARGE_TIME: 0.8,
+      JUMP_DURATION: 0.6,
+      JUMP_HEIGHT: 35,
+      MAX_SPECIAL_USES: 3,
+      SPECIAL_BULLET_SPEED: 700,
+      SIZE: { WIDTH: 48, HEIGHT: 72 },
+      IMAGE: 'player_C_back.png'
+    }
   },
   
-  // 敵設定 - ゲームバランス調整済み
+  // 敵設定（3体対応）
   ENEMY: {
-    HEALTH: 1,
-    FORMATION_SPEED: 15.0,   // 適度な移動速度
-    FORMATION_INTERVAL: 1.0, // 固定の移動間隔（1.0秒）
-    DROP_DISTANCE: 20,
-    EDGE_MARGIN: 30
+    A: {
+      HEALTH: 1,
+      SPEED: 0.05,
+      DROP_DISTANCE: 2,
+      EDGE_MARGIN: 30,
+      SHOOT_PROBABILITY: 0.0005,
+      SHOOT_COOLDOWN: 2,
+      BULLET_SPEED: 150,
+      POINTS: 100,
+      SIZE: { WIDTH: 48, HEIGHT: 48 },
+      IMAGE: 'enemy_01.png'
+    },
+    B: {
+      HEALTH: 1,
+      SPEED: 0.07,
+      DROP_DISTANCE: 3,
+      EDGE_MARGIN: 25,
+      SHOOT_PROBABILITY: 0.0007,
+      SHOOT_COOLDOWN: 1.8,
+      BULLET_SPEED: 180,
+      POINTS: 150,
+      SIZE: { WIDTH: 48, HEIGHT: 48 },
+      IMAGE: 'enemy_02.png'
+    },
+    C: {
+      HEALTH: 2,
+      SPEED: 0.03,
+      DROP_DISTANCE: 4,
+      EDGE_MARGIN: 35,
+      SHOOT_PROBABILITY: 0.0003,
+      SHOOT_COOLDOWN: 2.5,
+      BULLET_SPEED: 120,
+      POINTS: 200,
+      SIZE: { WIDTH: 48, HEIGHT: 48 },
+      IMAGE: 'enemy_03.png'
+    },
+    // 編隊設定（共通）
+    FORMATION: {
+      SPEED: 15.0,
+      INTERVAL: 1.0
+    }
   },
   
   // UFO設定
@@ -44,10 +110,83 @@ export const GameConfig = {
     SPEED: 100
   },
   
-  // ボス設定
+  // ボス設定（3体対応）
   BOSS: {
-    SPAWN_TIME: 180,
-    HEALTH: 30
+    A: {
+      HEALTH: 30,
+      MAX_HEALTH: 30,
+      SPEED: 50,
+      SPAWN_TIME: 180,
+      POINTS: 1000,
+      SIZE: { WIDTH: 128, HEIGHT: 128 },
+      IMAGE: 'boss_stage1.png',
+      BULLET_IMAGE: 'enemy_rock.png',
+      ATTACKS: {
+        SINGLE: {
+          COOLDOWN: 1.5,
+          BULLET_SPEED: 150
+        },
+        SPREAD: {
+          COOLDOWN: 4,
+          BULLET_SPEED: 150,
+          ANGLE_SPREAD: 0.3
+        }
+      }
+    },
+    B: {
+      HEALTH: 45,
+      MAX_HEALTH: 45,
+      SPEED: 60,
+      SPAWN_TIME: 150,
+      POINTS: 1500,
+      SIZE: { WIDTH: 128, HEIGHT: 128 },
+      IMAGE: 'boss_stage2.png',
+      BULLET_IMAGE: 'enemy_fire.png',
+      ATTACKS: {
+        SINGLE: {
+          COOLDOWN: 1.2,
+          BULLET_SPEED: 180
+        },
+        SPREAD: {
+          COOLDOWN: 3.5,
+          BULLET_SPEED: 180,
+          ANGLE_SPREAD: 0.4
+        },
+        HOMING: {
+          COOLDOWN: 6,
+          BULLET_SPEED: 100
+        }
+      }
+    },
+    C: {
+      HEALTH: 60,
+      MAX_HEALTH: 60,
+      SPEED: 40,
+      SPAWN_TIME: 120,
+      POINTS: 2000,
+      SIZE: { WIDTH: 128, HEIGHT: 128 },
+      IMAGE: 'boss_stage3.png',
+      BULLET_IMAGE: 'enemy_thunder.png',
+      ATTACKS: {
+        SINGLE: {
+          COOLDOWN: 1.0,
+          BULLET_SPEED: 200
+        },
+        SPREAD: {
+          COOLDOWN: 3,
+          BULLET_SPEED: 200,
+          ANGLE_SPREAD: 0.5
+        },
+        HOMING: {
+          COOLDOWN: 5,
+          BULLET_SPEED: 120
+        },
+        EXPLOSIVE: {
+          COOLDOWN: 8,
+          BULLET_SPEED: 80
+        }
+      }
+    }
   },
   
   // 弾設定

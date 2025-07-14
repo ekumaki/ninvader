@@ -33,6 +33,7 @@ export class TitleScreen {
   // 画面に入る時の処理
   enter() {
     console.log('タイトル画面にenterしました');
+    console.log('GameConfig.DEBUG:', GameConfig.DEBUG);
     
     // 既存のHTML UIを表示する
     const existingUI = document.getElementById('game-ui');
@@ -48,6 +49,9 @@ export class TitleScreen {
 
       // バージョン表示を動的に更新
       this.updateVersionDisplay();
+      
+      // 無敵モード表示を追加
+      this.addGodModeDisplay();
     } else {
       // 既存UIがない場合は独自のUIを作成
       console.log('既存UIが見つからないため、独自のUIを作成します');
@@ -63,6 +67,11 @@ export class TitleScreen {
     if (debugInfo) debugInfo.textContent = 'タイトル画面表示中';
 
     this.createAudioToggleButton();
+    
+    // 無敵モード表示を必ず追加（既存UIがない場合も追加）
+    if (!existingUI) {
+      this.addGodModeDisplay();
+    }
   }
   
   // 画面から出る時の処理
@@ -162,6 +171,16 @@ export class TitleScreen {
         debugMode.style.color = '#ff8888';
       }
       
+      // 無敵モード表示（常に表示）
+      const godModeDisplay = document.createElement('div');
+      godModeDisplay.className = 'god-mode-display';
+      godModeDisplay.textContent = `無敵モード: ${GameConfig.DEBUG.GOD_MODE ? 'ON' : 'OFF'}`;
+      godModeDisplay.style.fontSize = '14px';
+      godModeDisplay.style.margin = '0 0 12px 0';
+      godModeDisplay.style.textAlign = 'center';
+      godModeDisplay.style.color = GameConfig.DEBUG.GOD_MODE ? '#88ff88' : '#ffaa88';
+      godModeDisplay.style.fontWeight = 'bold';
+      
       // メニューボタンのコンテナ
       const menuButtons = document.createElement('div');
       menuButtons.className = 'menu-buttons';
@@ -241,6 +260,7 @@ export class TitleScreen {
       titleScreen.appendChild(title);
       if (debugMode) titleScreen.appendChild(debugMode);
       if (version) titleScreen.appendChild(version);
+      titleScreen.appendChild(godModeDisplay);
       titleScreen.appendChild(menuButtons);
       
       // ゲームコンテナに追加
@@ -359,6 +379,40 @@ export class TitleScreen {
     } else {
       // スピーカーOFF（ミュート: 赤い斜線）
       return `<svg viewBox="0 0 32 32"><g class='icon-mute'><polygon points='7,12 15,12 21,7 21,25 15,20 7,20'/><line x1='25' y1='11' x2='29' y2='21'/><line x1='29' y1='11' x2='25' y2='21'/></g><line class='icon-mute-line' x1='6' y1='6' x2='26' y2='26'/></svg>`;
+    }
+  }
+  
+  // 無敵モード表示を追加
+  addGodModeDisplay() {
+    console.log('addGodModeDisplay called, GOD_MODE:', GameConfig.DEBUG?.GOD_MODE);
+    
+    // 既存の無敵モード表示を削除
+    const existingDisplay = document.querySelector('.god-mode-display');
+    if (existingDisplay) {
+      existingDisplay.remove();
+    }
+    
+    // 無敵モード表示を作成
+    const godModeDisplay = document.createElement('div');
+    godModeDisplay.className = 'god-mode-display';
+    godModeDisplay.textContent = `無敵モード: ${GameConfig.DEBUG && GameConfig.DEBUG.GOD_MODE ? 'ON' : 'OFF'}`;
+    godModeDisplay.style.position = 'absolute';
+    godModeDisplay.style.top = '150px';
+    godModeDisplay.style.left = '50%';
+    godModeDisplay.style.transform = 'translateX(-50%)';
+    godModeDisplay.style.fontSize = '16px';
+    godModeDisplay.style.textAlign = 'center';
+    godModeDisplay.style.color = GameConfig.DEBUG && GameConfig.DEBUG.GOD_MODE ? '#88ff88' : '#ffaa88';
+    godModeDisplay.style.fontWeight = 'bold';
+    godModeDisplay.style.zIndex = '100';
+    
+    // ゲームコンテナに追加
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+      gameContainer.appendChild(godModeDisplay);
+      console.log('無敵モード表示を追加しました');
+    } else {
+      console.error('game-containerが見つかりません');
     }
   }
 }

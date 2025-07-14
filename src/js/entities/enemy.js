@@ -5,30 +5,33 @@
  */
 
 import { EnemyBullet } from './enemyBullet.js';
+import { GameConfig } from '../config/gameConfig.js';
 
 export class Enemy {
-  constructor(game, x, y, type = 'normal') {
+  constructor(game, x, y, type = 'A') {
     this.game = game;
     this.x = x;
     this.y = y;
     this.type = type;
-    this.width = 48;
-    this.height = 48;
-    this.health = 1;
-    this.points = 100; // 倒した時の得点
+    this.config = GameConfig.ENEMY[type];
+    
+    this.width = this.config.SIZE.WIDTH;
+    this.height = this.config.SIZE.HEIGHT;
+    this.health = this.config.HEALTH;
+    this.points = this.config.POINTS;
     this.isActive = true;
     
     // 移動パターン
-    this.speed = 0.05; // 移動速度を大幅に下げる（0.2→0.05）
+    this.speed = this.config.SPEED;
     this.direction = 1; // 1: 右, -1: 左
-    this.dropDistance = 2; // 下降距離を元に戻す
+    this.dropDistance = this.config.DROP_DISTANCE;
     this.moveDelay = 0; // 移動遅延（ランダム化用）
-    this.edgeMargin = 30; // 画面端からの余白を元に戻す
+    this.edgeMargin = this.config.EDGE_MARGIN;
     
     // 攻撃パターン
     this.canShoot = true;
-    this.shootProbability = 0.0005; // 1フレームあたりの発射確率（0.05%）
-    this.shootCooldown = 2; // 発射クールダウン（秒）
+    this.shootProbability = this.config.SHOOT_PROBABILITY;
+    this.shootCooldown = this.config.SHOOT_COOLDOWN;
     this.shootTimer = 0;
     
     // 画像の読み込み
@@ -39,7 +42,7 @@ export class Enemy {
     this.image.onerror = () => {
       console.error('敵画像の読み込みに失敗しました');
     };
-    this.image.src = './src/assets/img/enemy/enemy_01.png';
+    this.image.src = `./src/assets/img/enemy/${this.config.IMAGE}`;
     
     // アニメーション関連
     this.currentFrame = 0;
@@ -130,7 +133,7 @@ export class Enemy {
       this.x,
       this.y + this.height / 2,
       Math.PI / 2, // 下方向
-      150 // 速度（150px/秒に調整）
+      this.config.BULLET_SPEED
     );
     
     // 現在のゲーム画面に弾を追加

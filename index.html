@@ -12,454 +12,51 @@
       color: #fff;
       font-family: Arial, sans-serif;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
-    #debug-header {
-      position: absolute;
-      top: 0;
-      left: 0;
-      color: white;
-      z-index: 1000;
-      font-size: 16px;
-      margin: 10px;
-      background-color: rgba(0,0,0,0.5);
-      padding: 5px;
-    }
+    
     #game-container {
-      width: 100vw;
-      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
     }
-    #game-canvas {
+    
+    #gameCanvas {
       background-color: #000;
       border: 1px solid #333;
       width: 360px;
       height: 640px;
       display: block;
-      position: relative;
+      outline: none; /* フォーカス時の枠線を非表示 */
     }
-    #debug-info {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      color: white;
-      font-size: 12px;
-      background-color: rgba(0,0,0,0.5);
-      padding: 5px;
-      z-index: 1000;
+    
+    #gameCanvas:focus {
+      border: 1px solid #555; /* フォーカス時の視覚的フィードバック */
     }
-    #game-ui {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      z-index: 10;
-    }
-    .title {
-      font-size: 32px;
-      margin-bottom: 30px;
-      margin-top: 100px;
-      text-align: center;
-    }
-    .title-controls-info {
-      font-size: 16px;
-      color: #ffffff;
-      text-align: center;
-      line-height: 1.6;
-      margin: 20px auto;
-      max-width: 300px;
-    }
-    .menu-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      align-items: center;
-      margin-top: 15px;
-    }
-    .menu-btn {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #333;
-      color: #FFF;
-      border: 1px solid #666;
-      border-radius: 5px;
-      cursor: pointer;
-      width: 200px;
-      text-align: center;
-    }
-    .menu-btn:hover {
-      background-color: #555;
-    }
+    
     .version-info {
       position: fixed;
       bottom: 10px;
       right: 10px;
       font-size: 12px;
       color: #999;
-      background-color: transparent;
-      padding: 0;
-      border-radius: 0;
       z-index: 9999;
       pointer-events: none;
-    }
-    
-    /* ゲームオーバー画面 */
-    #game-over-container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 360px;
-      height: 640px;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-      color: white;
-      background-color: rgba(0, 0, 0, 0.9);
-      border: 1px solid #333;
-    }
-    
-    .game-over-title {
-      font-size: 36px;
-      margin-bottom: 30px;
-      color: #ff4444;
-      text-align: center;
-    }
-    
-    .score-info {
-      font-size: 24px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    
-    #new-high-score {
-      color: #ffcc00;
-      font-size: 18px;
-      margin-bottom: 20px;
-      display: none;
-    }
-    
-    /* 操作説明画面 */
-    #instructions-container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 360px;
-      height: 640px;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-      color: white;
-      background-color: rgba(0, 0, 0, 0.9);
-      border: 1px solid #333;
-      padding: 20px;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-    
-    .instructions-title {
-      font-size: 32px;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    
-    .instructions-content {
-      font-size: 18px;
-      line-height: 1.8;
-      max-width: 500px;
-      text-align: center;
-    }
-    
-    .instructions-controls {
-      margin: 20px 0;
-      font-size: 16px;
-      line-height: 1.6;
-    }
-    
-    /* ハイスコア表示 */
-    .high-score-display {
-      position: absolute;
-      top: calc(50% - 320px + 20px);
-      left: calc(50% - 180px + 20px);
-      font-size: 14px;
-      color: #ffffff;
-      z-index: 20;
-    }
-    
-    /* 音量ボタン（タイトル画面右上） */
-    .audio-toggle-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 38px;
-      height: 38px;
-      background: transparent;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 100;
-      transition: background 0.2s;
-      padding: 0;
-      pointer-events: auto;
-    }
-    .audio-toggle-btn:hover {
-      background: rgba(255,255,255,0.08);
-    }
-    .audio-toggle-btn svg {
-      width: 22px;
-      height: 22px;
-      display: block;
-    }
-    .audio-toggle-btn .icon-speaker {
-      stroke: #fff;
-      fill: none;
-      stroke-width: 2.2;
-    }
-    .audio-toggle-btn .icon-mute {
-      stroke: #fff;
-      fill: none;
-      stroke-width: 2.2;
-    }
-    .audio-toggle-btn .icon-mute-line {
-      stroke: #f44;
-      stroke-width: 3.2;
-      stroke-linecap: round;
-    }
-    .canvas-wrapper {
-      display: block;
-      margin: auto;
-      position: relative;
     }
   </style>
 </head>
 <body>
   <div id="game-container">
-    <canvas id="game-canvas" width="360" height="640"></canvas>
-    
-    <!-- タイトル画面 -->
-    <div id="game-ui">
-      <img src="./src/assets/img/ui/title_logo.png" alt="CNP インベーダー" class="title-logo" style="max-width: 300px; height: auto; margin: 120px auto 20px auto; display: block;">
-      <!-- ハイスコア表示は一時的に非表示（将来の実装用に保持）
-      <div class="high-score-display" id="title-high-score">HIGH SCORE: 0</div>
-      -->
-      <div class="title-controls-info">
-        ← → : プレイヤー移動<br>
-        スペースキー : 弾を発射<br>
-        スペース長押し : 必殺技
-      </div>
-      <div class="menu-buttons">
-        <button class="menu-btn" id="start-btn">ゲーム開始</button>
-        <button class="menu-btn" id="instructions-btn" style="display: none;">操作説明</button>
-        <button class="menu-btn" id="credits-btn" style="display: none;">クレジット</button>
-      </div>
-    </div>
-    
-    <!-- ゲームオーバー画面 -->
-    <div id="game-over-container">
-      <h1 class="game-over-title">GAME OVER</h1>
-      <div class="score-info">
-        <div>スコア: <span id="final-score">0</span></div>
-        <div>ハイスコア: <span id="high-score">0</span></div>
-      </div>
-      <div id="new-high-score">新記録達成！</div>
-      <div class="menu-buttons">
-        <button class="menu-btn" id="retry-btn">リトライ</button>
-        <button class="menu-btn" id="back-to-title-btn">タイトルへもどる</button>
-      </div>
-    </div>
-    
-    <!-- 操作説明画面（将来の実装用に保持・現在は非表示） -->
-    <div id="instructions-container" style="display: none !important;">
-      <h1 class="instructions-title">操作説明</h1>
-      <div class="instructions-content">
-        <div class="instructions-controls">
-  
-          ← → : プレイヤー移動<br>
-          スペースキー : 弾を発射<br>
-          スペース長押し : 必殺技
-        </div>
-      </div>
-      <div class="menu-buttons">
-        <button class="menu-btn" id="back-from-instructions-btn">タイトルへもどる</button>
-      </div>
-    </div>
+    <canvas id="gameCanvas" width="360" height="640" tabindex="0"></canvas>
   </div>
-
-  <script>
-    // ページ読み込み確認用のスクリプト
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('ページが読み込まれました');
-      
-      // ハイスコア表示の更新
-      updateHighScoreDisplay();
-      
-      // キャンバスの基本描画テスト
-      const canvas = document.getElementById('game-canvas');
-      const ctx = canvas.getContext('2d');
-      
-      if (ctx) {
-        // 背景を黒く塗りつぶす
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // テスト用のテキストを描画
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '20px Arial';
-        ctx.fillText('CNPインベーダー', 80, 100);
-        ctx.fillText('キャンバス描画テスト', 80, 130);
-        
-        // シンプルなアニメーション
-        let y = 200;
-        let direction = 1;
-        
-        function animate() {
-          // 背景をクリア
-          ctx.fillStyle = '#000000';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          
-          // タイトルを描画
-          ctx.fillStyle = '#FFFFFF';
-          ctx.font = '20px Arial';
-          ctx.fillText('CNPインベーダー', 80, 100);
-          
-          // 動くオブジェクトを描画
-          ctx.fillStyle = '#FF0000';
-          ctx.fillRect(160, y, 40, 40);
-          
-          // 位置を更新
-          y += direction;
-          if (y > 400 || y < 200) direction *= -1;
-          
-          // 次のフレームをリクエスト
-          requestAnimationFrame(animate);
-        }
-        
-        // アニメーション開始
-        animate();
-      }
-      
-      // ボタンイベント設定
-      document.getElementById('start-btn').addEventListener('click', function() {
-        console.log('ゲーム開始ボタンがクリックされました');
-      });
-      
-      document.getElementById('instructions-btn').addEventListener('click', function() {
-        console.log('操作説明ボタンがクリックされました');
-        
-        // ゲームインスタンスを探して操作説明画面に遷移
-        setTimeout(() => {
-          let gameInstance = window.gameInstance;
-          
-          // 全てのグローバル変数をチェックしてゲームインスタンスを探す
-          for (const key in window) {
-            if (window[key] && typeof window[key] === 'object' && window[key].screens && window[key].switchScreen) {
-              console.log('ゲームインスタンスを発見しました:', key);
-              gameInstance = window[key];
-              break;
-            }
-          }
-          
-          if (gameInstance) {
-            // UIを非表示
-            const gameUI = document.getElementById('game-ui');
-            if (gameUI) {
-              gameUI.style.display = 'none';
-            }
-            
-            // キャンバスを表示
-            const canvas = document.getElementById('game-canvas');
-            if (canvas) {
-              canvas.style.display = 'block';
-            }
-            
-            // 操作説明画面に遷移
-            gameInstance.switchScreen('instructions');
-          } else {
-            console.error('ゲームインスタンスが見つかりません');
-          }
-        }, 100);
-      });
-      
-      document.getElementById('credits-btn').addEventListener('click', function() {
-        console.log('クレジットボタンがクリックされました');
-        // GameConfigが利用可能な場合は動的バージョン、そうでなければ固定値
-        const version = window.gameInstance?.gameConfig?.VERSION || '0.2.13';
-        alert(`CNP インベーダー\nVersion ${version}\n© 2025 All Rights Reserved`);
-      });
-      
-      // ゲームオーバー画面のボタンイベント
-      document.getElementById('retry-btn').addEventListener('click', function() {
-        console.log('リトライボタンがクリックされました');
-        // ゲームを再開
-        const gameInstance = window.gameInstance;
-        if (gameInstance) {
-          const gameOverContainer = document.getElementById('game-over-container');
-          if (gameOverContainer) {
-            gameOverContainer.style.display = 'none';
-          }
-          gameInstance.switchScreen('game');
-        }
-      });
-      
-      document.getElementById('back-to-title-btn').addEventListener('click', function() {
-        console.log('タイトルへ戻るボタンがクリックされました');
-        // タイトル画面に戻る
-        const gameInstance = window.gameInstance;
-        if (gameInstance) {
-          const gameOverContainer = document.getElementById('game-over-container');
-          if (gameOverContainer) {
-            gameOverContainer.style.display = 'none';
-          }
-          gameInstance.switchScreen('title');
-        }
-      });
-      
-      // 操作説明画面のボタンイベント
-      document.getElementById('back-from-instructions-btn').addEventListener('click', function() {
-        console.log('操作説明から戻るボタンがクリックされました');
-        // タイトル画面に戻る
-        const gameInstance = window.gameInstance;
-        if (gameInstance) {
-          const instructionsContainer = document.getElementById('instructions-container');
-          if (instructionsContainer) {
-            instructionsContainer.style.display = 'none';
-          }
-          gameInstance.switchScreen('title');
-        }
-      });
-      
-      // ハイスコア表示更新関数
-      function updateHighScoreDisplay() {
-        try {
-          const savedHighScore = localStorage.getItem('cnp-invader-highscore');
-          const highScore = savedHighScore ? parseInt(savedHighScore) : 0;
-          const titleHighScore = document.getElementById('title-high-score');
-          if (titleHighScore) {
-            titleHighScore.textContent = `HIGH SCORE: ${highScore}`;
-          }
-        } catch (error) {
-          console.error('ハイスコア表示更新エラー:', error);
-        }
-      }
-    });
-  </script>
+  
+  <div class="version-info">v0.2.13</div>
   
   <!-- ゲームのメインスクリプト -->
-  <script type="module" src="./src/js/main.js"></script>
+  <script type="module" src="./src/main.ts"></script>
 </body>
 </html>
