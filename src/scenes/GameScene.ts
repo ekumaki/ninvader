@@ -469,6 +469,16 @@ export class GameScene extends BaseScene {
   }
 
   private updateEnemies(deltaTime: number): void {
+    // アクティブな敵の数を計算
+    const activeEnemies = this.enemies.filter(enemy => enemy.isActive);
+    const totalEnemies = activeEnemies.length;
+    
+    // 各敵に総数を通知
+    for (const enemy of activeEnemies) {
+      enemy.updateEnemyCount(totalEnemies);
+    }
+    
+    // 敵の更新と削除
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const enemy = this.enemies[i];
       if (enemy.isActive) {
@@ -944,6 +954,13 @@ export class GameScene extends BaseScene {
       ctx.fillText(`STAGE: ${this.currentStage}`, debugX, 90);
       ctx.fillText(`BOSS: ${this.boss ? 'ACTIVE' : 'NONE'}`, debugX, 110);
       ctx.fillText(`UFO: ${this.ufo ? 'ACTIVE' : 'NONE'}`, debugX, 130);
+      
+      // 敵の強化状態を表示
+      const activeEnemies = this.enemies.filter(enemy => enemy.isActive);
+      const enemyBoost = activeEnemies.length <= 20;
+      ctx.fillStyle = enemyBoost ? '#ff6666' : '#888888';
+      ctx.fillText(`ENEMY BOOST: ${enemyBoost ? 'ON' : 'OFF'} (${activeEnemies.length}/20)`, debugX, 150);
+      ctx.fillStyle = '#888888'; // 色をリセット
     }
     
     // ボス警告表示

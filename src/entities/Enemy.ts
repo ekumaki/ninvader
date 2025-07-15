@@ -35,6 +35,9 @@ export class Enemy extends BaseEntity {
   private shootCooldown: number;
   private shootTimer = 0;
   
+  // 敵の総数による強化状態
+  private enemyCountBoost = false;
+  
   // アニメーション
   private currentFrame = 0;
   private totalFrames = 2;
@@ -101,6 +104,25 @@ export class Enemy extends BaseEntity {
     const stageReduction = (this.stage - 1) * 0.3; // ステージごとに0.3秒短縮
     return Math.max(0.5, this.config.SHOOT_COOLDOWN - stageReduction);
   }
+  
+  // 敵の総数を更新して強化状態を設定
+  updateEnemyCount(totalEnemies: number): void {
+    const wasBoostActive = this.enemyCountBoost;
+    this.enemyCountBoost = totalEnemies <= 20;
+    
+    // 強化状態が変わった場合はログ出力
+    if (wasBoostActive !== this.enemyCountBoost) {
+      console.log(`Enemy boost ${this.enemyCountBoost ? 'activated' : 'deactivated'} (enemies: ${totalEnemies})`);
+    }
+  }
+  
+  // 強化状態を考慮した発射確率を取得
+  private getEffectiveShootProbability(): number {
+    const baseProb = this.getStageAdjustedShootProbability();
+    return this.enemyCountBoost ? baseProb * 2 : baseProb;
+  }
+  
+
 
   private loadImage(): void {
     this.image.onload = () => {
@@ -148,7 +170,7 @@ export class Enemy extends BaseEntity {
     }
     
     // ランダムに弾を発射
-    if (this.canShoot && Math.random() < this.shootProbability) {
+    if (this.canShoot && Math.random() < this.getEffectiveShootProbability()) {
       this.shoot();
     }
   }

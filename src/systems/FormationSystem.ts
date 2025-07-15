@@ -25,7 +25,7 @@ export class FormationSystem {
     this.moveTimer += deltaTime;
     
     // 移動間隔に達したら編隊移動
-    if (this.moveTimer >= this.moveInterval) {
+    if (this.moveTimer >= this.getEffectiveMoveInterval()) {
       this.moveTimer = 0;
       this.moveFormation(canvasWidth);
     }
@@ -59,11 +59,19 @@ export class FormationSystem {
   }
 
   private moveHorizontal(): void {
+    // 基本移動スピードを使用（距離は変更しない）
     for (const enemy of this.enemies) {
       if (enemy.isActive) {
         enemy.x += this.direction * this.speed;
       }
     }
+  }
+  
+  // 敵の強化状態を考慮した移動間隔を取得
+  private getEffectiveMoveInterval(): number {
+    const activeEnemies = this.enemies.filter(enemy => enemy.isActive);
+    const enemyCountBoost = activeEnemies.length <= 20;
+    return enemyCountBoost ? this.moveInterval * 0.5 : this.moveInterval;
   }
 
   private dropFormation(): void {
