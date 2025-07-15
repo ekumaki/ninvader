@@ -111,11 +111,17 @@ export class Player extends BaseEntity {
   private loadAutoMode(): void {
     const savedAutoMode = localStorage.getItem('ninvader_auto_mode');
     this.autoMode = savedAutoMode === 'true';
+    console.log('Player loadAutoMode:', {
+      savedAutoMode,
+      autoMode: this.autoMode,
+      localStorageValue: localStorage.getItem('ninvader_auto_mode')
+    });
   }
   
   // オートモード設定を更新（外部から呼び出し用）
   updateAutoMode(): void {
     this.loadAutoMode();
+    console.log('Player updateAutoMode called, autoMode:', this.autoMode);
   }
   
   // オートモード状態を取得
@@ -183,6 +189,7 @@ export class Player extends BaseEntity {
     
     // 一定間隔で自動射撃
     if (this.autoShootTimer >= this.autoShootInterval && this.canShoot) {
+      console.log('Player: AUTO shooting triggered');
       this.shoot();
       this.autoShootTimer = 0;
     }

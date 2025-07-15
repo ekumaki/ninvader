@@ -81,7 +81,8 @@ export class Boss extends BaseEntity {
       single: 0,
       spread: 0,
       homing: 0,
-      special: 0
+      special: 0,
+      explosive: 0
     };
   }
 
@@ -170,8 +171,26 @@ export class Boss extends BaseEntity {
         this.shootKohakuWave();
         this.attackCooldowns.single = 1.75 + Math.random() * 0.5; // 1.75-2.25秒のランダム間隔
       }
+    } else if (this.type === 'C') {
+      // 鬼（ボスC）HP50%以上：単発弾50%確率 + 拡散弾確実発射
+      if (this.attackCooldowns.single <= 0) {
+        if (Math.random() < 0.5) {
+          this.shootSingle();
+          console.log('鬼（ボスC）HP50%以上：単発弾発射');
+        } else {
+          console.log('鬼（ボスC）HP50%以上：単発弾発射スキップ（確率）');
+        }
+        this.attackCooldowns.single = 1.0; // 1.0秒間隔
+      }
+      
+      // 拡散弾攻撃（確実発射）
+      if (this.attackCooldowns.spread <= 0) {
+        this.shootSpread();
+        console.log('鬼（ボスC）HP50%以上：拡散弾発射');
+        this.attackCooldowns.spread = 1.5; // 1.5秒間隔（変更）
+      }
     } else {
-      // 鬼（従来のボスA）：単発弾攻撃
+      // 従来のボスA：単発弾攻撃
       if (this.attackCooldowns.single <= 0) {
         this.shootSingle();
         this.attackCooldowns.single = this.config.ATTACKS.SINGLE.COOLDOWN;
@@ -204,8 +223,39 @@ export class Boss extends BaseEntity {
         this.shootHoming();
         this.attackCooldowns.homing = 2.0; // 2秒間隔で追尾弾（3秒から短縮）
       }
+    } else if (this.type === 'C') {
+      // 鬼（ボスC）HP50%以下：単発弾50%確率 + 拡散弾確実発射 + 爆発弾75%確率
+      
+      // 単発弾攻撃を追加
+      if (this.attackCooldowns.single <= 0) {
+        if (Math.random() < 0.5) {
+          this.shootSingle();
+          console.log('鬼（ボスC）HP50%以下：単発弾発射');
+        } else {
+          console.log('鬼（ボスC）HP50%以下：単発弾発射スキップ（確率）');
+        }
+        this.attackCooldowns.single = 1.0; // 1.0秒間隔
+      }
+      
+      // 拡散弾攻撃（確実発射）
+      if (this.attackCooldowns.spread <= 0) {
+        this.shootSpread();
+        console.log('鬼（ボスC）HP50%以下：拡散弾発射');
+        this.attackCooldowns.spread = 1.0; // 1.0秒間隔（変更）
+      }
+      
+      // 爆発弾攻撃（75%確率）
+      if (this.attackCooldowns.explosive <= 0) {
+        if (Math.random() < 0.75) {
+          this.shootExplosive();
+          console.log('鬼（ボスC）HP50%以下：爆発弾発射');
+        } else {
+          console.log('鬼（ボスC）HP50%以下：爆発弾発射スキップ（確率）');
+        }
+        this.attackCooldowns.explosive = 2.5; // 2.5秒間隔
+      }
     } else {
-      // 鬼（従来のボスC）：単発弾攻撃（頻度上昇）
+      // 従来のボスC：単発弾攻撃（頻度上昇）
       if (this.attackCooldowns.single <= 0) {
         this.shootSingle();
         this.attackCooldowns.single = this.config.ATTACKS.SINGLE.COOLDOWN * 0.7;
@@ -227,19 +277,22 @@ export class Boss extends BaseEntity {
 
 
   private shootSingle(): void {
+    // 鬼（ボスC）の場合は弾速を250px/sに変更
+    const bulletSpeed = this.type === 'C' ? 250 : this.config.ATTACKS.SINGLE.BULLET_SPEED;
+    
     const bullet = new Bullet(
       this.game,
       this.x,
       this.y + this.height / 2,
       Math.PI / 2, // 下方向
-      this.config.ATTACKS.SINGLE.BULLET_SPEED,
+      bulletSpeed,
       false, // 敵の弾
       `./src/assets/img/bullet/${this.config.BULLET_IMAGE}`
     );
     
     // 鬼（ボスC）の弾を大きくする
     if (this.type === 'C') {
-      bullet.setSize(18, 18); // 12pxから18pxに変更
+      bullet.setSize(24, 24); // 単発弾は24×24pxに変更
     }
     
     if (this.onBulletFired) {
@@ -249,8 +302,11 @@ export class Boss extends BaseEntity {
   }
 
   private shootSpread(): void {
-    const spreadAngle = this.config.ATTACKS.SPREAD.ANGLE_SPREAD;
+    // 鬼（ボスC）の場合は拡散角度を25度に変更
+    const spreadAngle = this.type === 'C' ? (25 * Math.PI) / 180 : this.config.ATTACKS.SPREAD.ANGLE_SPREAD;
     const bulletCount = 3;
+    // 鬼（ボスC）の場合は弾速を200px/sに変更
+    const bulletSpeed = this.type === 'C' ? 200 : this.config.ATTACKS.SPREAD.BULLET_SPEED;
     
     for (let i = 0; i < bulletCount; i++) {
       const angle = Math.PI / 2 + (i - 1) * spreadAngle;
@@ -260,14 +316,14 @@ export class Boss extends BaseEntity {
         this.x,
         this.y + this.height / 2,
         angle,
-        this.config.ATTACKS.SPREAD.BULLET_SPEED,
+        bulletSpeed,
         false, // 敵の弾
         `./src/assets/img/bullet/${this.config.BULLET_IMAGE}`
       );
       
       // 鬼（ボスC）の弾を大きくする
       if (this.type === 'C') {
-        bullet.setSize(18, 18); // 12pxから18pxに変更
+        bullet.setSize(18, 18);
       }
       
       if (this.onBulletFired) {
@@ -275,6 +331,32 @@ export class Boss extends BaseEntity {
       }
     }
     console.log(`Boss ${this.type} spread shot fired`);
+  }
+
+  private shootExplosive(): void {
+    // 爆発弾：まず大きい弾を下向きに発射
+    const explosiveBullet = new Bullet(
+      this.game,
+      this.x,
+      this.y + this.height / 2,
+      Math.PI / 2, // 下方向
+      150, // 150px/s
+      false, // 敵の弾
+      `./src/assets/img/bullet/${this.config.BULLET_IMAGE}`
+    );
+    
+    // 大きい弾（64×64）に設定
+    explosiveBullet.setSize(64, 64);
+    
+    // 爆発ギミック用のフラグを設定
+    const canvas = this.game.getCanvas();
+    explosiveBullet.setExplosiveGimmick(true, canvas.height * 0.4, this.onBulletFired);
+    
+    if (this.onBulletFired) {
+      this.onBulletFired(explosiveBullet);
+    }
+    
+    console.log(`Boss ${this.type} explosive shot fired`);
   }
   
   private shootBentenKunai(): void {

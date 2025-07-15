@@ -130,6 +130,7 @@ export class OptionScene extends BaseScene {
     // AUTOモードの設定を読み込み（localStorageから）
     const savedAutoMode = localStorage.getItem('ninvader_auto_mode');
     this.autoMode = savedAutoMode === 'true';
+    console.log('OptionScene loadCurrentSettings: autoMode loaded as', this.autoMode, 'from localStorage:', savedAutoMode);
   }
 
   onEnter(): void {
@@ -142,6 +143,9 @@ export class OptionScene extends BaseScene {
   onExit(): void {
     console.log('OptionScene: Exiting option scene');
     
+    // 設定を保存
+    this.saveSettings();
+    
     // イベントリスナーを削除
     this.removeMouseEvents();
   }
@@ -153,6 +157,7 @@ export class OptionScene extends BaseScene {
     
     // AUTOモードの設定を保存
     localStorage.setItem('ninvader_auto_mode', this.autoMode.toString());
+    console.log('OptionScene saveSettings: autoMode saved as', this.autoMode.toString());
     
     // 音量設定をlocalStorageに保存
     localStorage.setItem('ninvader_audio_settings', JSON.stringify({
@@ -253,6 +258,9 @@ export class OptionScene extends BaseScene {
       case 'autoMode':
         // AUTOモードのオン/オフ切り替え
         this.autoMode = !this.autoMode;
+        console.log('OptionScene adjustOption: autoMode changed to', this.autoMode);
+        // 即座に保存
+        localStorage.setItem('ninvader_auto_mode', this.autoMode.toString());
         break;
     }
   }
@@ -261,6 +269,9 @@ export class OptionScene extends BaseScene {
     const option = this.options[this.selectedOption];
     if (option.key === 'autoMode') {
       this.autoMode = !this.autoMode;
+      console.log('OptionScene selectOption: autoMode changed to', this.autoMode);
+      // 即座に保存
+      localStorage.setItem('ninvader_auto_mode', this.autoMode.toString());
     }
   }
   
@@ -285,6 +296,9 @@ export class OptionScene extends BaseScene {
           const switchWidth = 40;
           if (mouseX >= switchX && mouseX <= switchX + switchWidth) {
             this.autoMode = !this.autoMode;
+            console.log('OptionScene handleOptionClick: autoMode changed to', this.autoMode);
+            // 即座に保存
+            localStorage.setItem('ninvader_auto_mode', this.autoMode.toString());
           }
         } else {
           // 音量調節の四角形クリック
@@ -330,6 +344,9 @@ export class OptionScene extends BaseScene {
     
     // 操作説明描画
     this.renderInstructions(ctx, canvas);
+    
+    // バージョン情報描画
+    this.renderVersionInfo(ctx, canvas);
   }
 
   private renderBackground(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
@@ -489,5 +506,28 @@ export class OptionScene extends BaseScene {
     ctx.fillText('←→: 値調整', centerX, instructionY + 15);
     ctx.fillText('ENTER/SPACE: 決定', centerX, instructionY + 30);
     ctx.fillText('ESC: 戻る', centerX, instructionY + 45);
+  }
+
+  private renderVersionInfo(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
+    const centerX = canvas.width / 2;
+    const versionY = canvas.height - 60;
+    
+    ctx.fillStyle = '#888888';
+    ctx.font = '14px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`CNP インベーダー v${this.getVersion()}`, centerX, versionY);
+  }
+
+  private getVersion(): string {
+    // package.jsonのバージョン情報を取得
+    // 実際の実装では動的に取得するが、ここでは設定値から取得
+    try {
+      // 実際のプロジェクトでは、ビルド時にバージョン情報を埋め込む
+      // ここでは現在のバージョンを直接記述
+      return '0.2.13';
+    } catch (error) {
+      console.warn('バージョン情報の取得に失敗しました:', error);
+      return '0.2.x';
+    }
   }
 }

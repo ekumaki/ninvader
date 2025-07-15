@@ -314,6 +314,11 @@ export class GameScene extends BaseScene {
       this.addBullet(bullet);
     });
     
+    // オートモード設定を更新
+    console.log('GameScene initPlayer: about to call updateAutoMode');
+    this.player.updateAutoMode();
+    console.log('GameScene initPlayer: player autoMode is now', this.player.getAutoMode());
+    
     // Player initialized
   }
 

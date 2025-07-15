@@ -30,6 +30,11 @@ export class Bullet extends BaseEntity {
   private explosive: boolean = false; // 爆発弾
   private explosionRadius: number = 0; // 爆発範囲
   
+  // 爆発ギミック用プロパティ
+  private isExplosive: boolean = false; // 爆発ギミック弾
+  private explosionY: number = 0; // 爆発するY座標
+  private onBulletFired: ((bullet: Bullet) => void) | null = null; // 弾発射コールバック
+  
   // 追尾機能
   private homing: boolean = false; // 追尾機能有効/無効
   private homingStrength: number = 0.2; // 追尾強度（0.0-1.0）- 0.1から0.2に変更
@@ -86,6 +91,12 @@ export class Bullet extends BaseEntity {
 
   update(deltaTime: number): void {
     if (!this.isActive) return;
+    
+    // 爆発ギミックの処理
+    if (this.isExplosive && this.y >= this.explosionY) {
+      this.explode();
+      return;
+    }
     
     // 追尾機能の処理
     if (this.homing && !this.isPlayerBullet) {
@@ -186,6 +197,9 @@ export class Bullet extends BaseEntity {
     ) {
       this.isActive = false;
     }
+
+    // 軌跡エフェクトの更新
+    // 流れ星エフェクト関連のプロパティを削除します
   }
 
   render(ctx: CanvasRenderingContext2D): void {
@@ -261,6 +275,9 @@ export class Bullet extends BaseEntity {
         ctx.fill();
       }
     }
+
+    // 軌跡エフェクトの描画
+    // 流れ星エフェクト関連のプロパティを削除します
     
     ctx.restore();
   }
@@ -355,4 +372,54 @@ export class Bullet extends BaseEntity {
   getHoming(): boolean {
     return this.homing;
   }
+  
+  // 爆発ギミック用メソッド
+  setExplosiveGimmick(enabled: boolean, explosionY: number, onBulletFired: ((bullet: Bullet) => void) | null = null): void {
+    this.isExplosive = enabled;
+    this.explosionY = explosionY;
+    this.onBulletFired = onBulletFired;
+  }
+  
+  getExplosiveGimmick(): boolean {
+    return this.isExplosive;
+  }
+  
+  // 爆発処理
+  private explode(): void {
+    // 5発の小さい弾を下方向90度の範囲に発射
+    const bulletCount = 5;
+    const fragmentSpeed = 150;
+    const spreadAngle = (90 * Math.PI) / 180; // 90度をラジアンに変換
+    const startAngle = Math.PI / 2 - spreadAngle / 2; // 下方向を中心とした開始角度
+    
+    for (let i = 0; i < bulletCount; i++) {
+      const angle = startAngle + (spreadAngle * i) / (bulletCount - 1);
+      
+      const fragment = new Bullet(
+        this.game,
+        this.x,
+        this.y,
+        angle,
+        fragmentSpeed,
+        false, // 敵の弾
+        this.image.src
+      );
+      
+      // 小さい弾（18×18）に設定
+      fragment.setSize(18, 18);
+      
+      // ゲームに追加
+      if (this.onBulletFired) {
+        this.onBulletFired(fragment);
+      }
+    }
+    
+    // 元の弾を削除
+    this.isActive = false;
+    
+    console.log('Explosive bullet exploded into 5 fragments in 90-degree downward spread');
+  }
+
+  // セッターメソッド追加
+  // 流れ星エフェクト関連のプロパティを削除します
 }

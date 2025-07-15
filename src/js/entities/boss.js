@@ -26,10 +26,20 @@ export class Boss {
     this.isActive = true;
     
     // 攻撃パターン
-    this.attackPatterns = [
-      { name: 'single', cooldown: this.config.ATTACKS.SINGLE.COOLDOWN, timer: 0 },
-      { name: 'spread', cooldown: this.config.ATTACKS.SPREAD.COOLDOWN, timer: 2 }
-    ];
+    if (this.type === 'C') {
+      // 鬼（ボスC）の攻撃パターン
+      this.attackPatterns = [
+        { name: 'single', cooldown: 1.5, timer: 0 },     // 1.5秒間隔
+        { name: 'spread', cooldown: 2.0, timer: 0.5 },   // 2.0秒間隔
+        { name: 'explosive', cooldown: 5.0, timer: 2.0 } // 5.0秒間隔
+      ];
+    } else {
+      // 従来のボスA、Bの攻撃パターン
+      this.attackPatterns = [
+        { name: 'single', cooldown: this.config.ATTACKS.SINGLE.COOLDOWN, timer: 0 },
+        { name: 'spread', cooldown: this.config.ATTACKS.SPREAD.COOLDOWN, timer: 2 }
+      ];
+    }
     
     // 画像の読み込み
     this.image = new Image();
@@ -136,25 +146,87 @@ export class Boss {
     const gameScreen = this.game.screens['game'];
     if (!gameScreen) return;
     
-    switch (patternName) {
-      case 'single':
-        // 単発の岩弾
-        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2, this.config.ATTACKS.SINGLE.BULLET_SPEED);
-        break;
-        
-      case 'spread':
-        // 扇状に3発の岩弾
-        const spread = this.config.ATTACKS.SPREAD.ANGLE_SPREAD;
-        const speed = this.config.ATTACKS.SPREAD.BULLET_SPEED;
-        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 - spread, speed);
-        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2, speed);
-        this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 + spread, speed);
-        break;
+    // 鬼（ボスC）の場合の特別な攻撃パターン
+    if (this.type === 'C') {
+      const halfHealth = this.maxHealth / 2; // 30HP
+      console.log(`鬼（ボスC）攻撃: ${patternName}, HP: ${this.health}/${this.maxHealth}, 半分HP: ${halfHealth}`);
+      
+      if (this.health > halfHealth) {
+        // HP50%以上（30HP以上）
+        console.log('鬼（ボスC）HP50%以上フェーズ');
+        switch (patternName) {
+          case 'single':
+            // 単発弾：1.5秒間隔、250px/s、18×18px、50%確率
+            if (Math.random() < 0.5) {
+              console.log('鬼（ボスC）単発弾発射');
+              this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2, 250, 18);
+            } else {
+              console.log('鬼（ボスC）単発弾発射スキップ（確率）');
+            }
+            break;
+            
+          case 'spread':
+            // 拡散弾：2.0秒間隔、200px/s、通常サイズ、常時発射
+            console.log('鬼（ボスC）拡散弾発射');
+            const spread = this.config.ATTACKS.SPREAD.ANGLE_SPREAD;
+            const speed = 200;
+            this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 - spread, speed);
+            this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2, speed);
+            this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 + spread, speed);
+            break;
+        }
+      } else {
+        // HP50%以下（30HP未満）
+        console.log('鬼（ボスC）HP50%以下フェーズ');
+        switch (patternName) {
+          case 'single':
+            // 単発弾は削除（何もしない）
+            console.log('鬼（ボスC）単発弾削除（HP50%以下）');
+            break;
+            
+          case 'spread':
+            // 拡散弾：2.0秒間隔、200px/s、通常サイズ、確実発射
+            console.log('鬼（ボスC）拡散弾発射（HP50%以下）');
+            const spread = this.config.ATTACKS.SPREAD.ANGLE_SPREAD;
+            const speed = 200;
+            this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 - spread, speed);
+            this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2, speed);
+            this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 + spread, speed);
+            break;
+            
+          case 'explosive':
+            // 爆発弾：5.0秒間隔、80px/s、8発円形弾幕、18×18px、30%確率
+            if (Math.random() < 0.3) {
+              console.log('鬼（ボスC）爆発弾発射');
+              this.shootExplosiveBullets();
+            } else {
+              console.log('鬼（ボスC）爆発弾発射スキップ（確率）');
+            }
+            break;
+        }
+      }
+    } else {
+      // 従来のボスA、Bの攻撃パターン
+      switch (patternName) {
+        case 'single':
+          // 単発の岩弾
+          this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2, this.config.ATTACKS.SINGLE.BULLET_SPEED);
+          break;
+          
+        case 'spread':
+          // 扇状に3発の岩弾
+          const spread = this.config.ATTACKS.SPREAD.ANGLE_SPREAD;
+          const speed = this.config.ATTACKS.SPREAD.BULLET_SPEED;
+          this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 - spread, speed);
+          this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2, speed);
+          this.shootRockBullet(this.x, this.y + this.height / 2, Math.PI / 2 + spread, speed);
+          break;
+      }
     }
   }
-  
+
   // 岩弾の発射
-  shootRockBullet(x, y, angle = Math.PI / 2, speed = 150) {
+  shootRockBullet(x, y, angle = Math.PI / 2, speed = 150, size = 16) {
     // 弾の生成
     const bullet = new EnemyBullet(
       this.game,
@@ -165,8 +237,8 @@ export class Boss {
     );
     
     // 岩弾の特性
-    bullet.width = 16;
-    bullet.height = 16;
+    bullet.width = size;
+    bullet.height = size;
     bullet.color = null; // 色を使わない
     bullet.image = this.rockBulletImage; // 画像を使用
     
@@ -174,6 +246,18 @@ export class Boss {
     const gameScreen = this.game.screens['game'];
     if (gameScreen) {
       gameScreen.addEnemyBullet(bullet);
+    }
+  }
+
+  // 爆発弾の発射（8発円形弾幕）
+  shootExplosiveBullets() {
+    const bulletCount = 8;
+    const speed = 80;
+    const size = 18;
+    
+    for (let i = 0; i < bulletCount; i++) {
+      const angle = (Math.PI * 2 * i) / bulletCount;
+      this.shootRockBullet(this.x, this.y + this.height / 2, angle, speed, size);
     }
   }
   

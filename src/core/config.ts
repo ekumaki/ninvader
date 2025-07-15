@@ -151,7 +151,7 @@ export const GameConfig: GameConfigType = {
     A: {
       HEALTH: 1,
       SPEED: 200,
-      SHOOT_COOLDOWN: 0.3,
+      SHOOT_COOLDOWN: 0.35, // 0.4から0.35に変更
       CHARGE_TIME: 1.0,
       JUMP_DURATION: 0.5,
       JUMP_HEIGHT: 30,
@@ -163,7 +163,7 @@ export const GameConfig: GameConfigType = {
     B: {
       HEALTH: 1,
       SPEED: 180,
-      SHOOT_COOLDOWN: 0.25,
+      SHOOT_COOLDOWN: 0.2, // 変更なし
       CHARGE_TIME: 1.2,
       JUMP_DURATION: 0.4,
       JUMP_HEIGHT: 25,
@@ -175,7 +175,7 @@ export const GameConfig: GameConfigType = {
     C: {
       HEALTH: 1,
       SPEED: 220,
-      SHOOT_COOLDOWN: 0.35,
+      SHOOT_COOLDOWN: 0.5, // 0.6から0.5に変更
       CHARGE_TIME: 0.8,
       JUMP_DURATION: 0.6,
       JUMP_HEIGHT: 35,

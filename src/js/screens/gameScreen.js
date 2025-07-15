@@ -234,7 +234,7 @@ export class GameScreen {
       this.bossSpawnTimer += deltaTime;
       // 3.5秒経過したらボスを出現させる
       if (this.bossSpawnTimer >= 3.5) {
-        this.boss = new Boss(this.game);
+        this.boss = new Boss(this.game, 3, 'C'); // 鬼（ボスC）を出現させる
         this.bossSpawnScheduled = false;
         this.bossSpawnTimer = 0;
         // 警告メッセージを必ず削除
