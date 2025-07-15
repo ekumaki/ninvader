@@ -4,7 +4,134 @@
  * SPDX-License-Identifier: MIT
  */
 
-export const GameConfig = {
+export interface PlayerConfig {
+  HEALTH: number;
+  SPEED: number;
+  SHOOT_COOLDOWN: number;
+  CHARGE_TIME: number;
+  JUMP_DURATION: number;
+  JUMP_HEIGHT: number;
+  MAX_SPECIAL_USES: number;
+  SPECIAL_BULLET_SPEED: number;
+  SIZE: { WIDTH: number; HEIGHT: number };
+  IMAGE: string;
+}
+
+export interface EnemyConfig {
+  HEALTH: number;
+  SPEED: number;
+  DROP_DISTANCE: number;
+  EDGE_MARGIN: number;
+  SHOOT_PROBABILITY: number;
+  SHOOT_COOLDOWN: number;
+  BULLET_SPEED: number;
+  POINTS: number;
+  SIZE: { WIDTH: number; HEIGHT: number };
+  IMAGE: string;
+}
+
+export interface BossAttackConfig {
+  COOLDOWN: number;
+  COOLDOWN_RANDOM?: number; // ランダム間隔の幅
+  BULLET_SPEED: number;
+  ANGLE_SPREAD?: number;
+  HOMING_STRENGTH?: number; // 追尾強度（0-1）
+}
+
+export interface BossConfig {
+  HEALTH: number;
+  MAX_HEALTH: number;
+  SPEED: number;
+  SPAWN_TIME: number;
+  POINTS: number;
+  SIZE: { WIDTH: number; HEIGHT: number };
+  IMAGE: string;
+  BULLET_IMAGE: string;
+  ATTACKS: {
+    SINGLE: BossAttackConfig;
+    SPREAD: BossAttackConfig;
+    HOMING?: BossAttackConfig;
+    EXPLOSIVE?: BossAttackConfig;
+  };
+}
+
+export interface GameConfigType {
+  VERSION: string;
+  CANVAS_WIDTH: number;
+  CANVAS_HEIGHT: number;
+  TARGET_FPS: number;
+  
+  SCORE: {
+    ENEMY_KILL: number;
+    UFO_KILL: number;
+    BOSS_KILL: number;
+    STAGE_CLEAR: number;
+  };
+  
+  PLAYER: {
+    A: PlayerConfig;
+    B: PlayerConfig;
+    C: PlayerConfig;
+  };
+  
+  ENEMY: {
+    A: EnemyConfig;
+    B: EnemyConfig;
+    C: EnemyConfig;
+    FORMATION: {
+      SPEED: number;
+      INTERVAL: number;
+    };
+  };
+  
+  UFO: {
+    SPAWN_INTERVAL: number;
+    SPEED: number;
+  };
+  
+  BOSS: {
+    A: BossConfig;
+    B: BossConfig;
+    C: BossConfig;
+  };
+  
+  BULLET: {
+    PLAYER_SPEED: number;
+    ENEMY_SPEED: number;
+    SPECIAL_SPEED: number;
+  };
+  
+  UI: {
+    VERSION_FONT_SIZE: string;
+    VERSION_COLOR: string;
+    SCORE_FONT_SIZE: string;
+    HIGHSCORE_COLOR: string;
+    SHOW_HIGH_SCORE: boolean;
+  };
+  
+  AUDIO: {
+    ENABLED: boolean;
+    MASTER_VOLUME: number;
+    SFX_VOLUME: number;
+    MUSIC_VOLUME: number;
+  };
+  
+  COLLISION: {
+    GAME_OVER_THRESHOLD: number;
+    ADJUSTMENT_FACTOR: number;
+  };
+  
+  DEBUG: {
+    GOD_MODE: boolean;
+    SHOW_INFO: boolean;
+    ENABLED: boolean;
+    STAGE_SELECT: boolean;
+    BOSS_SELECT: boolean;
+    SKIP_TITLE: boolean;
+  };
+}
+
+export const GameConfig: GameConfigType = {
   // ゲームバージョン
   VERSION: '0.2.13',
   CANVAS_WIDTH: 360,
@@ -28,7 +155,7 @@ export const GameConfig = {
       CHARGE_TIME: 1.0,
       JUMP_DURATION: 0.5,
       JUMP_HEIGHT: 30,
-      MAX_SPECIAL_USES: 5,
+      MAX_SPECIAL_USES: 9,
       SPECIAL_BULLET_SPEED: 600,
       SIZE: { WIDTH: 48, HEIGHT: 72 },
       IMAGE: 'player_A_back.png'
@@ -40,10 +167,10 @@ export const GameConfig = {
       CHARGE_TIME: 1.2,
       JUMP_DURATION: 0.4,
       JUMP_HEIGHT: 25,
-      MAX_SPECIAL_USES: 7,
+      MAX_SPECIAL_USES: 9,
       SPECIAL_BULLET_SPEED: 500,
       SIZE: { WIDTH: 48, HEIGHT: 72 },
-      IMAGE: 'player_B_back.png'
+      IMAGE: 'player_A_back.png' // 暫定的にプレイヤーAの画像を使用
     },
     C: {
       HEALTH: 1,
@@ -52,10 +179,10 @@ export const GameConfig = {
       CHARGE_TIME: 0.8,
       JUMP_DURATION: 0.6,
       JUMP_HEIGHT: 35,
-      MAX_SPECIAL_USES: 3,
+      MAX_SPECIAL_USES: 9,
       SPECIAL_BULLET_SPEED: 700,
       SIZE: { WIDTH: 48, HEIGHT: 72 },
-      IMAGE: 'player_C_back.png'
+      IMAGE: 'player_A_back.png' // 暫定的にプレイヤーAの画像を使用
     }
   },
   
@@ -83,7 +210,7 @@ export const GameConfig = {
       BULLET_SPEED: 180,
       POINTS: 150,
       SIZE: { WIDTH: 48, HEIGHT: 48 },
-      IMAGE: 'enemy_02.png'
+      IMAGE: 'enemy_01.png' // 暫定的にenemy_01.pngを使用
     },
     C: {
       HEALTH: 2,
@@ -95,7 +222,7 @@ export const GameConfig = {
       BULLET_SPEED: 120,
       POINTS: 200,
       SIZE: { WIDTH: 48, HEIGHT: 48 },
-      IMAGE: 'enemy_03.png'
+      IMAGE: 'enemy_01.png' // 暫定的にenemy_01.pngを使用
     },
     // 編隊設定（共通）
     FORMATION: {
@@ -120,7 +247,7 @@ export const GameConfig = {
       POINTS: 1000,
       SIZE: { WIDTH: 48, HEIGHT: 72 },
       IMAGE: 'boss_stage1.png',
-      BULLET_IMAGE: 'enemy_rock.png',
+      BULLET_IMAGE: 'boss_A_bullet.png',
       ATTACKS: {
         SINGLE: {
           COOLDOWN: 1.5,
@@ -141,16 +268,20 @@ export const GameConfig = {
       POINTS: 1500,
       SIZE: { WIDTH: 48, HEIGHT: 72 },
       IMAGE: 'boss_stage2.png',
-      BULLET_IMAGE: 'enemy_fire.png',
+      BULLET_IMAGE: 'boss_B_bullet.png',
       ATTACKS: {
         SINGLE: {
-          COOLDOWN: 1.2,
-          BULLET_SPEED: 180
+          COOLDOWN: 1.875,
+          COOLDOWN_RANDOM: 0.25, // 1.75-2.0秒の範囲
+          BULLET_SPEED: 180,
+          HOMING_STRENGTH: 0.3 // 弱めの追尾
         },
         SPREAD: {
-          COOLDOWN: 3.5,
+          COOLDOWN: 1.625,
+          COOLDOWN_RANDOM: 0.25, // 1.5-1.75秒の範囲
           BULLET_SPEED: 180,
-          ANGLE_SPREAD: 0.4
+          ANGLE_SPREAD: 0.5, // 50度相当
+          HOMING_STRENGTH: 0.2 // 適度な追尾（0.1から0.2に変更）
         },
         HOMING: {
           COOLDOWN: 6,
@@ -166,7 +297,7 @@ export const GameConfig = {
       POINTS: 2000,
       SIZE: { WIDTH: 128, HEIGHT: 128 },
       IMAGE: 'boss_stage3.png',
-      BULLET_IMAGE: 'enemy_thunder.png',
+      BULLET_IMAGE: 'boss_C_bullet.png',
       ATTACKS: {
         SINGLE: {
           COOLDOWN: 1.0,
@@ -222,6 +353,10 @@ export const GameConfig = {
   // デバッグ設定
   DEBUG: {
     GOD_MODE: true, // trueでプレイヤー無敵
-    SHOW_INFO: false // trueでデバッグ情報表示
+    SHOW_INFO: true, // trueでデバッグ情報表示
+    ENABLED: true, // デバッグモード全体の有効/無効
+    STAGE_SELECT: true, // ステージセレクト機能
+    BOSS_SELECT: true, // ボスセレクト機能
+    SKIP_TITLE: false // タイトル画面をスキップしてゲーム開始
   }
-}; 
+};

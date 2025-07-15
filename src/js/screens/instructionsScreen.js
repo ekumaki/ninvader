@@ -52,6 +52,43 @@ export class InstructionsScreen {
     // バージョン表示
     this.versionDisplay = UIUtils.createVersionDisplay();
     document.body.appendChild(this.versionDisplay);
+    
+    // タイトルに戻るボタンを追加
+    this.createBackButton();
+  }
+  
+  // タイトルに戻るボタンの作成
+  createBackButton() {
+    const backButton = document.createElement('button');
+    backButton.textContent = 'タイトルにもどる';
+    backButton.style.position = 'fixed';
+    backButton.style.bottom = '50px';
+    backButton.style.left = '50%';
+    backButton.style.transform = 'translateX(-50%)';
+    backButton.style.padding = '10px 20px';
+    backButton.style.fontSize = '16px';
+    backButton.style.backgroundColor = '#333';
+    backButton.style.color = '#FFF';
+    backButton.style.border = '1px solid #666';
+    backButton.style.borderRadius = '5px';
+    backButton.style.cursor = 'pointer';
+    backButton.style.zIndex = '1000';
+    
+    // ホバー効果
+    backButton.addEventListener('mouseenter', () => {
+      backButton.style.backgroundColor = '#555';
+    });
+    backButton.addEventListener('mouseleave', () => {
+      backButton.style.backgroundColor = '#333';
+    });
+    
+    // クリックイベント
+    backButton.addEventListener('click', () => {
+      this.game.switchScreen('title');
+    });
+    
+    document.body.appendChild(backButton);
+    this.backButton = backButton;
   }
   
   // UI要素の削除
