@@ -4,14 +4,15 @@
  * SPDX-License-Identifier: MIT
  */
 
-export class UFO {
-  constructor(game, y) {
+export class Ufo {
+  constructor(game, x, y, direction = 1) {
     this.game = game;
-    this.x = -32; // 画面外から登場
+    this.x = x;
     this.y = y;
     this.width = 64;
     this.height = 32;
     this.speed = 100; // 移動速度
+    this.direction = direction;
     
     // 通常50%、レア50%の確率で決定（テスト用）
     this.isRare = Math.random() < 0.5;
@@ -21,7 +22,6 @@ export class UFO {
     
     this.health = 1;
     this.isActive = true;
-    this.direction = 1; // 1: 右, -1: 左
     
     console.log(`UFO created: ${this.isRare ? 'レア' : '通常'} (${this.points}点)`);
     

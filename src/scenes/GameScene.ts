@@ -842,6 +842,10 @@ export class GameScene extends BaseScene {
     
     this.ufo = new Ufo(this.game, x, y, direction);
     console.log('UFO spawned!');
+    console.log('UFO object:', this.ufo);
+    console.log('UFO has getIsRare method:', typeof this.ufo.getIsRare);
+    console.log('UFO has getPoints method:', typeof this.ufo.getPoints);
+    console.log('UFO constructor name:', this.ufo.constructor.name);
   }
 
   private spawnBoss(): void {
