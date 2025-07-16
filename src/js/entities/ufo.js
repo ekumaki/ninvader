@@ -12,10 +12,18 @@ export class UFO {
     this.width = 64;
     this.height = 32;
     this.speed = 100; // 移動速度
-    this.points = 500; // 倒した時の得点
+    
+    // 通常50%、レア50%の確率で決定（テスト用）
+    this.isRare = Math.random() < 0.5;
+    
+    // レア状態に応じてポイントを設定
+    this.points = this.isRare ? 1000 : 200;
+    
     this.health = 1;
     this.isActive = true;
     this.direction = 1; // 1: 右, -1: 左
+    
+    console.log(`UFO created: ${this.isRare ? 'レア' : '通常'} (${this.points}点)`);
     
     // 出現タイミング
     this.appearanceInterval = 10; // 出現間隔（秒）
@@ -24,12 +32,18 @@ export class UFO {
     // 画像の読み込み
     this.image = new Image();
     this.image.onload = () => {
-      console.log('UFO画像の読み込みに成功しました');
+      console.log(`${this.isRare ? 'レア' : '通常'}UFO画像の読み込みに成功しました`);
     };
     this.image.onerror = () => {
-      console.error('UFO画像の読み込みに失敗しました');
+      console.error(`${this.isRare ? 'レア' : '通常'}UFO画像の読み込みに失敗しました`);
     };
-    this.image.src = './src/assets/img/enemy/ufo_bonus.png';
+    // レア状態に応じて画像を選択
+    const imagePath = this.isRare 
+      ? './src/assets/img/enemy/ufo_bonus_rare.png'
+      : './src/assets/img/enemy/ufo_bonus.png';
+    
+    console.log(`Loading UFO image: ${imagePath}`);
+    this.image.src = imagePath;
     
     // アニメーション関連
     this.currentFrame = 0;
@@ -116,5 +130,15 @@ export class UFO {
     }
     
     return null;
+  }
+  
+  // レアUFOかどうかを取得
+  getIsRare() {
+    return this.isRare;
+  }
+  
+  // ポイントを取得
+  getPoints() {
+    return this.points;
   }
 }
