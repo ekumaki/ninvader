@@ -13,9 +13,16 @@ export class ScoreManager {
    * @param points 加算するポイント
    */
   addScore(points: number): void {
-    if (points <= 0) return;
+    console.log(`addScore called with points: ${points}`);
+    if (points <= 0) {
+      console.log('Points <= 0, returning');
+      return;
+    }
     
+    const oldScore = this.currentScore;
     this.currentScore += points;
+    console.log(`Score updated: ${oldScore} -> ${this.currentScore}`);
+    
     this.notifyScoreUpdate();
     
     console.log(`Score added: +${points}, Total: ${this.currentScore}`);
@@ -61,8 +68,10 @@ export class ScoreManager {
    * スコア更新を通知する
    */
   private notifyScoreUpdate(): void {
-    this.scoreUpdateCallbacks.forEach(callback => {
+    console.log(`notifyScoreUpdate called, callbacks: ${this.scoreUpdateCallbacks.length}`);
+    this.scoreUpdateCallbacks.forEach((callback, index) => {
       try {
+        console.log(`Calling callback ${index} with score: ${this.currentScore}`);
         callback(this.currentScore);
       } catch (error) {
         console.error('Error in score update callback:', error);

@@ -64,7 +64,7 @@ export class GameScene extends BaseScene {
   
   // UFO出現制御
   private ufoSpawnTimer = 0;
-  private ufoSpawnInterval = 10; // 10秒間隔でUFO出現チャンス（頻度を倍増）
+  private ufoSpawnInterval = 3; // 3秒間隔でUFO出現チャンス（テスト用に高頻度）
   
   // 演出用アニメーション
   private celebrationTimer = 0;
@@ -601,9 +601,11 @@ export class GameScene extends BaseScene {
         this.playerBullets,
         [this.ufo],
         (bullet, ufo) => {
+          console.log('UFO hit detected!');
           bullet.isActive = false;
           if (ufo.takeDamage(1)) {
             // UFOが倒された
+            console.log('UFO destroyed, calling onUfoDestroyed');
             this.onUfoDestroyed(ufo);
           }
         }
@@ -819,8 +821,8 @@ export class GameScene extends BaseScene {
     
     // 一定間隔でUFO出現チャンス
     if (this.ufoSpawnTimer >= this.ufoSpawnInterval) {
-      // 50%の確率でUFO出現（確率を上昇）
-      if (Math.random() < 0.5) {
+      // 90%の確率でUFO出現（テスト用に高確率）
+      if (Math.random() < 0.9) {
         this.spawnUfo();
       }
       this.ufoSpawnTimer = 0;
