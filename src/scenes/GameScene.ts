@@ -659,9 +659,14 @@ export class GameScene extends BaseScene {
       // スコア加算
       const isRare = ufo.getIsRare();
       const points = ufo.getPoints();
+      console.log('=== UFO DESTROYED ===');
       console.log('UFO destroyed, points:', points, 'rare:', isRare);
+      console.log('Current score before:', this.game.getScoreManager().getCurrentScore());
       
       this.game.getScoreManager().addUfoKillScore(isRare);
+      
+      console.log('Current score after:', this.game.getScoreManager().getCurrentScore());
+      console.log('=== END UFO DESTROYED ===');
       
       // エフェクト再生
       // TODO: AudioManager実装後に追加
