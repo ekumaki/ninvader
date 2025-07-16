@@ -210,6 +210,8 @@ export class GameScene extends BaseScene {
   }
 
   onEnter(): void {
+    // スコアをリセット
+    this.game.getScoreManager().resetScore();
     this.initializeGame();
   }
 
@@ -636,7 +638,7 @@ export class GameScene extends BaseScene {
 
   private onEnemyDestroyed(enemy: Enemy): void {
     // スコア加算
-    // TODO: ScoreManager実装後に追加
+    this.game.getScoreManager().addEnemyKillScore();
     
     // エフェクト再生
     // TODO: AudioManager実装後に追加
@@ -644,7 +646,7 @@ export class GameScene extends BaseScene {
 
   private onBossDestroyed(boss: Boss): void {
     // スコア加算
-    // TODO: ScoreManager実装後に追加
+    this.game.getScoreManager().addBossKillScore(boss.getType() as 'A' | 'B' | 'C');
     
     // エフェクト再生
     // TODO: AudioManager実装後に追加
@@ -652,8 +654,8 @@ export class GameScene extends BaseScene {
 
   private onUfoDestroyed(ufo: Ufo): void {
     // スコア加算
-    // TODO: ScoreManager実装後に追加
-    console.log('UFO destroyed, points:', ufo.getPoints());
+    this.game.getScoreManager().addUfoKillScore(ufo.getIsRare());
+    console.log('UFO destroyed, points:', ufo.getPoints(), 'rare:', ufo.getIsRare());
     
     // エフェクト再生
     // TODO: AudioManager実装後に追加
@@ -916,7 +918,7 @@ export class GameScene extends BaseScene {
     // スコア表示
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '16px monospace';
-    ctx.fillText('SCORE: 0', 10, 30);
+    ctx.fillText(`SCORE: ${this.game.getScoreManager().getCurrentScore()}`, 10, 30);
     
     // ステージ表示
     ctx.fillStyle = '#FFD700';

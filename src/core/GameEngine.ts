@@ -1,4 +1,5 @@
 import type { Scene, GameConfig } from './types';
+import { ScoreManager } from '../managers/ScoreManager';
 
 export class GameEngine {
   private canvas: HTMLCanvasElement;
@@ -9,6 +10,7 @@ export class GameEngine {
   private lastTime = 0;
   private isRunning = false;
   private gameConfig: GameConfig;
+  private scoreManager: ScoreManager;
 
   constructor(canvas: HTMLCanvasElement, gameConfig: GameConfig) {
     this.canvas = canvas;
@@ -23,6 +25,9 @@ export class GameEngine {
     // Set canvas size
     this.canvas.width = gameConfig.CANVAS_WIDTH;
     this.canvas.height = gameConfig.CANVAS_HEIGHT;
+    
+    // Initialize ScoreManager
+    this.scoreManager = new ScoreManager();
   }
 
   addScene(name: string, scene: Scene): void {
@@ -140,6 +145,10 @@ export class GameEngine {
 
   getConfig(): GameConfig {
     return this.gameConfig;
+  }
+
+  getScoreManager(): ScoreManager {
+    return this.scoreManager;
   }
 
   getScene(name: string): Scene | undefined {
