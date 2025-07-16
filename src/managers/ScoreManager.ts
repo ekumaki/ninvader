@@ -96,7 +96,14 @@ export class ScoreManager {
    * @param isRare レアUFOかどうか
    */
   addUfoKillScore(isRare: boolean): void {
-    const points = isRare ? 1000 : 200;
-    this.addScore(points);
+    try {
+      const points = isRare ? 1000 : 200;
+      console.log(`UFO score added: ${points} points (rare: ${isRare})`);
+      this.addScore(points);
+    } catch (error) {
+      console.error('Error in addUfoKillScore:', error);
+      // フォールバック: 通常UFOとして扱う
+      this.addScore(200);
+    }
   }
 } 

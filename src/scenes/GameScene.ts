@@ -653,12 +653,19 @@ export class GameScene extends BaseScene {
   }
 
   private onUfoDestroyed(ufo: Ufo): void {
-    // スコア加算
-    this.game.getScoreManager().addUfoKillScore(ufo.getIsRare());
-    console.log('UFO destroyed, points:', ufo.getPoints(), 'rare:', ufo.getIsRare());
-    
-    // エフェクト再生
-    // TODO: AudioManager実装後に追加
+    try {
+      // スコア加算
+      const isRare = ufo.getIsRare();
+      const points = ufo.getPoints();
+      console.log('UFO destroyed, points:', points, 'rare:', isRare);
+      
+      this.game.getScoreManager().addUfoKillScore(isRare);
+      
+      // エフェクト再生
+      // TODO: AudioManager実装後に追加
+    } catch (error) {
+      console.error('Error in onUfoDestroyed:', error);
+    }
   }
 
   private onPlayerDestroyed(): void {
