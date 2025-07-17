@@ -390,14 +390,14 @@ export class GameScene extends BaseScene {
   }
 
   private getEnemyTypeForStage(stage: number): 'A' | 'B' | 'C' {
-    // 各ステージで敵タイプのバリエーションを作る
+    // 各ステージで特定の敵タイプのみ出現
     switch (stage) {
       case 1:
-        return 'A'; // 緑の敵（基本タイプ）
+        return 'A'; // ステージ1：敵A (enemy_01.png) のみ
       case 2:
-        return Math.random() < 0.7 ? 'A' : 'B'; // 紫：70% A、30% B
+        return 'B'; // ステージ2：敵B (enemy_02.png) のみ
       case 3:
-        return Math.random() < 0.5 ? 'B' : 'C'; // オレンジ：50% B、50% C
+        return 'C'; // ステージ3：敵C (enemy_03.png) のみ
       default:
         return 'A';
     }
