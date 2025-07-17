@@ -215,7 +215,9 @@ export class Enemy extends BaseEntity {
   }
 
   private applyStageColorFilter(ctx: CanvasRenderingContext2D): void {
-    // ステージに応じた色フィルター
+    // ステージごとに異なる敵タイプを使用するため、色フィルターは無効化
+    // 各敵タイプが独自の画像を持つため、フィルターは不要
+    /*
     switch (this.stage) {
       case 1:
         // 緑 - フィルターなし
@@ -229,6 +231,7 @@ export class Enemy extends BaseEntity {
         ctx.filter = 'hue-rotate(30deg) saturate(1.5) brightness(1.1)';
         break;
     }
+    */
   }
 
   private getStageColor(): string {
