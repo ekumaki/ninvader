@@ -9,16 +9,22 @@ export class Ufo {
     this.game = game;
     this.x = x;
     this.y = y;
-    this.width = 64;
-    this.height = 32;
     this.speed = 100; // 移動速度
     this.direction = direction;
     
     // 通常50%、レア50%の確率で決定（テスト用）
     this.isRare = Math.random() < 0.5;
     
-    // レア状態に応じてポイントを設定
-    this.points = this.isRare ? 1000 : 200;
+    // レア状態に応じてサイズとポイントを設定
+    if (this.isRare) {
+      this.width = 48;
+      this.height = 48;
+      this.points = 1000;
+    } else {
+      this.width = 64;
+      this.height = 32;
+      this.points = 200;
+    }
     
     this.health = 1;
     this.isActive = true;

@@ -13,7 +13,7 @@ import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { Bullet } from '../entities/Bullet';
 import { Boss } from '../entities/Boss';
-import { Ufo } from '../entities/Ufo';
+import { Ufo } from '../js/entities/ufo.js';
 import { FormationSystem } from '../systems/FormationSystem';
 
 export class GameScene extends BaseScene {
@@ -846,6 +846,13 @@ export class GameScene extends BaseScene {
     console.log('UFO has getIsRare method:', typeof this.ufo.getIsRare);
     console.log('UFO has getPoints method:', typeof this.ufo.getPoints);
     console.log('UFO constructor name:', this.ufo.constructor.name);
+    
+    // TypeScriptファイルが使用されているかテスト
+    if (typeof (this.ufo as any).isTypeScriptVersion === 'function') {
+      console.log('TypeScript UFO file is being used!');
+    } else {
+      console.log('JavaScript UFO file is being used!');
+    }
   }
 
   private spawnBoss(): void {
