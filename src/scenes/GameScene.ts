@@ -391,16 +391,22 @@ export class GameScene extends BaseScene {
 
   private getEnemyTypeForStage(stage: number): 'A' | 'B' | 'C' {
     // 各ステージで特定の敵タイプのみ出現
+    let enemyType: 'A' | 'B' | 'C';
     switch (stage) {
       case 1:
-        return 'A'; // ステージ1：敵A (enemy_01.png) のみ
+        enemyType = 'A'; // ステージ1：敵A (enemy_01.png) のみ
+        break;
       case 2:
-        return 'B'; // ステージ2：敵B (enemy_02.png) のみ
+        enemyType = 'B'; // ステージ2：敵B (enemy_02.png) のみ
+        break;
       case 3:
-        return 'C'; // ステージ3：敵C (enemy_03.png) のみ
+        enemyType = 'C'; // ステージ3：敵C (enemy_03.png) のみ
+        break;
       default:
-        return 'A';
+        enemyType = 'A';
     }
+    console.log(`ステージ${stage}の敵タイプ:`, enemyType);
+    return enemyType;
   }
 
   private getStageColorName(): string {

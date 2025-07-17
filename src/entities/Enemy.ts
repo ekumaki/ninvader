@@ -126,13 +126,14 @@ export class Enemy extends BaseEntity {
 
   private loadImage(): void {
     this.image.onload = () => {
-      // Enemy image loaded
+      console.log(`敵${this.type}画像の読み込みに成功しました:`, this.config.IMAGE);
     };
     
     this.image.onerror = () => {
       console.error(`敵${this.type}画像の読み込みに失敗しました:`, this.config.IMAGE);
     };
     
+    console.log(`敵${this.type}の画像パスを設定:`, `./src/assets/img/enemy/${this.config.IMAGE}`);
     this.image.src = `./src/assets/img/enemy/${this.config.IMAGE}`;
   }
 
