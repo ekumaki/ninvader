@@ -210,7 +210,7 @@ export const GameConfig: GameConfigType = {
       BULLET_SPEED: 180,
       POINTS: 150,
       SIZE: { WIDTH: 48, HEIGHT: 48 },
-      IMAGE: 'enemy_01.png' // 暫定的にenemy_01.pngを使用
+      IMAGE: 'enemy_02.png'
     },
     C: {
       HEALTH: 2,
@@ -222,7 +222,7 @@ export const GameConfig: GameConfigType = {
       BULLET_SPEED: 120,
       POINTS: 200,
       SIZE: { WIDTH: 48, HEIGHT: 48 },
-      IMAGE: 'enemy_01.png' // 暫定的にenemy_01.pngを使用
+      IMAGE: 'enemy_03.png'
     },
     // 編隊設定（共通）
     FORMATION: {
