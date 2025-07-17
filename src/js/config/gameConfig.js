@@ -28,7 +28,7 @@ export const GameConfig = {
       CHARGE_TIME: 1.0,
       JUMP_DURATION: 0.5,
       JUMP_HEIGHT: 30,
-      MAX_SPECIAL_USES: 5,
+      MAX_SPECIAL_USES: 9,
       SPECIAL_BULLET_SPEED: 600,
       SIZE: { WIDTH: 48, HEIGHT: 72 },
       IMAGE: 'player_A_back.png'
@@ -40,7 +40,7 @@ export const GameConfig = {
       CHARGE_TIME: 1.2,
       JUMP_DURATION: 0.4,
       JUMP_HEIGHT: 25,
-      MAX_SPECIAL_USES: 7,
+      MAX_SPECIAL_USES: 9,
       SPECIAL_BULLET_SPEED: 500,
       SIZE: { WIDTH: 48, HEIGHT: 72 },
       IMAGE: 'player_B_back.png'
@@ -52,7 +52,7 @@ export const GameConfig = {
       CHARGE_TIME: 0.8,
       JUMP_DURATION: 0.6,
       JUMP_HEIGHT: 35,
-      MAX_SPECIAL_USES: 3,
+      MAX_SPECIAL_USES: 9,
       SPECIAL_BULLET_SPEED: 700,
       SIZE: { WIDTH: 48, HEIGHT: 72 },
       IMAGE: 'player_C_back.png'

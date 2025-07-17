@@ -64,7 +64,7 @@ export class GameScene extends BaseScene {
   
   // UFO出現制御
   private ufoSpawnTimer = 0;
-  private ufoSpawnInterval = 3; // 3秒間隔でUFO出現チャンス（テスト用に高頻度）
+  private ufoSpawnInterval = 5; // 5秒間隔でUFO出現チャンス
   
   // 演出用アニメーション
   private celebrationTimer = 0;
@@ -91,6 +91,9 @@ export class GameScene extends BaseScene {
     
     // マウスイベント設定
     this.setupMouseEvents();
+    
+    // 必殺技回復のコールバック設定
+    this.setupSpecialRecoveryCallback();
   }
   
   private setupMouseEvents(): void {
@@ -136,6 +139,16 @@ export class GameScene extends BaseScene {
           this.handleButtonClick(buttonName);
           break;
         }
+      }
+    });
+  }
+  
+  private setupSpecialRecoveryCallback(): void {
+    const scoreManager = this.game.getScoreManager();
+    scoreManager.onSpecialRecovery(() => {
+      if (this.player) {
+        this.player.recoverSpecialUse(1);
+        console.log('Special attack recovered due to score milestone!');
       }
     });
   }
@@ -309,7 +322,19 @@ export class GameScene extends BaseScene {
     const centerX = canvas.width / 2;
     const bottomY = canvas.height - 60; // 100から60に変更してプレイヤーを下げる
     
+    // 既存のプレイヤーの必殺技使用回数を保持
+    let currentSpecialUses = 0;
+    if (this.player && this.currentStage > 1) {
+      currentSpecialUses = this.player.getSpecialUses();
+      console.log(`Preserving special uses from previous stage: ${currentSpecialUses}`);
+    }
+    
     this.player = new Player(this.game, this.inputManager, centerX, bottomY, this.selectedShipType);
+    
+    // ステージ2以降では前のステージの使用回数を復元
+    if (this.currentStage > 1 && currentSpecialUses >= 0) {
+      this.player.setSpecialUses(currentSpecialUses);
+    }
     
     // 弾発射コールバック設定
     this.player.setBulletFiredCallback((bullet: Bullet) => {
@@ -764,6 +789,13 @@ export class GameScene extends BaseScene {
       this.showStageClear = true;
       this.stageClearTimer = 0;
     } else {
+      // 全ステージクリア時は必殺技使用回数を初期値に戻す
+      if (this.player) {
+        const initialUses = 5; // 初期値は5回
+        this.player.setSpecialUses(initialUses); // 初期値に戻す
+        console.log('All stages cleared! Special uses reset to initial value:', initialUses);
+      }
+      
       // 全ステージクリア - GameClearSceneに遷移
       // GameClearSceneにプレイヤー情報を渡す
       const gameClearScene = this.game.getScene('gameClear');
@@ -819,15 +851,15 @@ export class GameScene extends BaseScene {
   }
 
   private checkUfoSpawn(deltaTime: number): void {
-    // UFOが既に存在するか、ボス戦中は出現させない
-    if (this.ufo || this.boss) return;
+    // UFOが既に存在する場合は出現させない
+    if (this.ufo) return;
     
     this.ufoSpawnTimer += deltaTime;
     
     // 一定間隔でUFO出現チャンス
     if (this.ufoSpawnTimer >= this.ufoSpawnInterval) {
-      // 90%の確率でUFO出現（テスト用に高確率）
-      if (Math.random() < 0.9) {
+      // 70%の確率でUFO出現
+      if (Math.random() < 0.7) {
         this.spawnUfo();
       }
       this.ufoSpawnTimer = 0;

@@ -9,11 +9,11 @@ export class Ufo {
     this.game = game;
     this.x = x;
     this.y = y;
-    this.speed = 100; // 移動速度
+    this.speed = 80; // 移動速度（少し遅く調整）
     this.direction = direction;
     
-    // 通常50%、レア50%の確率で決定（テスト用）
-    this.isRare = Math.random() < 0.5;
+    // 通常80%、レア20%の確率で決定
+    this.isRare = Math.random() < 0.2;
     
     // レア状態に応じてサイズとポイントを設定
     if (this.isRare) {

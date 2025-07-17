@@ -81,7 +81,7 @@ export class Player extends BaseEntity {
     
     // 必殺技システム初期化
     this.specialChargeTime = this.config.CHARGE_TIME;
-    this.specialUses = this.config.MAX_SPECIAL_USES;
+    this.specialUses = 5; // 初期値は5回（最大は9回）
     
     // アニメーション初期化
     this.jumpDuration = this.config.JUMP_DURATION;
@@ -513,6 +513,30 @@ export class Player extends BaseEntity {
 
   getSpecialUses(): number {
     return this.specialUses;
+  }
+
+  /**
+   * 必殺技の使用回数を回復する
+   * @param amount 回復する回数（デフォルト: 1）
+   */
+  recoverSpecialUse(amount: number = 1): void {
+    const maxUses = this.config.MAX_SPECIAL_USES;
+    const oldUses = this.specialUses;
+    this.specialUses = Math.min(this.specialUses + amount, maxUses);
+    
+    if (this.specialUses > oldUses) {
+      console.log(`Special attack recovered: ${oldUses} -> ${this.specialUses} (max: ${maxUses})`);
+    }
+  }
+
+  /**
+   * 必殺技の使用回数を直接設定する
+   * @param uses 設定する使用回数
+   */
+  setSpecialUses(uses: number): void {
+    const maxUses = this.config.MAX_SPECIAL_USES;
+    this.specialUses = Math.max(0, Math.min(uses, maxUses));
+    console.log(`Special uses set to: ${this.specialUses} (max: ${maxUses})`);
   }
 
   getType(): string {

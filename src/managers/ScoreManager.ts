@@ -7,6 +7,8 @@
 export class ScoreManager {
   private currentScore: number = 0;
   private scoreUpdateCallbacks: ((score: number) => void)[] = [];
+  private lastSpecialRecoveryScore: number = 0; // 最後に必殺技回復したスコア
+  private specialRecoveryCallbacks: (() => void)[] = []; // 必殺技回復時のコールバック
 
   /**
    * スコアを加算する
@@ -22,6 +24,9 @@ export class ScoreManager {
     const oldScore = this.currentScore;
     this.currentScore += points;
     console.log(`Score updated: ${oldScore} -> ${this.currentScore}`);
+    
+    // 1000点ごとに必殺技回復をチェック
+    this.checkSpecialRecovery(oldScore, this.currentScore);
     
     this.notifyScoreUpdate();
     
@@ -114,5 +119,58 @@ export class ScoreManager {
       // フォールバック: 通常UFOとして扱う
       this.addScore(200);
     }
+  }
+
+  /**
+   * 1000点ごとに必殺技回復をチェックする
+   * @param oldScore 前のスコア
+   * @param newScore 新しいスコア
+   */
+  private checkSpecialRecovery(oldScore: number, newScore: number): void {
+    const RECOVERY_INTERVAL = 1000; // 1000点ごとに回復
+    
+    const oldThreshold = Math.floor(oldScore / RECOVERY_INTERVAL);
+    const newThreshold = Math.floor(newScore / RECOVERY_INTERVAL);
+    
+    if (newThreshold > oldThreshold) {
+      const recoveryCount = newThreshold - oldThreshold;
+      console.log(`Special recovery triggered! Score: ${newScore}, Recovery count: ${recoveryCount}`);
+      
+      for (let i = 0; i < recoveryCount; i++) {
+        this.notifySpecialRecovery();
+      }
+    }
+  }
+
+  /**
+   * 必殺技回復時のコールバックを登録する
+   * @param callback 必殺技回復時に呼び出される関数
+   */
+  onSpecialRecovery(callback: () => void): void {
+    this.specialRecoveryCallbacks.push(callback);
+  }
+
+  /**
+   * 必殺技回復時のコールバックを削除する
+   * @param callback 削除するコールバック関数
+   */
+  removeSpecialRecoveryCallback(callback: () => void): void {
+    const index = this.specialRecoveryCallbacks.indexOf(callback);
+    if (index > -1) {
+      this.specialRecoveryCallbacks.splice(index, 1);
+    }
+  }
+
+  /**
+   * 必殺技回復のコールバックを実行する
+   */
+  private notifySpecialRecovery(): void {
+    this.specialRecoveryCallbacks.forEach(callback => {
+      try {
+        callback();
+      } catch (error) {
+        console.error('Error in special recovery callback:', error);
+      }
+    });
   }
 } 
